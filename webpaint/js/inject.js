@@ -1649,6 +1649,7 @@ var getCSSAnimationManager = function () {
         );
       },
       init: function () {
+        // 여기 this는 401번 줄 e임.
         (this.history = new t()),
           (this.CSSAnimationManager = getCSSAnimationManager()),
           (this.setColorBinded = Function.prototype.bind.call(
@@ -1659,7 +1660,7 @@ var getCSSAnimationManager = function () {
           (this.handlePostMessageResponseBinded = Function.prototype.bind.call(
             this.handlePostMessageResponse,
             this
-          )),
+          )), // 이건 this에 handlePostMessageResponseBinded 속성을 새로 선언하면서 그 속성에 this.handlePostMessageResponse를 할당하는데, handlePostMessageResponse 내부의 this에 call의 두번째 인자가 할당됨. 즉 앞으로 this.handlePostMessageResponseBinded(xxx)를 사용하면 handlePostMessageResponse(xxx)랑 같음. call 두번째 인자도 this 됐으니까. this.handlePostMessageResponseBinded가 어디서 호출된건 안보이는데, e를 리턴해주니까 그쪽에서 쓰겠지 뭐...
           (this.keydownBinded = Function.prototype.bind.call(
             this.handleKeyDown,
             this
