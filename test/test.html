@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Canvas tutorial</title>
+    <script type="text/javascript">
+        function draw(){
+            var canvas = this.document.createElement("canvas");
+            canvas.setAttribute("id", "canvas")
+            document.body.appendChild( canvas );
+            var context  = canvas.getContext('2d');
+            
+            context.lineWidth = 6; // 선 두께
+            context.strokeStyle = "rgba(255, 0, 0, 0.5)"; // 선 색상 + 투명도
+            
+            var sX,sY,eX,eY;
+            var draw = false;
+
+            canvas. addEventListener ( "mousedown" , function (me) {
+            mDown (me)}, false );
+            
+            canvas. addEventListener ( "mousemove" , function (me) {
+            mMove (me)}, false );
+            
+            canvas. addEventListener ( "mouseup" , function (me) {
+            mUp (me)}, false );
+            
+
+            // click 시 draw 시작
+            function mDown(me){
+                sX=parseInt(me.clientX);
+                sY=parseInt(me.clientY);
+                draw = true;
+            }
+
+            function mMove(me){
+                if(draw){
+                eX=parseInt(me.clientX);
+                eY=parseInt(me.clientY);
+                context.clearRect(0,0,canvas.width,canvas.height); //clear canvas
+                context.clearRect(sX,sY,eX,eY); //clear canvas
+                context.strokeRect(sX,sY,eX-sX,eY-sY);
+                }
+            }
+            // 마우스 놓으면 rectangle 완성 및 popup 생성
+            function mUp(me){
+                draw = false;
+            }
+        }
+        function test(){
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext('2d');
+            
+        }
+    </script>
+    <style type="text/css">
+        canvas { background:black;}
+    </style>
+  </head>
+  <body onload="draw();">
+  </body>
+</html>
