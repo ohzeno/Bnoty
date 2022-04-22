@@ -12,13 +12,16 @@ window.TextCursor ||
   }),
   (window.TextCursor.prototype = {
     getHeight: function (t) {
+      console.log("inject.js wd.TC.pt getHeight");
       var e = t.measureText("W").width;
       return e + e / 6;
     },
     createPath: function (t) {
+      console.log("inject.js wd.TC.pt createPath");
       t.beginPath(), t.rect(this.left, this.top, this.width, this.getHeight(t));
     },
     draw: function (t, e, i) {
+      console.log("inject.js wd.TC.pt draw");
       t.save(),
         (this.left = e),
         (this.top = i - this.getHeight(t)),
@@ -29,6 +32,7 @@ window.TextCursor ||
         t.restore();
     },
     erase: function (t) {
+      console.log("inject.js wd.TC.pt erase");
       window.NOTEPAD.restoreCanvas([
         this.left - 1,
         this.top,
@@ -43,16 +47,19 @@ window.TextCursor ||
     }),
     (window.TextLine.prototype = {
       insert: function (t) {
+        console.log("inject.js wd.TL.pt insert");
         var e = this.text.slice(0, this.caret),
           i = this.text.slice(this.caret);
         (e += t), (this.text = e), (this.text += i), (this.caret += t.length);
       },
       getCaretX: function (t) {
+        console.log("inject.js wd.TL.pt getCaretX");
         var e = this.text.substring(0, this.caret),
           i = t.measureText(e).width;
         return this.left + i;
       },
       removeCharacterBeforeCaret: function () {
+        console.log("inject.js wd.TL.pt removeCharacterBeforeCaret");
         0 !== this.caret &&
           ((this.text =
             this.text.substring(0, this.caret - 1) +
@@ -60,16 +67,20 @@ window.TextCursor ||
           this.caret--);
       },
       removeLastCharacter: function () {
+        console.log("inject.js wd.TL.pt removeLastCharacter");
         this.text = this.text.slice(0, -1);
       },
       getWidth: function (t) {
+        console.log("inject.js wd.TL.pt getWidth");
         return t.measureText(this.text).width;
       },
       getHeight: function (t) {
+        console.log("inject.js wd.TL.pt getHeight");
         var e = t.measureText("W").width;
         return e + e / 6;
       },
       draw: function (t) {
+        console.log("inject.js wd.TL.pt draw");
         t.save(),
           (t.textAlign = "start"),
           (t.textBaseline = "bottom"),
@@ -79,6 +90,7 @@ window.TextCursor ||
           t.restore();
       },
       erase: function (t) {
+        console.log("inject.js wd.TL.pt erase");
         window.NOTEPAD.restoreCanvas();
       },
     })),
@@ -95,6 +107,7 @@ window.TextCursor ||
     }),
     (window.Paragraph.prototype = {
       clearIntervals: function (t) {
+        console.log("inject.js wd.Pg.pt clearIntervals");
         (this.blinkingInterval = window.clearInterval(this.blinkingInterval)),
           (this.blinkingTimeout = window.clearTimeout(this.blinkingTimeout)),
           this.cursor.erase(this.context, this.drawingSurface),
@@ -103,6 +116,7 @@ window.TextCursor ||
             : t();
       },
       isPointInside: function (t) {
+        console.log("inject.js wd.Pg.pt isPointInside");
         var e = this.context;
         return (
           e.beginPath(),
@@ -111,6 +125,7 @@ window.TextCursor ||
         );
       },
       getHeight: function () {
+        console.log("inject.js wd.Pg.pt getHeight");
         var e = 0;
         return (
           this.lines.forEach(
@@ -122,6 +137,7 @@ window.TextCursor ||
         );
       },
       getWidth: function () {
+        console.log("inject.js wd.Pg.pt getWidth");
         var e = 0,
           i = 0;
         return (
@@ -134,6 +150,7 @@ window.TextCursor ||
         );
       },
       draw: function () {
+        console.log("inject.js wd.Pg.pt draw");
         this.lines.forEach(
           Function.prototype.bind.call(function (t) {
             t.draw(this.context);
@@ -141,14 +158,17 @@ window.TextCursor ||
         );
       },
       erase: function (t) {
+        console.log("inject.js wd.Pg.pt erase");
         window.NOTEPAD.restoreCanvas();
       },
       addLine: function (t) {
+        console.log("inject.js wd.Pg.pt addLine");
         this.lines.push(t),
           (this.activeLine = t),
           this.moveCursor(t.left, t.bottom);
       },
       insert: function (t) {
+        console.log("inject.js wd.Pg.pt insert");
         this.erase(this.context, this.drawingSurface),
           this.activeLine.insert(t);
         var e = this.activeLine.text.substring(0, this.activeLine.caret),
@@ -157,6 +177,7 @@ window.TextCursor ||
           this.draw(this.context);
       },
       blinkCursor: function (t, e) {
+        console.log("inject.js wd.Pg.pt blinkCursor");
         var i = this;
         this.blinkingInterval &&
           (this.blinkingInterval = window.clearInterval(this.blinkingInterval)),
@@ -178,6 +199,7 @@ window.TextCursor ||
           }, 900));
       },
       moveCursorCloseTo: function (t, e) {
+        console.log("inject.js wd.Pg.pt moveCursorCloseTo");
         var i = this.getLine(e);
         i &&
           ((i.caret = this.getColumn(i, t)),
@@ -185,17 +207,20 @@ window.TextCursor ||
           this.moveCursor(i.getCaretX(this.context), i.bottom));
       },
       moveCursor: function (t, e) {
+        console.log("inject.js wd.Pg.pt moveCursor");
         this.cursor.erase(this.context, this.drawingSurface),
           this.cursor.draw(this.context, t, e),
           this.blinkingInterval || this.blinkCursor(t, e);
       },
       moveLinesDown: function (t) {
+        console.log("inject.js wd.Pg.pt moveLinesDown");
         for (var e = t; e < this.lines.length; ++e) {
           var i = this.lines[e];
           i.bottom += i.getHeight(this.context);
         }
       },
       newline: function () {
+        console.log("inject.js wd.Pg.pt newline");
         var t,
           e,
           i = this.activeLine.text.substring(0, this.activeLine.caret),
@@ -225,6 +250,7 @@ window.TextCursor ||
           );
       },
       getLine: function (t) {
+        console.log("inject.js wd.Pg.pt getLine");
         for (var e, i = 0; i < this.lines.length; ++i)
           if (
             t > (e = this.lines[i]).bottom - e.getHeight(this.context) &&
@@ -233,6 +259,7 @@ window.TextCursor ||
             return e;
       },
       getColumn: function (t, e) {
+        console.log("inject.js wd.Pg.pt getColumn");
         var i,
           n,
           s,
@@ -254,12 +281,15 @@ window.TextCursor ||
         return o;
       },
       activeLineIsOutOfText: function () {
+        console.log("inject.js wd.Pg.pt activeLineIsOutOfText");
         return 0 === this.activeLine.text.length;
       },
       activeLineIsTopLine: function () {
+        console.log("inject.js wd.Pg.pt activeLineIsTopLine");
         return this.lines[0] === this.activeLine;
       },
       moveUpOneLine: function () {
+        console.log("inject.js wd.Pg.pt moveUpOneLine");
         var t, e;
         t = "" + this.activeLine.text;
         var i = this.lines.indexOf(this.activeLine);
@@ -275,6 +305,7 @@ window.TextCursor ||
           (e = this.lines[n]).bottom -= e.getHeight(this.context);
       },
       backspace: function () {
+        console.log("inject.js wd.Pg.pt backspace");
         var t, e;
         this.context.save(),
           0 === this.activeLine.caret
@@ -310,6 +341,7 @@ window.TextCursor ||
     });
 
 var getCSSAnimationManager = function () {
+  console.log("inject.js getCSSAnimationManager");
   for (
     var t,
       e,
@@ -1026,7 +1058,7 @@ var getCSSAnimationManager = function () {
             Math.round((t.currentTarget.value / 20) * 100) + "%");
       },
       updatePaintStyle: function () {
-        console.log("inject.js e 내부 updatePaintStyleupdatePaintStyle");
+        console.log("inject.js e 내부 updatePaintStyle");
         null !== this.selectedColorOption &&
           null !== this.selectedAlphaOption &&
           ((this.cursor.fillStyle =
@@ -1337,7 +1369,7 @@ var getCSSAnimationManager = function () {
           }
       },
       handleMouseMove: function (t) {
-        console.log("inject.js e 내부 handleMouseMove");
+        // console.log("inject.js e 내부 handleMouseMove");
         t.preventDefault();
         var e = this.drawOptions[this.selectedDrawOption],
           i = this.windowToCanvas(
@@ -1520,7 +1552,7 @@ var getCSSAnimationManager = function () {
           this.restoreCanvas();
       },
       setLineProperty: function () {
-        console.log("inject.js e 내부 setLineProperty");
+        // console.log("inject.js e 내부 setLineProperty");
         (this.context.lineJoin = "round"), (this.context.lineCap = "round");
       },
       drawEllipse: function (t, e, i, n) {
@@ -1540,11 +1572,11 @@ var getCSSAnimationManager = function () {
           this.context.stroke();
       },
       addClass: function (t, e) {
-        console.log("inject.js e 내부 addClass");
+        console.log("inject.js e 내부 addClass", t, e);
         0 <= t.className.indexOf(e) || (t.className = t.className + " " + e);
       },
       removeClass: function (t, e) {
-        console.log("inject.js e 내부 removeClass");
+        console.log("inject.js e 내부 removeClass", t, e);
         t.className = t.className.replace(
           new RegExp("\\b" + e + "\\b", "g"),
           ""
@@ -1607,7 +1639,7 @@ var getCSSAnimationManager = function () {
           e.panel.removeEventListener("touchmove", e.handleDragging);
       },
       windowToCanvas: function (t, e) {
-        console.log("inject.js e 내부 windowToCanvas");
+        // console.log("inject.js e 내부 windowToCanvas");
         var i = this.canvas.getBoundingClientRect();
         return {
           x: Math.round(t) - i.left * (this.canvas.width / i.width),
