@@ -32,8 +32,7 @@
             canvas.addEventListener ( "mouseout" , function (me) {
             mOut (me)}, false );
             
-
-            // click 시 draw 시작
+            // 마우스 클릭 시 클릭 좌표와 draw true
             function mDown(me){
                 sX=me.offsetX;
                 sY=me.offsetY;
@@ -42,35 +41,45 @@
 
             function mMove(me){
                 if(draw){
-                eX=me.offsetX;
-                eY=me.offsetY;
-                context.clearRect(0,0,canvas.width,canvas.height); //clear canvas
-                if(saveImage)
-                    context.putImageData(saveImage, 0, 0);
-                if(figure == 'rectangle')
-                    context.strokeRect(sX,sY,eX-sX,eY-sY);
-                }else if (figure == 'circle'){
-                    // t, e, i, n
-                //    this.lastMouseDownLoc.x,
-                //   this.lastMouseDownLoc.y,
-                //   i.x - this.lastMouseDownLoc.x,
-                //   i.y - this.lastMouseDownLoc.y
-                // i 는 시작 or 종료
-                    var s = ((eX-sX) / 2) * 0.5522848,
-                    o = ((eY-sY) / 2) * 0.5522848,
-                    a = sX + eX-sX,
-                    r = sY + eY-sY,
-                    h = sX + (eX-sX) / 2,
-                    c = sY + (eY-sY) / 2;
-                    this.context.beginPath() // 새로운 경로 시작함을 알림 약간 기존 저장된 시작점 그런거 초기화느낌?
-                    this.context.moveTo(sX, c) // 시작점(x,y)
-                    this.context.bezierCurveTo(sX, c - o, h - s, sY, h, sY) //곡선 그리는 부분 첫번째 제어점 (x,y), 두번째 제어점(x,y), 끝점x,y
-                    this.context.bezierCurveTo(h + s, sY, a, c - o, a, c)
-                    this.context.bezierCurveTo(a, c + o, h + s, r, h, r)
-                    this.context.bezierCurveTo(h - s, r, sX, c + o, sX, c)
-                    this.context.stroke() // 이걸 해줌으로써 위에서 작성한 것들 화면에 뿌려줌?
-                }
-                    
+                    eX=me.offsetX;
+                    eY=me.offsetY;
+                    context.clearRect(0,0,canvas.width,canvas.height); //clear canvas
+                    if(saveImage)
+                        context.putImageData(saveImage, 0, 0);
+                    if(figure == 'rectangle')
+                        context.strokeRect(sX,sY,eX-sX,eY-sY);
+                    else if (figure == 'circle'){
+                        // t, e, i, n
+                    //    this.lastMouseDownLoc.x,
+                    //   this.lastMouseDownLoc.y,
+                    //   i.x - this.lastMouseDownLoc.x,
+                    //   i.y - this.lastMouseDownLoc.y
+                    // i 는 시작 or 종료
+                        var s = ((eX-sX) / 2) * 0.5522848,
+                        o = ((eY-sY) / 2) * 0.5522848,
+                        a = sX + eX-sX,
+                        r = sY + eY-sY,
+                        h = sX + (eX-sX) / 2,
+                        c = sY + (eY-sY) / 2;
+                        context.beginPath() // 새로운 경로 시작함을 알림 약간 기존 저장된 시작점 그런거 초기화느낌?
+                        context.moveTo(sX, c) // 시작점(x,y)
+                        context.bezierCurveTo(sX, c - o, h - s, sY, h, sY) //곡선 그리는 부분 첫번째 제어점 (x,y), 두번째 제어점(x,y), 끝점x,y
+                        context.bezierCurveTo(h + s, sY, a, c - o, a, c)
+                        context.bezierCurveTo(a, c + o, h + s, r, h, r)
+                        context.bezierCurveTo(h - s, r, sX, c + o, sX, c)
+                        context.stroke() // 이걸 해줌으로써 위에서 작성한 것들 화면에 뿌려줌?
+                    }else if(figure == 'line'){
+                        context.beginPath(),
+                        context.moveTo(eX,eY)
+                        context.lineTo(sX, sY)
+                        context.stroke()
+                    }else if(figure == 'curve'){
+                        context.beginPath()
+                        context.moveTo(sX,sY)
+                        context.quadraticCurveTo(eX, eY, me.offsetX, me.offsetY)
+                        context.stroke()
+                    }
+                } 
             }
             // 마우스 놓으면 rectangle 완성 및 popup 생성
             function mUp(me){
@@ -79,6 +88,7 @@
             }
 
             function mOut(me) {
+                saveImage = context.getImageData(0,0,canvas.width,canvas.height);
                 draw = false ; //마우스가 캔버스 밖으로 벗어났을 때 그리기 중지
             }
         }
@@ -97,6 +107,14 @@
         function circle(){
             figure = 'circle'
         }
+
+        function line(){
+            figure = 'line'
+        }
+
+        function curve(){
+            figure = 'curve'
+        }
     </script>
     <style type="text/css">
         canvas {background:black; } 
@@ -107,5 +125,7 @@
     <button onclick="del();">지우기</button>
     <button onclick="rectangle();">네모</button>
     <button onclick="circle();">동그라미</button>
+    <button onclick="line();">직선</button>
+    <button onclick="curve()">곡선</button>
   </body>
 </html>
