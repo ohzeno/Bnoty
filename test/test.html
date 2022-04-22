@@ -4,59 +4,108 @@
     <meta charset="utf-8"/>
     <title>Canvas tutorial</title>
     <script type="text/javascript">
+        var canvas = null
+        var context  = null
+        var saveImage = null
+        var figure = null
         function draw(){
-            var canvas = this.document.createElement("canvas");
+            canvas = this.document.createElement("canvas");
             canvas.setAttribute("id", "canvas")
             document.body.appendChild( canvas );
-            var context  = canvas.getContext('2d');
-            
-            context.lineWidth = 6; // 선 두께
-            context.strokeStyle = "rgba(255, 0, 0, 0.5)"; // 선 색상 + 투명도
-            
+            context  = canvas.getContext('2d');
+
+            context.lineWidth = 1; // 선 두께
+            context.strokeStyle = "rgba(255, 0, 0)"; // 선 색상 + 투명도
+
             var sX,sY,eX,eY;
             var draw = false;
 
-            canvas. addEventListener ( "mousedown" , function (me) {
+            canvas.addEventListener ( "mousedown" , function (me) {
             mDown (me)}, false );
             
-            canvas. addEventListener ( "mousemove" , function (me) {
+            canvas.addEventListener ( "mousemove" , function (me) {
             mMove (me)}, false );
             
-            canvas. addEventListener ( "mouseup" , function (me) {
+            canvas.addEventListener ( "mouseup" , function (me) {
             mUp (me)}, false );
+
+            canvas.addEventListener ( "mouseout" , function (me) {
+            mOut (me)}, false );
             
 
             // click 시 draw 시작
             function mDown(me){
-                sX=parseInt(me.clientX);
-                sY=parseInt(me.clientY);
+                sX=me.offsetX;
+                sY=me.offsetY;
                 draw = true;
             }
 
             function mMove(me){
                 if(draw){
-                eX=parseInt(me.clientX);
-                eY=parseInt(me.clientY);
+                eX=me.offsetX;
+                eY=me.offsetY;
                 context.clearRect(0,0,canvas.width,canvas.height); //clear canvas
-                context.clearRect(sX,sY,eX,eY); //clear canvas
-                context.strokeRect(sX,sY,eX-sX,eY-sY);
+                if(saveImage)
+                    context.putImageData(saveImage, 0, 0);
+                if(figure == 'rectangle')
+                    context.strokeRect(sX,sY,eX-sX,eY-sY);
+                }else if (figure == 'circle'){
+                    // t, e, i, n
+                //    this.lastMouseDownLoc.x,
+                //   this.lastMouseDownLoc.y,
+                //   i.x - this.lastMouseDownLoc.x,
+                //   i.y - this.lastMouseDownLoc.y
+                // i 는 시작 or 종료
+                    var s = ((eX-sX) / 2) * 0.5522848,
+                    o = ((eY-sY) / 2) * 0.5522848,
+                    a = sX + eX-sX,
+                    r = sY + eY-sY,
+                    h = sX + (eX-sX) / 2,
+                    c = sY + (eY-sY) / 2;
+                    this.context.beginPath() // 새로운 경로 시작함을 알림 약간 기존 저장된 시작점 그런거 초기화느낌?
+                    this.context.moveTo(sX, c) // 시작점(x,y)
+                    this.context.bezierCurveTo(sX, c - o, h - s, sY, h, sY) //곡선 그리는 부분 첫번째 제어점 (x,y), 두번째 제어점(x,y), 끝점x,y
+                    this.context.bezierCurveTo(h + s, sY, a, c - o, a, c)
+                    this.context.bezierCurveTo(a, c + o, h + s, r, h, r)
+                    this.context.bezierCurveTo(h - s, r, sX, c + o, sX, c)
+                    this.context.stroke() // 이걸 해줌으로써 위에서 작성한 것들 화면에 뿌려줌?
                 }
+                    
             }
             // 마우스 놓으면 rectangle 완성 및 popup 생성
             function mUp(me){
+                saveImage = context.getImageData(0,0,canvas.width,canvas.height);
                 draw = false;
             }
+
+            function mOut(me) {
+                draw = false ; //마우스가 캔버스 밖으로 벗어났을 때 그리기 중지
+            }
         }
-        function test(){
-            var canvas = document.getElementById("canvas");
-            var ctx = canvas.getContext('2d');
-            
+
+        function del(){
+            canvas = this.document.getElementById("canvas");
+            context  = canvas.getContext('2d');
+            saveImage = null
+            context.clearRect(0,0,canvas.width,canvas.height); //clear canvas
+        }
+
+        function rectangle(){
+            figure = 'rectangle'
+        }
+
+        function circle(){
+            figure = 'circle'
         }
     </script>
     <style type="text/css">
-        canvas { background:black;}
+        canvas {background:black; } 
+        /* */
     </style>
   </head>
   <body onload="draw();">
+    <button onclick="del();">지우기</button>
+    <button onclick="rectangle();">네모</button>
+    <button onclick="circle();">동그라미</button>
   </body>
 </html>
