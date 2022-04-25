@@ -14,6 +14,9 @@
             document.body.appendChild( canvas );
             context  = canvas.getContext('2d');
 
+            context.canvas.width  = window.innerWidth;
+            context.canvas.height = window.innerHeight;
+
             context.lineWidth = 1; // 선 두께
             context.strokeStyle = "rgba(255, 0, 0)"; // 선 색상 + 투명도
 
@@ -41,6 +44,7 @@
                     return
                 }
                 draw = true; // 그리기 시작
+
             }
 
             // 마우스 이동
@@ -53,6 +57,14 @@
                         context.putImageData(saveImage, 0, 0);
                     if(figure == 'rectangle') // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
                         context.strokeRect(sX,sY,eX-sX,eY-sY);
+                    else if(figure == 'triangle'){ // 세모
+                        context.beginPath()
+                        context.moveTo((sX+eX)/2, sY) // 시작점(x,y)
+                        context.lineTo(sX, eY)
+                        context.lineTo(eX, eY)
+                        context.lineTo((sX+eX)/2, sY)
+                        context.stroke()
+                    }
                     else if (figure == 'circle'){ // 동그라미
                         var s = ((eX-sX) / 2) * 0.5522848,
                         o = ((eY-sY) / 2) * 0.5522848,
@@ -67,7 +79,18 @@
                         context.bezierCurveTo(a, c + o, h + s, r, h, r)
                         context.bezierCurveTo(h - s, r, sX, c + o, sX, c)
                         context.stroke() // 이걸 해줌으로써 위에서 작성한 것들 화면에 뿌려줌?
-                    }else if(figure == 'line'){ // 직선
+                    }else if(figure == 'star'){ // 별표
+                        context.beginPath()
+                        context.moveTo((sX+eX)/2, sY) // 시작점(x,y)
+                        context.lineTo(sX, eY)
+                        context.lineTo(eX, (eY+sY)/3 )
+                        context.lineTo(sX, (eY+sY)/3)
+                        context.lineTo(eX, eY)
+                        context.lineTo(eX, eY)
+                        context.lineTo((sX+eX)/2, sY)
+                        context.stroke()
+                    }
+                    else if(figure == 'line'){ // 직선
                         context.beginPath(),
                         context.moveTo(sX,sY)
                         context.lineTo(eX, eY)
@@ -135,16 +158,32 @@
         function curve(){
             figure = 'curve'
         }
+
+        function triangle(){
+            figure = 'triangle'
+        }
+
+        function star(){
+            figure = 'star'
+        }
+
     </script>
     <style type="text/css">
-        canvas {background:black; } 
+        canvas {
+            background:black; 
+            cursor:crosshair;
+            width:  100%;
+            height: 100%;
+        } 
         /* */
     </style>
   </head>
   <body onload="draw();">
-    <button onclick="del();">지우기</button>
+    <button onclick="del();">전체지우기</button>
     <button onclick="rectangle();">네모</button>
+    <button onclick="triangle();">세모</button>
     <button onclick="circle();">동그라미</button>
+    <button onclick="star();">별</button>
     <button onclick="line();">직선</button>
     <button onclick="curve()">곡선</button>
   </body>
