@@ -6,10 +6,10 @@
     <script type="text/javascript">
         var canvas = null
         var context  = null
-        var saveImage = null
-        var figure = null
+        var saveImage = null // 지금 까지 그린 정보를 저장하는 공간
+        var figure = null // 활성화된 도형 정보 저장 공간
         function draw(){
-            canvas = this.document.createElement("canvas");
+            canvas = this.document.createElement("canvas"); // 캔버스 태그를 생성하고 바디에 추가해줌
             canvas.setAttribute("id", "canvas")
             document.body.appendChild( canvas );
             context  = canvas.getContext('2d');
@@ -17,44 +17,43 @@
             context.lineWidth = 1; // 선 두께
             context.strokeStyle = "rgba(255, 0, 0)"; // 선 색상 + 투명도
 
-            var sX,sY,eX,eY;
-            var draw = false;
+            var sX,sY,eX,eY,mX,mY; // 시작 좌표, 끝 좌표, 끝 좌표(커브)
+            var draw = false; // true 일때만 그림 그리기 가능
 
-            canvas.addEventListener ( "mousedown" , function (me) {
+            canvas.addEventListener ( "mousedown" , function (me) { // 마우스 클릭 이벤트
             mDown (me)}, false );
             
-            canvas.addEventListener ( "mousemove" , function (me) {
+            canvas.addEventListener ( "mousemove" , function (me) { // 마우스 이동 이벤트
             mMove (me)}, false );
             
-            canvas.addEventListener ( "mouseup" , function (me) {
+            canvas.addEventListener ( "mouseup" , function (me) { // 마우스 클릭 땐 이벤트
             mUp (me)}, false );
 
-            canvas.addEventListener ( "mouseout" , function (me) {
+            canvas.addEventListener ( "mouseout" , function (me) { // 마우스 경계 밖으로 나갈때 이벤트
             mOut (me)}, false );
             
-            // 마우스 클릭 시 클릭 좌표와 draw true
+            // 마우스 클릭 
             function mDown(me){
-                sX=me.offsetX;
+                sX=me.offsetX; // 시작좌표 갱신
                 sY=me.offsetY;
-                draw = true;
+                if(draw){ // 이건 곡선 작성할때 사용
+                    draw = false;
+                    return
+                }
+                draw = true; // 그리기 시작
             }
 
+            // 마우스 이동
             function mMove(me){
                 if(draw){
                     eX=me.offsetX;
                     eY=me.offsetY;
-                    context.clearRect(0,0,canvas.width,canvas.height); //clear canvas
-                    if(saveImage)
+                    context.clearRect(0,0,canvas.width,canvas.height); // 계속 컨버스를 지워준다 why? 도중에 마우스 움직일떄마다 그려지기 때문
+                    if(saveImage) // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러ㅗㅁ
                         context.putImageData(saveImage, 0, 0);
-                    if(figure == 'rectangle')
+                    if(figure == 'rectangle') // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
                         context.strokeRect(sX,sY,eX-sX,eY-sY);
-                    else if (figure == 'circle'){
-                        // t, e, i, n
-                    //    this.lastMouseDownLoc.x,
-                    //   this.lastMouseDownLoc.y,
-                    //   i.x - this.lastMouseDownLoc.x,
-                    //   i.y - this.lastMouseDownLoc.y
-                    // i 는 시작 or 종료
+                    else if (figure == 'circle'){ // 동그라미
                         var s = ((eX-sX) / 2) * 0.5522848,
                         o = ((eY-sY) / 2) * 0.5522848,
                         a = sX + eX-sX,
@@ -68,28 +67,49 @@
                         context.bezierCurveTo(a, c + o, h + s, r, h, r)
                         context.bezierCurveTo(h - s, r, sX, c + o, sX, c)
                         context.stroke() // 이걸 해줌으로써 위에서 작성한 것들 화면에 뿌려줌?
-                    }else if(figure == 'line'){
+                    }else if(figure == 'line'){ // 직선
                         context.beginPath(),
-                        context.moveTo(eX,eY)
-                        context.lineTo(sX, sY)
-                        context.stroke()
-                    }else if(figure == 'curve'){
-                        context.beginPath()
                         context.moveTo(sX,sY)
-                        context.quadraticCurveTo(eX, eY, me.offsetX, me.offsetY)
+                        context.lineTo(eX, eY)
+                        context.stroke()
+                    }else if(figure == 'curve'){ // 그 여기 들어온 수를 판단해서 점 찍고 하는식으로 해야할거 같은데?
+                        context.beginPath()
+                        if(mX == null && mY == null){ // 끝 좌표가 없으면 끝좌표를 저장하고 직선 그림
+                            context.moveTo(sX,sY)
+                            context.lineTo(eX,eY)
+                        }else{ // 끝 좌표가 존재하면 마우스 이동좌표에 따른 곡선 그림
+                            context.moveTo(sX,sY)
+                            context.quadraticCurveTo(me.offsetX, me.offsetY,mX,mY)
+                        }
                         context.stroke()
                     }
                 } 
             }
-            // 마우스 놓으면 rectangle 완성 및 popup 생성
+
+            // 마우스 놓기
             function mUp(me){
-                saveImage = context.getImageData(0,0,canvas.width,canvas.height);
-                draw = false;
+                if(figure == 'curve'){ // 커브면 끝좌표 초기화 or 갱신
+                    if(mX == null && mY == null){
+                        mX=me.offsetX;
+                        mY=me.offsetY;
+                        return; // 여기서는 끝좌표만 갱신하고 리턴해줘야 다음작업 가능
+                    }else{
+                        mX=null
+                        mY=null
+                    }
+                }
+                saveImage = context.getImageData(0,0,canvas.width,canvas.height); // 지금까지 그린 정보를 저장
+                draw = false; // 그리기 종료
             }
 
+            // 캔버스 범위 벗어남
             function mOut(me) {
-                saveImage = context.getImageData(0,0,canvas.width,canvas.height);
-                draw = false ; //마우스가 캔버스 밖으로 벗어났을 때 그리기 중지
+                saveImage = context.getImageData(0,0,canvas.width,canvas.height); // 지금까지 그린 정보를 저장
+                draw = false ; //그리기 종료
+                if(figure == 'curve'){
+                    mX=null // 커브에대해서 마지막점 초기화
+                    mY=null
+                }
             }
         }
 
