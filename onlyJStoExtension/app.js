@@ -8,6 +8,8 @@ let INITIAL_COLOR = "red";
 let CANVAS_SIZE = 700;
 let painting = false;
 let paragraph;
+let strokeStyle = "rgba(255, 0, 0, 1)";
+let lineWidth = 3;
 
 var activate = "pen"; // 지금 활성화된 도구 기본은 펜!
 var saveImage = null; // 지금 까지 그린 이미지를 저장
@@ -26,8 +28,8 @@ function createCanvas() {
   canvas.style = `height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px;  position: absolute; top: 0; left: 0; z-index: 2147483647; opacity: 0.4;`;
   // ctx.fillStyle = "skyblue";
   // ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-  ctx.strokeStyle = "rgba(255, 0, 0, 1)";
-  ctx.lineWidth = 3; // 선 굵기
+  // ctx.strokeStyle = INITIAL_COLOR; // 선 색
+  setCtxProp();
 
   // 여기부터 테스트를 위해서 임시 UI 시작 ----------------------------------
   var button = window.document.createElement("button");
@@ -146,8 +148,13 @@ function createCanvas() {
     test.addEventListener("mouseup", stopPainting);
     test.addEventListener("mouseleave", stopPainting);
   }
-  console.log(ctx.strokeStyle)
-  ctx.save();
+}
+
+
+function setCtxProp() {
+  ctx.strokeStyle = strokeStyle; // 선 색
+  ctx.fillStyle = strokeStyle; // 채우기 색
+  ctx.lineWidth = lineWidth; // 선 굵기
 }
 
 function startPainting(event) {
@@ -182,8 +189,6 @@ function stopPainting(event) {
 }
 
 function onMouseMove(event) {
-  ctx.restore();
-  console.log(ctx.strokeStyle)
   // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
   eX = event.offsetX;
   eY = event.offsetY;
@@ -285,6 +290,7 @@ function onMouseMove(event) {
   }
 }
 
+
 // 윈도우 사이즈 변할때마다 작동
 window.onresize = function (event) {
   handleResize();
@@ -337,15 +343,19 @@ function handleResize(t) {
   } else {
     // storeCanvas(t);
   }
-  canvas.width = s;
+  canvas.width = s; // 여기서 ctx 속성 처음 초기화됨.
   canvas.style.width = s + "px";
-  canvas.height = a;
+  canvas.height = a; // 여기서 ctx 속성 두번째 초기화됨. 없애면 마우스랑 그려지는 위치 어긋남. 그러니 ctx 속성 설정해주는 함수 따로 만듦.
+  setCtxProp();
   canvas.style.height = a + "px";
   // if (!e) {
   //   restoreCanvas();
   // }
   // updatePaintStyle();
   ctx.lineWidth = n;
+  if (saveImage)
+      // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
+      ctx.putImageData(saveImage, 0, 0);
 }
 
 createCanvas();
