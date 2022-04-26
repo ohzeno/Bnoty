@@ -8,6 +8,8 @@ let INITIAL_COLOR = "black";
 let CANVAS_SIZE = 700;
 let painting = false;
 let paragraph;
+let strokeStyle = "blue";
+let lineWidth = 2.5;
 
 function createCanvas() {
   canvas = window.document.createElement("Canvas");
@@ -22,8 +24,8 @@ function createCanvas() {
   canvas.style = `height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px; background: skyblue; position: absolute; top: 0; left: 0; z-index: 2147483647; opacity: 0.4;`;
   // ctx.fillStyle = "skyblue";
   // ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-  ctx.strokeStyle = INITIAL_COLOR; // 선 색
-  ctx.lieWidth = 2.5; // 선 굵기
+  // ctx.strokeStyle = INITIAL_COLOR; // 선 색
+  setCtxProp();
 
   if (canvas) {
     test.addEventListener("mousemove", onMouseMove);
@@ -31,6 +33,11 @@ function createCanvas() {
     test.addEventListener("mouseup", stopPainting);
     test.addEventListener("mouseleave", stopPainting);
   }
+}
+
+function setCtxProp() {
+  ctx.strokeStyle = strokeStyle; // 선 색
+  ctx.lineWidth = lineWidth; // 선 굵기
 }
 
 function startPainting(event) {
@@ -116,9 +123,11 @@ function handleResize(t) {
   } else {
     // storeCanvas(t);
   }
-  canvas.width = s;
+  canvas.width = s; // 여기서 ctx 속성 처음 초기화됨.
   canvas.style.width = s + "px";
-  canvas.height = a;
+  canvas.height = a; // 여기서 ctx 속성 두번째 초기화됨. 없애면 마우스랑 그려지는 위치 어긋남. 그러니 ctx 속성 설정해주는 함수 따로 만듦.
+  setCtxProp();
+  ctx.strokeStyle = "blue";
   canvas.style.height = a + "px";
   // if (!e) {
   //   restoreCanvas();
