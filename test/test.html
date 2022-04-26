@@ -19,6 +19,7 @@
 
             context.lineWidth = 1; // 선 두께
             context.strokeStyle = "rgba(255, 0, 0)"; // 선 색상 + 투명도
+            context.fillStyle = "rgba(255, 0, 0)"; // 채우기 색상
 
             var sX,sY,eX,eY,mX,mY; // 시작 좌표, 끝 좌표, 끝 좌표(커브)
             var draw = false; // true 일때만 그림 그리기 가능
@@ -64,8 +65,7 @@
                         context.lineTo(eX, eY)
                         context.lineTo((sX+eX)/2, sY)
                         context.stroke()
-                    }
-                    else if (figure == 'circle'){ // 동그라미
+                    }else if (figure == 'circle'){ // 동그라미
                         var s = ((eX-sX) / 2) * 0.5522848,
                         o = ((eY-sY) / 2) * 0.5522848,
                         a = sX + eX-sX,
@@ -79,18 +79,7 @@
                         context.bezierCurveTo(a, c + o, h + s, r, h, r)
                         context.bezierCurveTo(h - s, r, sX, c + o, sX, c)
                         context.stroke() // 이걸 해줌으로써 위에서 작성한 것들 화면에 뿌려줌?
-                    }else if(figure == 'star'){ // 별표
-                        context.beginPath()
-                        context.moveTo((sX+eX)/2, sY) // 시작점(x,y)
-                        context.lineTo(sX, eY)
-                        context.lineTo(eX, (eY+sY)/3 )
-                        context.lineTo(sX, (eY+sY)/3)
-                        context.lineTo(eX, eY)
-                        context.lineTo(eX, eY)
-                        context.lineTo((sX+eX)/2, sY)
-                        context.stroke()
-                    }
-                    else if(figure == 'line'){ // 직선
+                    }else if(figure == 'line'){ // 직선
                         context.beginPath(),
                         context.moveTo(sX,sY)
                         context.lineTo(eX, eY)
@@ -105,9 +94,34 @@
                             context.quadraticCurveTo(me.offsetX, me.offsetY,mX,mY)
                         }
                         context.stroke()
+                    }else if(figure == 'arrow'){
+                        context.beginPath(),
+                        context.moveTo(sX,sY)
+                        context.lineTo(eX, eY)
+                        context.stroke() // 직선 그리기
+
+                        var aWidth = 5+context.lineWidth;
+                        var aLength = 12+context.lineWidth;
+                        var dx = eX - sX;
+                        var dy = eY - sY;
+                        var angle = Math.atan2(dy, dx);
+                        var length = Math.sqrt(dx * dx + dy * dy);
+                        
+                        // //두점 선긋기
+                        context.translate(sX, sY);
+                        context.rotate(angle);
+                        context.beginPath();
+
+                        //화살표 모양 만들기
+                        context.moveTo(length - aLength, -aWidth);
+                        context.lineTo(length, 0);
+                        context.lineTo(length - aLength, aWidth);
+
+                        context.fill();
+                        context.setTransform(1, 0, 0, 1, 0, 0);
                     }
                 } 
-            }
+            }    
 
             // 마우스 놓기
             function mUp(me){
@@ -163,8 +177,8 @@
             figure = 'triangle'
         }
 
-        function star(){
-            figure = 'star'
+        function arrow(){
+            figure = 'arrow'
         }
 
     </script>
@@ -183,8 +197,8 @@
     <button onclick="rectangle();">네모</button>
     <button onclick="triangle();">세모</button>
     <button onclick="circle();">동그라미</button>
-    <button onclick="star();">별</button>
     <button onclick="line();">직선</button>
     <button onclick="curve()">곡선</button>
+    <button onclick="arrow()">화살표</button>
   </body>
 </html>
