@@ -1,5 +1,6 @@
 {
   "name": "Bnoty",
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
   "description": "Draw on Web Browser! Coding is bloody fun..",
   "version": "0.5.0",
   "manifest_version": 2,
@@ -13,7 +14,7 @@
     "default_popup": "popup.html"
   },
 
-  "permissions": [ "activeTab", "storage", "scripting", "unlimitedStorage", "tabs", "activeTab", "\u003Call_urls>" ],
+  "permissions": [ "identity", "identity.email", "activeTab", "storage", "scripting", "unlimitedStorage", "tabs", "activeTab", "\u003Call_urls>" ],
 
   "icons": {  
     "16": "/images/bnotylogo_16.png",
