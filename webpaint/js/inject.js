@@ -2,6 +2,7 @@
  * Copyright Liang Zhou
  * All rights reserved.
  */
+
 window.TextCursor ||
   ((window.TextCursor = function (t, e) {
     (this.fillStyle = t || "rgba(0, 0, 0, 0.7)"),
@@ -1302,6 +1303,7 @@ var getCSSAnimationManager = function () {
           }
       },
       handleMouseMove: function (t) {
+
         t.preventDefault();
         var e = this.drawOptions[this.selectedDrawOption],
           i = this.windowToCanvas(
@@ -1355,7 +1357,22 @@ var getCSSAnimationManager = function () {
             ("pen" === e.type
               ? (this.restoreCanvas(),
                 this.context.lineTo(i.x, i.y + 16),
-                this.context.stroke())
+                this.context.stroke(),
+                console.log("hi"),
+                // chrome.identity.getProfileUserInfo({'accountStatus': 'ANY'}, function(info) {
+                //   email = info.email;
+                //   console.log(info);
+                // }),
+
+                // chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+                //   let url = tabs[0].url;
+                //   console.log(url);
+                // })
+
+                chrome.runtime.sendMessage({command: "testNote", data: {notes: ''}}, (response) => {
+                  
+                })
+                )
               : "line" === e.type
               ? (this.restoreCanvas(),
                 this.context.beginPath(),
@@ -1364,7 +1381,8 @@ var getCSSAnimationManager = function () {
                   this.lastMouseDownLoc.y
                 ),
                 this.context.lineTo(i.x, i.y),
-                this.context.stroke())
+                this.context.stroke()
+                )
               : "quadratic_curve" === e.type && 0 === e.iteration
               ? (this.restoreCanvas(),
                 this.context.beginPath(),
