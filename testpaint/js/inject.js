@@ -645,7 +645,9 @@ var getCSSAnimationManager = function () {
         t.target.style.opacity = 1;
       },
       handleResize: function (t) {
-        console.log("inject.js e 내부 handleResize");
+        // 작동할 때 this는 init에서 할당된 435줄 e, this.canvas가 캔버스
+        console.log("inject.js e 내부 handleResize", v === window);
+        console.log(document === window.document);
         var e = !1,
           i = v.pageYOffset || document.documentElement.scrollTop,
           n =
