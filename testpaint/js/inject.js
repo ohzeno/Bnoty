@@ -386,14 +386,15 @@ var getCSSAnimationManager = function () {
 };
 
 !(function (t, e) {
-  "undefined" != typeof unsafeWindow && null !== unsafeWindow
-    ? unsafeWindow.CTRL_HIDDEN
-      ? t.NOTEPAD.showControlPanel()
-      : unsafeWindow.NOTEPAD_INIT || ((t.NOTEPAD = e(t)), t.NOTEPAD.init())
-    : ((void 0 !== t.NOTEPAD && null !== t.NOTEPAD) || (t.NOTEPAD = e(t)),
-      t.NOTEPAD.controlPanelHidden
+  console.log(t),
+    "undefined" != typeof unsafeWindow && null !== unsafeWindow
+      ? unsafeWindow.CTRL_HIDDEN
         ? t.NOTEPAD.showControlPanel()
-        : t.NOTEPAD.initialized || t.NOTEPAD.init());
+        : unsafeWindow.NOTEPAD_INIT || ((t.NOTEPAD = e(t)), t.NOTEPAD.init())
+      : ((void 0 !== t.NOTEPAD && null !== t.NOTEPAD) || (t.NOTEPAD = e(t)),
+        t.NOTEPAD.controlPanelHidden
+          ? t.NOTEPAD.showControlPanel()
+          : t.NOTEPAD.initialized || t.NOTEPAD.init());
 })("undefined" != typeof window ? window : this, function (v) {
   var t = function () {
     (this.MAX_ITEMS = 50), (this.currentIndex = 0), (this.array = []);
