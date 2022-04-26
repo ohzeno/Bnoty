@@ -4,7 +4,7 @@
 let canvas;
 let test;
 let ctx;
-let INITIAL_COLOR = "black";
+let INITIAL_COLOR = "red";
 let CANVAS_SIZE = 700;
 let painting = false;
 let paragraph;
@@ -23,19 +23,26 @@ function createCanvas() {
   canvas.height = CANVAS_SIZE;
   //background: transparent; position: absolute; z-index: 2147483647; opacity: 1;
   //height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px
-  canvas.style = `height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px; background: skyblue; position: absolute; top: 0; left: 0; z-index: 2147483647; opacity: 0.4;`;
+  canvas.style = `height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px;  position: absolute; top: 0; left: 0; z-index: 2147483647; opacity: 0.4;`;
   // ctx.fillStyle = "skyblue";
   // ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-  ctx.strokeStyle = INITIAL_COLOR; // 선 색
-  ctx.lieWidth = 2.5; // 선 굵기
+  ctx.strokeStyle = "rgba(255, 0, 0, 1)";
+  ctx.lineWidth = 3; // 선 굵기
 
   // 여기부터 테스트를 위해서 임시 UI 시작 ----------------------------------
   var button = window.document.createElement("button");
-  var buttonText = window.document.createTextNode("지우기");
+  var buttonText = window.document.createTextNode("전체");
   button.appendChild(buttonText);
   button.setAttribute("id", "delBut");
   window.document.body.appendChild(button);
   button.style = `position: absolute; top: 0; left: 0; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("부분");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "delPartBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 30px; left: 0; z-index: 2147483647;`;
 
   var button = window.document.createElement("button");
   var buttonText = window.document.createTextNode("펜");
@@ -92,6 +99,10 @@ function createCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); //clear canvas
   });
 
+  document.getElementById("delPartBut").addEventListener("click", function () {
+    activate = "eraser";
+  });
+
   document.getElementById("penBut").addEventListener("click", function () {
     activate = "pen";
   });
@@ -135,6 +146,8 @@ function createCanvas() {
     test.addEventListener("mouseup", stopPainting);
     test.addEventListener("mouseleave", stopPainting);
   }
+  console.log(ctx.strokeStyle)
+  ctx.save();
 }
 
 function startPainting(event) {
@@ -169,6 +182,8 @@ function stopPainting(event) {
 }
 
 function onMouseMove(event) {
+  ctx.restore();
+  console.log(ctx.strokeStyle)
   // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
   eX = event.offsetX;
   eY = event.offsetY;
@@ -186,14 +201,19 @@ function onMouseMove(event) {
       ctx.lineTo(eX, eY);
       ctx.stroke();
       return;
+    }else if(activate == "eraser"){ // 부분 지우기
+      ctx.clearRect(eX-ctx.lineWidth*1.5, eY-ctx.lineWidth*1.5, ctx.lineWidth*3, ctx.lineWidth*3); // 해당 범위만큼 지운다.
+      return;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (saveImage)
       // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
       ctx.putImageData(saveImage, 0, 0);
-    if (activate == "rectangle")
+    if (activate == "rectangle"){
       // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
+      ctx.strokeStyle = "rgba(255, 0, 0, 1)";
       ctx.strokeRect(sX, sY, eX - sX, eY - sY);
+    }
     else if (activate == "triangle") {
       // 세모
       ctx.beginPath();
