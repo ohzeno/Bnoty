@@ -1,124 +1,141 @@
-console.log("app.js");
-console.log("window", window);
-const canvas = window.document.createElement("Canvas");
-canvas.setAttribute("id", "bnoty");
-window.document.body.appendChild(canvas);
-
-const test = document.getElementById("bnoty");
-const ctx = test.getContext("2d");
-const INITIAL_COLOR = "black";
-const CANVAS_SIZE = 700;
-
-canvas.width = document.documentElement.clientWidth;
-canvas.height = document.documentElement.clientHeight;
-//background: transparent; position: absolute; z-index: 2147483647; opacity: 1;
-canvas.style = `height: 100%; width: 100%; background: rgba(0, 0, 0, 0.1); position: absolute; top: 0; left: 0; z-index: 2147483646;`;
-// ctx.fillStyle = "skyblue";
-// ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-
-ctx.strokeStyle = INITIAL_COLOR; // 선 색
-ctx.lieWidth = 2.5; // 선 굵기
-
+// console.log("app.js");
+// console.log(this === window);
+// console.log("window", window);
+let canvas;
+let test;
+let ctx;
+let INITIAL_COLOR = "black";
+let CANVAS_SIZE = 700;
 let painting = false;
-
-// 여기부터 테스트를 위해서 임시 UI 시작 ----------------------------------
-var button = window.document.createElement("button");
-var buttonText = window.document.createTextNode("지우기");
-button.appendChild(buttonText);
-button.setAttribute("id", "delBut");
-window.document.body.appendChild(button);
-button.style = `position: absolute; top: 0; left: 0; z-index: 2147483647;`;
-
-var button = window.document.createElement("button");
-var buttonText = window.document.createTextNode("펜");
-button.appendChild(buttonText);
-button.setAttribute("id", "penBut");
-window.document.body.appendChild(button);
-button.style = `position: absolute; top: 0; left: 50px; z-index: 2147483647;`;
-
-var button = window.document.createElement("button");
-var buttonText = window.document.createTextNode("네모");
-button.appendChild(buttonText);
-button.setAttribute("id", "rectangleBut");
-window.document.body.appendChild(button);
-button.style = `position: absolute; top: 0; left: 100px; z-index: 2147483647;`;
-
-var button = window.document.createElement("button");
-var buttonText = window.document.createTextNode("세모");
-button.appendChild(buttonText);
-button.setAttribute("id", "triangleBut");
-window.document.body.appendChild(button);
-button.style = `position: absolute; top: 0; left: 150px; z-index: 2147483647;`;
-
-var button = window.document.createElement("button");
-var buttonText = window.document.createTextNode("동그라미");
-button.appendChild(buttonText);
-button.setAttribute("id", "circleBut");
-window.document.body.appendChild(button);
-button.style = `position: absolute; top: 0; left: 200px; z-index: 2147483647;`;
-
-var button = window.document.createElement("button");
-var buttonText = window.document.createTextNode("직선");
-button.appendChild(buttonText);
-button.setAttribute("id", "lineBut");
-window.document.body.appendChild(button);
-button.style = `position: absolute; top: 0; left: 280px; z-index: 2147483647;`;
-
-var button = window.document.createElement("button");
-var buttonText = window.document.createTextNode("곡선");
-button.appendChild(buttonText);
-button.setAttribute("id", "curveBut");
-window.document.body.appendChild(button);
-button.style = `position: absolute; top: 0; left: 330px; z-index: 2147483647;`;
-
-var button = window.document.createElement("button");
-var buttonText = window.document.createTextNode("화살표");
-button.appendChild(buttonText);
-button.setAttribute("id", "arrowBut");
-window.document.body.appendChild(button);
-button.style = `position: absolute; top: 0; left: 380px; z-index: 2147483647;`;
-
-
-// 여기는 위에 버튼 클릭 이벤트
-document.getElementById("delBut").addEventListener("click", function () {
-  saveImage = null;
-  ctx.clearRect(0, 0, canvas.width, canvas.height); //clear canvas
-});
-
-document.getElementById("penBut").addEventListener("click", function () {
-  activate = "pen";
-});
-
-document.getElementById("rectangleBut").addEventListener("click", function () {
-  activate = "rectangle";
-});
-
-document.getElementById("triangleBut").addEventListener("click", function () {
-  activate = "triangle";
-});
-
-document.getElementById("circleBut").addEventListener("click", function () {
-  activate = "circle";
-});
-
-document.getElementById("lineBut").addEventListener("click", function () {
-  activate = "line";
-});
-
-document.getElementById("curveBut").addEventListener("click", function () {
-  activate = "curve";
-});
-
-document.getElementById("arrowBut").addEventListener("click", function () {
-  activate = "arrow";
-});
-
-// ------------------------------------------------------------------- 임시 UI 종료
+let paragraph;
 
 var activate = "pen"; // 지금 활성화된 도구 기본은 펜!
 var saveImage = null; // 지금 까지 그린 이미지를 저장
-var sX, sY, eX, eY, mX, mY;
+var sX, sY, eX, eY, mX, mY; //시작 좌표 끝좌표 중간좌표
 
+function createCanvas() {
+  canvas = window.document.createElement("Canvas");
+  canvas.setAttribute("id", "bnoty");
+  window.document.body.appendChild(canvas);
+  test = window.document.getElementById("bnoty");
+  ctx = test.getContext("2d");
+  canvas.width = CANVAS_SIZE;
+  canvas.height = CANVAS_SIZE;
+  //background: transparent; position: absolute; z-index: 2147483647; opacity: 1;
+  //height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px
+  canvas.style = `height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px; background: skyblue; position: absolute; top: 0; left: 0; z-index: 2147483647; opacity: 0.4;`;
+  // ctx.fillStyle = "skyblue";
+  // ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  ctx.strokeStyle = INITIAL_COLOR; // 선 색
+  ctx.lieWidth = 2.5; // 선 굵기
+
+  // 여기부터 테스트를 위해서 임시 UI 시작 ----------------------------------
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("지우기");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "delBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 0; left: 0; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("펜");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "penBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 0; left: 50px; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("네모");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "rectangleBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 0; left: 100px; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("세모");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "triangleBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 0; left: 150px; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("동그라미");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "circleBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 0; left: 200px; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("직선");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "lineBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 0; left: 280px; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("곡선");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "curveBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 0; left: 330px; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("화살표");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "arrowBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 0; left: 380px; z-index: 2147483647;`;
+
+  // 여기는 위에 버튼 클릭 이벤트
+  document.getElementById("delBut").addEventListener("click", function () {
+    saveImage = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height); //clear canvas
+  });
+
+  document.getElementById("penBut").addEventListener("click", function () {
+    activate = "pen";
+  });
+
+  document
+    .getElementById("rectangleBut")
+    .addEventListener("click", function () {
+      activate = "rectangle";
+      test.style.cursor = 'crosshair'
+    });
+
+  document.getElementById("triangleBut").addEventListener("click", function () {
+    activate = "triangle";
+    test.style.cursor = 'crosshair'
+  });
+
+  document.getElementById("circleBut").addEventListener("click", function () {
+    activate = "circle";
+    test.style.cursor = 'crosshair'
+  });
+
+  document.getElementById("lineBut").addEventListener("click", function () {
+    activate = "line";
+    test.style.cursor = 'crosshair'
+  });
+
+  document.getElementById("curveBut").addEventListener("click", function () {
+    activate = "curve";
+    test.style.cursor = 'crosshair'
+  });
+
+  document.getElementById("arrowBut").addEventListener("click", function () {
+    activate = "arrow";
+    test.style.cursor = 'crosshair'
+  });
+  // ------------------------------------------------------------------- 임시 UI 종료
+
+  if (canvas) {
+    test.addEventListener("mousemove", onMouseMove);
+    test.addEventListener("mousedown", startPainting);
+    test.addEventListener("mouseup", stopPainting);
+    test.addEventListener("mouseleave", stopPainting);
+  }
+}
 
 function startPainting(event) {
   if (painting) {// 이부분은 곡선그리는 부분떄문에 사용
@@ -248,10 +265,68 @@ function onMouseMove(event) {
   }
 }
 
-if (canvas) {
-  console.log("이벤트리스너");
-  test.addEventListener("mousemove", onMouseMove);
-  test.addEventListener("mousedown", startPainting);
-  test.addEventListener("mouseup", stopPainting);
-  test.addEventListener("mouseleave", stopPainting);
+// 윈도우 사이즈 변할때마다 작동
+window.onresize = function (event) {
+  handleResize();
+};
+
+function handleResize(t) {
+  // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
+  // store, restore는 아직 없어서 주석해둠.
+  // paragraph는 아직 해석못함.
+  // console.log("resize");
+  var e = !1,
+    i = window.pageYOffset || document.documentElement.scrollTop,
+    n =
+      (window.innerHeight || document.documentElement.clientHeight,
+      ctx.lineWidth),
+    s = Math.max(
+      document.documentElement.clientWidth,
+      document.body.scrollWidth,
+      document.documentElement.scrollWidth,
+      document.body.offsetWidth,
+      document.documentElement.offsetWidth
+    ),
+    o = Math.max(
+      document.documentElement.clientHeight,
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight
+    ),
+    a = Math.min(o - canvas.offsetTop, 5e3);
+  if (5e3 < i - canvas.offsetTop) {
+    a = Math.min(o - i, 5e3);
+    canvas.style.top = i + "px";
+    e = !0;
+  } else {
+    if (i < canvas.offsetTop) {
+      a = 5e3;
+      canvas.style.top = Math.max(0, 5e3 * Math.floor(i / 5e3)) + "px";
+      e = !0;
+    }
+  }
+  if (e) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (paragraph) {
+      // paragraph는 무슨 역할인지 아직 모름.
+      paragraph.clearIntervals();
+      paragraph = null;
+    }
+    // storeCanvas(!0);
+  } else {
+    // storeCanvas(t);
+  }
+  canvas.width = s;
+  canvas.style.width = s + "px";
+  canvas.height = a;
+  canvas.style.height = a + "px";
+  // if (!e) {
+  //   restoreCanvas();
+  // }
+  // updatePaintStyle();
+  ctx.lineWidth = n;
 }
+
+createCanvas();
+handleResize(); // 초기 캔버스 사이즈조절
