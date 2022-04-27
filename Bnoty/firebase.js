@@ -12,16 +12,73 @@ const firebaseConfig = {
   firebase.initializeApp(firebaseConfig);
   console.log(firebase);
 
+  let url;
+  let email;
+  const db = firebase.firestore();
+
   chrome.identity.getProfileUserInfo({'accountStatus': 'ANY'}, function(info) {
     email = info.email;
+    check = false;
+    db.collection('Users').get().then((response)=>{
+      response.forEach((doc)=>{
+        docEmail = doc.get('email');
+        if(email === docEmail) {
+          check = true;
+        }
+      })
+      if(!check){
+        db.collection('Users').doc().set({
+          email: email
+        })
+      }
+    })
     console.log(info);
   })
 
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-    let url = tabs[0].url;
-    console.log(url);
-  });
 
+  chrome.runtime.onMessage.addListener((msg, sender, response) => {
+    console.log("onMessage");
+    if(msg.method == '10SecSave'){
+      console.log("10SecSave");
+      chrome.identity.getProfileUserInfo({'accountStatus': 'ANY'}, function(info) {
+        email = info.email;
+        console.log(info);
+      });
+      
+      if(email === ""){
+        console.log("로컬 저장")
+      }
+      else {       
+        db.collection('Users').get().then((response)=>{
+          response.forEach((doc)=>{
+            docEmail = doc.get('email');
+            if(email === docEmail){
+              db.collection('Users').doc(doc.id).collection('dataQuery').doc(msg.url).set({
+                config: "데이터"
+              })
+              .then(() => {
+                alert("자동저장")
+              })
+              .catch(function(error) {
+                console.error("Error writing document: ", error);
+              });
+            } // if email end
+          })
+        })
+      } // else end
+
+    }
+  
+    return true;
+  });
+  // chrome.runtime.sendMessage({command: "testNote", data: {notes: ''}}, (response) => {
+                  
+  // })
+
+  // setInterval(function () {
+  //    alert('hello'); 
+  //   }, 10000);
+  
   // var url=chrome.runtime.getURL("background.html");
   // console.log(url);
 

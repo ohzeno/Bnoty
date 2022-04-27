@@ -11,3 +11,22 @@
   
 </body>
 </html>
+
+
+<script>
+let url;
+console.log("pop")
+!function startAutoSave() {
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+        url = tabs[0].url;
+        console.log(url);
+  });
+  chrome.runtime.sendMessage( { method : '10SecSave', url : url}, (response) => {
+    console.log("[popup.js] chrome.runtime.sendMessage()");
+    console.log(response.farewell);
+  });
+};
+
+startAutoSave();
+
+</script>

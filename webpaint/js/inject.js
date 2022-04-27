@@ -1369,9 +1369,15 @@ var getCSSAnimationManager = function () {
                 //   console.log(url);
                 // })
 
-                chrome.runtime.sendMessage({command: "testNote", data: {notes: ''}}, (response) => {
+                chrome.runtime.sendMessage({command: "10SecSave", data: {notes: ''}}, (response) => {
                   
                 })
+
+                // setInterval(function () {
+                //   chrome.runtime.sendMessage({command: "10SecSave", data: {notes: ''}}, (response) => {
+                  
+                //   })
+                // }, 10000)
                 )
               : "line" === e.type
               ? (this.restoreCanvas(),
