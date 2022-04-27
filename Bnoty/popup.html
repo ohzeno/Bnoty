@@ -7,26 +7,8 @@
   <title>Document</title>
 </head>
 <body>
-  팝업페이지 입니다
-  
+  팝업페이지 입니다.
+  <button id = "test">test</button>
+  <script type="text/javascript" src="/js/popup.js"></script>
 </body>
 </html>
-
-
-<script>
-let url;
-console.log("pop")
-!function startAutoSave() {
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-        url = tabs[0].url;
-        console.log(url);
-  });
-  chrome.runtime.sendMessage( { method : '10SecSave', url : url}, (response) => {
-    console.log("[popup.js] chrome.runtime.sendMessage()");
-    console.log(response.farewell);
-  });
-};
-
-startAutoSave();
-
-</script>

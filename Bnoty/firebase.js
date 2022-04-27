@@ -53,7 +53,8 @@ const firebaseConfig = {
           response.forEach((doc)=>{
             docEmail = doc.get('email');
             if(email === docEmail){
-              db.collection('Users').doc(doc.id).collection('dataQuery').doc(msg.url).set({
+              console.log(typeof(msg.url))
+              db.collection('Users').doc(doc.id).collection('dataQuery').doc('' + msg.url).set({
                 config: "데이터"
               })
               .then(() => {
