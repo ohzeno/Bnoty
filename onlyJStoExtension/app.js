@@ -8,8 +8,11 @@ let INITIAL_COLOR = "red";
 let CANVAS_SIZE = 700;
 let painting = false;
 let paragraph;
-let strokeStyle = "rgba(255, 0, 0, 1)";
-let lineWidth = 3;
+let strokeStyle = "rgba(255, 0, 0, 1)"; // 선 색상
+let lineWidth = 3; // 선 두께
+
+var color = null; // 색상
+var transparency = null; //투명도
 
 var activate = "pen"; // 지금 활성화된 도구 기본은 펜!
 var saveImage = null; // 지금 까지 그린 이미지를 저장
@@ -114,7 +117,22 @@ function createCanvas() {
   window.document.body.appendChild(button);
   button.style = `position: absolute; top: 30px; left: 100px; z-index: 2147483647;`;
 
-  // 여기는 위에 버튼 클릭 이벤트
+  var input = window.document.createElement("input");
+  input.setAttribute("id", "inputColor");
+  window.document.body.appendChild(input);
+  input.style = `position: absolute; top: 30px; left: 150px; z-index: 2147483647; width:30px`;
+
+  var input = window.document.createElement("input");
+  input.setAttribute("id", "inputLineWidth");
+  window.document.body.appendChild(input);
+  input.style = `position: absolute; top: 30px; left: 200px; z-index: 2147483647; width:30px`;
+
+  
+  var input = window.document.createElement("input");
+  input.setAttribute("id", "inputTransparency");
+  window.document.body.appendChild(input);
+  input.style = `position: absolute; top: 30px; left: 250px; z-index: 2147483647; width:30px`;
+
   document.getElementById("delBut").addEventListener("click", function () {
     saveImage = null;
     ctx.clearRect(0, 0, canvas.width, canvas.height); //clear canvas
@@ -170,6 +188,18 @@ function createCanvas() {
     if(historys.hasNext()){
       ctx.putImageData(historys.next(), 0, 0)
     }
+  });
+  
+  document.getElementById("inputColor").addEventListener("onkeyup", function () {
+    color = document.getElementById("inputColor").value;
+  });
+
+  document.getElementById("inputLineWidth").addEventListener("onkeyup", function () {
+    lineWidth = document.getElementById("inputColor").value;
+  });
+
+  document.getElementById("inputTransparency").addEventListener("onkeyup", function () {
+    transparency = document.getElementById("inputColor").value;
   });
 
   // ------------------------------------------------------------------- 임시 UI 종료
