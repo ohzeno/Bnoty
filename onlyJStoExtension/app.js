@@ -20,13 +20,6 @@ var MAX_ITEMS; // 최대 저장 아이템
 var currentIndex ; // 지금 인덱스 위치
 var array; // 데이터 저장 공간
 
-function historySave () {
-  MAX_ITEMS = 50 
-  currentIndex = 0 
-  array = []
-};
-
-
 function createCanvas() {
   canvas = window.document.createElement("Canvas");
   canvas.setAttribute("id", "bnoty");
@@ -187,10 +180,22 @@ function createCanvas() {
     test.addEventListener("mouseup", stopPainting);
     test.addEventListener("mouseleave", leaveStopPainting);
   }
+  Historys(); // 작업마다 저장한거 관리하는 부분
+}
 
-  historys = new historySave();
 
-  historySave.prototype.add = function (t) {
+// 작업마다 저장한거 관리하는 부분 시작 -----------------------------
+function Historys(){ // 최초 변수 초기화
+  function historySave () {
+    MAX_ITEMS = 50 
+    currentIndex = 0 
+    array = []
+  };
+  
+  historys = new historySave(); // 함수 할당
+
+  // 프로토 타입 객체 생성. 다른 객체도 사용 가능
+  historySave.prototype.add = function (t) { // 작업 저장하는 프로토타입
     if ( (currentIndex < array.length - 1 ? 
       ((array[++currentIndex] = t),
        (array = array.slice(0, currentIndex + 1)))
@@ -202,23 +207,22 @@ function createCanvas() {
         (currentIndex = currentIndex - e);
     }
   }
-
-  historySave.prototype.previous = function () {
+  historySave.prototype.previous = function () { // 이전 작업 가져오는거
     return 0 === currentIndex ? null : array[--currentIndex];
   }
-  historySave.prototype.next = function () {
+  historySave.prototype.next = function () {  // 다음 작업 가져오는거
     return currentIndex === array.length - 1
       ? null
       : array[++currentIndex];
   }
-  historySave.prototype.hasPrevious = function () {
+  historySave.prototype.hasPrevious = function () { //이전 저장값 있는지
     return 0 < currentIndex;
   }
-  historySave.prototype.hasNext = function () {
+  historySave.prototype.hasNext = function () { // 다음 저장값 있는지
     return currentIndex < array.length - 1;
   }
 }
-
+// 작업마다 저장한거 관리하는 부분 종료 -----------------------------
 
 
 function addHistory(){
@@ -241,8 +245,8 @@ function startPainting(event) {
     return;
   }
   painting = true;
-    sX = event.offsetX;
-    sY = event.offsetY;
+  sX = event.offsetX;
+  sY = event.offsetY;
 }
 
 function stopPainting(event) {
@@ -260,12 +264,14 @@ function stopPainting(event) {
   painting = false;
   saveImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // 지금까지 그린 정보를 저장
   addHistory();
-  
 }
 
 function leaveStopPainting(){
-  painting = false;
-  saveImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // 지금까지 그린 정보를 저장
+  if(painting){
+    painting = false;
+    saveImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // 지금까지 그린 정보를 저장
+    addHistory();
+  }
   if(activate == "curve"){
     mX = null;
     mY = null;
@@ -335,7 +341,6 @@ function onMouseMove(event) {
     } else if (activate == "curve") {
       // 그 여기 들어온 수를 판단해서 점 찍고 하는식으로 해야할거 같은데?
       ctx.beginPath();
-      console.log(`sx ${sX} sy ${sY} ex ${eX} ey ${eY} mx ${mX} my ${mY}`)
       if (mX == null && mY == null) {
         // 끝 좌표가 없으면 끝좌표를 저장하고 직선 그림
         ctx.moveTo(sX, sY);
