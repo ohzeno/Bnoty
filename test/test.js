@@ -4,20 +4,44 @@ const colors = document.getElementsByClassName("jsColor");
 const range = document.getElementById("jsRange");
 const mode = document.getElementById("jsMode");
 const saveBtn = document.getElementById("jsSave");
-const font = "14px snas-serif";
-const hasInput = false;
+const fontsize = document.getElementById("jsFontSize");
+const fontstyle = document.getElementById("jsFont");
+let hasInput = false;
+let size = "20px";
+let font = "sans-serif";
+const bold = document.getElementById("jsBold");
+const italic = document.getElementById("jsItalic");
+let boldtext = "";
+let italictext = "";
 
+// 캔버스 관련 설정값들
 const INITIAL_COLOR = "black";
 const CANVAS_SIZE = 700;
 
 canvas.width = CANVAS_SIZE;
 canvas.height = CANVAS_SIZE;
 
+//배경색 설정 안해주면 투명임
+ctx.fillStyle = "white";
+ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+ctx.strokeStyle = INITIAL_COLOR; // 선 색
+ctx.fillStyle = INITIAL_COLOR;
+ctx.lieWidth = 2.5; // 선 굵기
+
+let painting = false;
+let filling = false;
+
+/// 함수 및 기능들
+
+// 캔버스 클릭이벤트
 canvas.onclick = function (e) {
+  // 값이 입력인 상태인가?
   if (hasInput) return;
-  addInput(e.clientX, e.clientY);
+  addInput(e.offsetX, e.offsetY);
 };
 
+// 텍스트 입력 관련 이벤트
 function addInput(x, y) {
   var input = document.createElement("input");
 
@@ -25,9 +49,10 @@ function addInput(x, y) {
   input.style.position = "fixed";
   input.style.left = x + "px";
   input.style.top = y + "px";
-  input.style.width = "300px";
+  input.style.width = "1000px";
   input.style.outline = "none";
   input.style.border = "none";
+  input.style.backgroundColor = "transparent";
 
   input.onkeydown = handleENTER;
 
@@ -38,6 +63,7 @@ function addInput(x, y) {
   hasInput = true;
 }
 
+// 엔터치면 입력종료하고 글자 캔버스에 그리기
 function handleENTER(e) {
   var keyCode = e.keyCode;
   if (keyCode === 13) {
@@ -51,27 +77,50 @@ function handleENTER(e) {
   }
 }
 
+// 캔버스에 글자 그리는 함수
 function drawText(txt, x, y) {
   ctx.textBaseline = "top";
   ctx.textAlign = "left";
-  ctx.font = font;
+  // 폰트는 굵기, 기울이기, 크기, 폰트로 들어감
+  ctx.font = boldtext + " " + italictext + " " + size + " " + font;
   ctx.fillText(txt, x, y);
 }
 
-//배경색 설정 안해주면 투명임
-ctx.fillStyle = "white";
-ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+// 폰트 사이즈 조절
+function handleFontSizeChange() {
+  size = document.getElementById("jsFontSize").value + "px";
+}
 
-ctx.strokeStyle = INITIAL_COLOR; // 선 색
-ctx.fillStyle = INITIAL_COLOR;
-ctx.lieWidth = 2.5; // 선 굵기
+// 폰트 변경
+function handleFontChange() {
+  font = document.getElementById("jsFont").value;
+}
 
-let painting = false;
-let filling = false;
+// 폰트 진하기
+function handleBoldClick() {
+  if (boldtext == "bold") {
+    boldtext = "";
+    bold.innerText = "진하게";
+  } else {
+    boldtext = "bold";
+    bold.innerText = "연하게";
+  }
+}
+
+// 폰트 기울이기
+function handleItalicClick() {
+  if (italictext == "italic") {
+    italictext = "";
+    italic.innerText = "기울이기";
+  } else {
+    italictext = "italic";
+    italic.innerText = "기울이지 않기";
+  }
+}
 
 function startPainting(event) {
   if (event.which === 1) {
-    //좌클릭 일 때만 그리기
+    //좌클릭일 때만 그리기
     painting = true;
   }
 }
@@ -156,4 +205,20 @@ if (mode) {
 
 if (saveBtn) {
   saveBtn.addEventListener("click", handleSaveClick);
+}
+
+if (fontsize) {
+  fontsize.addEventListener("input", handleFontSizeChange);
+}
+
+if (fontstyle) {
+  fontstyle.addEventListener("input", handleFontChange);
+}
+
+if (bold) {
+  bold.addEventListener("click", handleBoldClick);
+}
+
+if (italic) {
+  italic.addEventListener("click", handleItalicClick);
 }

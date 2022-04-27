@@ -20,11 +20,11 @@
           step="0.1"
         />
       </div>
-      <div class="controls_btns">
+      <div class="controls_btns" style="z-index: 1">
         <button id="jsMode">Fill</button>
         <button id="jsSave">Save</button>
       </div>
-      <div class="controls_colors" id="jsColors">
+      <div class="controls_colors" id="jsColors" style="z-index: 1">
         <div
           class="controls_color jsColor"
           style="background-color: black"
@@ -60,6 +60,30 @@
         ></div>
       </div>
     </div>
+    <div>
+      <div>
+        <!-- 폰트 -->
+        <select id="jsFont">
+          <option value="sans-serif">고딕체</option>
+          <option value="monospace">바탕체</option>
+          <option value="serif">명조체</option>
+          <option value="cursive">손글씨</option>
+          <option value="fantasy">화려체</option>
+        </select>
+        <!-- 글자 사이즈 -->
+        <input
+          id="jsFontSize"
+          type="number"
+          value="20"
+          style="margin-top: 30px"
+        />
+      </div>
+      <div class="controls_btns" style="z-index: 1">
+        <button id="jsBold">진하게</button>
+        <button id="jsItalic">기울이기</button>
+      </div>
+    </div>
+
     <script src="test.js"></script>
   </body>
 </html>
