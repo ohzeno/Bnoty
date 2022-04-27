@@ -1,6 +1,3 @@
-// console.log("app.js");
-// console.log(this === window);
-// console.log("window", window);
 let canvas;
 let test;
 let ctx;

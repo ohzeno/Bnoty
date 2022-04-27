@@ -1,0 +1,20 @@
+{
+  "background": {
+    "page": "Background.html"
+  },
+  "browser_action": {
+    "default_icon": "images/image38.png",
+    "default_title": "js toggle"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "description": "Draw shapes, lines, and add text to live web pages and take screenshot.",
+  "icons": {
+    "128": "images/image128.png",
+    "16": "images/image16.png",
+    "48": "images/image48.png"
+  },
+  "manifest_version": 2,
+  "name": "js toggle",
+  "permissions": ["tabs", "activeTab", "\u003Call_urls>"],
+  "version": "0.0.1"
+}
