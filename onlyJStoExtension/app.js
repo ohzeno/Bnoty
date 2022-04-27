@@ -14,6 +14,18 @@ let lineWidth = 3;
 var activate = "pen"; // 지금 활성화된 도구 기본은 펜!
 var saveImage = null; // 지금 까지 그린 이미지를 저장
 var sX, sY, eX, eY, mX, mY; //시작 좌표 끝좌표 중간좌표
+var historys = null; // 여기에 이제 그 작업한거 저장함
+
+var MAX_ITEMS; // 최대 저장 아이템
+var currentIndex ; // 지금 인덱스 위치
+var array; // 데이터 저장 공간
+
+function historySave () {
+  MAX_ITEMS = 50 
+  currentIndex = 0 
+  array = []
+};
+
 
 function createCanvas() {
   canvas = window.document.createElement("Canvas");
@@ -38,13 +50,6 @@ function createCanvas() {
   button.setAttribute("id", "delBut");
   window.document.body.appendChild(button);
   button.style = `position: absolute; top: 0; left: 0; z-index: 2147483647;`;
-
-  var button = window.document.createElement("button");
-  var buttonText = window.document.createTextNode("부분");
-  button.appendChild(buttonText);
-  button.setAttribute("id", "delPartBut");
-  window.document.body.appendChild(button);
-  button.style = `position: absolute; top: 30px; left: 0; z-index: 2147483647;`;
 
   var button = window.document.createElement("button");
   var buttonText = window.document.createTextNode("펜");
@@ -95,6 +100,27 @@ function createCanvas() {
   window.document.body.appendChild(button);
   button.style = `position: absolute; top: 0; left: 380px; z-index: 2147483647;`;
 
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("부분");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "delPartBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 30px; left: 0; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("이전");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "previousBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 30px; left: 50px; z-index: 2147483647;`;
+
+  var button = window.document.createElement("button");
+  var buttonText = window.document.createTextNode("다음");
+  button.appendChild(buttonText);
+  button.setAttribute("id", "nextBut");
+  window.document.body.appendChild(button);
+  button.style = `position: absolute; top: 30px; left: 100px; z-index: 2147483647;`;
+
   // 여기는 위에 버튼 클릭 이벤트
   document.getElementById("delBut").addEventListener("click", function () {
     saveImage = null;
@@ -140,6 +166,19 @@ function createCanvas() {
     activate = "arrow";
     test.style.cursor = 'crosshair'
   });
+
+  document.getElementById("previousBut").addEventListener("click", function () {
+    if(historys.hasPrevious()){
+      ctx.putImageData(historys.previous(), 0, 0)
+    }
+  });
+
+  document.getElementById("nextBut").addEventListener("click", function () {
+    if(historys.hasNext()){
+      ctx.putImageData(historys.next(), 0, 0)
+    }
+  });
+
   // ------------------------------------------------------------------- 임시 UI 종료
 
   if (canvas) {
@@ -148,6 +187,45 @@ function createCanvas() {
     test.addEventListener("mouseup", stopPainting);
     test.addEventListener("mouseleave", leaveStopPainting);
   }
+
+  historys = new historySave();
+
+  historySave.prototype.add = function (t) {
+    if ( (currentIndex < array.length - 1 ? 
+      ((array[++currentIndex] = t),
+       (array = array.slice(0, currentIndex + 1)))
+        : (array.push(t), (currentIndex = array.length - 1)),
+      array.length > MAX_ITEMS)
+    ) {
+      var e = array.length - MAX_ITEMS;
+      (array = array.splice(-MAX_ITEMS)),
+        (currentIndex = currentIndex - e);
+    }
+  }
+
+  historySave.prototype.previous = function () {
+    return 0 === currentIndex ? null : array[--currentIndex];
+  }
+  historySave.prototype.next = function () {
+    return currentIndex === array.length - 1
+      ? null
+      : array[++currentIndex];
+  }
+  historySave.prototype.hasPrevious = function () {
+    return 0 < currentIndex;
+  }
+  historySave.prototype.hasNext = function () {
+    return currentIndex < array.length - 1;
+  }
+}
+
+
+
+function addHistory(){
+  console.log("ddd")
+  console.log(saveImage)
+  historys.add(saveImage)
+  // 여기서 버튼 디스에이블하는것도 해줘야함
 }
 
 
@@ -181,6 +259,8 @@ function stopPainting(event) {
   }
   painting = false;
   saveImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // 지금까지 그린 정보를 저장
+  addHistory();
+  
 }
 
 function leaveStopPainting(){
@@ -361,6 +441,8 @@ function handleResize(t) {
   if (saveImage)
       // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
       ctx.putImageData(saveImage, 0, 0);
+  if(array.length == 0)
+      historys.add(ctx.getImageData(0, 0, canvas.width, canvas.height))
 }
 
 createCanvas();
