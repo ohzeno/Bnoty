@@ -146,7 +146,7 @@ function createCanvas() {
     test.addEventListener("mousemove", onMouseMove);
     test.addEventListener("mousedown", startPainting);
     test.addEventListener("mouseup", stopPainting);
-    test.addEventListener("mouseleave", stopPainting);
+    test.addEventListener("mouseleave", leaveStopPainting);
   }
 }
 
@@ -162,13 +162,9 @@ function startPainting(event) {
     painting = false;
     return;
   }
-  if (event.which === 1) {
-    //좌클릭 일 때만 그리기
-    // console.log("start들어옴");
-    painting = true;
+  painting = true;
     sX = event.offsetX;
     sY = event.offsetY;
-  }
 }
 
 function stopPainting(event) {
@@ -179,13 +175,21 @@ function stopPainting(event) {
       mX = event.offsetX;
       mY = event.offsetY;
       return; // 여기서는 끝좌표만 갱신하고 리턴해줘야 다음작업 가능
-    } else {
-      mX = null;
-      mY = null;
     }
+    mX = null;
+    mY = null;
   }
   painting = false;
   saveImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // 지금까지 그린 정보를 저장
+}
+
+function leaveStopPainting(){
+  painting = false;
+  saveImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // 지금까지 그린 정보를 저장
+  if(activate == "curve"){
+    mX = null;
+    mY = null;
+  }
 }
 
 function onMouseMove(event) {
@@ -251,6 +255,7 @@ function onMouseMove(event) {
     } else if (activate == "curve") {
       // 그 여기 들어온 수를 판단해서 점 찍고 하는식으로 해야할거 같은데?
       ctx.beginPath();
+      console.log(`sx ${sX} sy ${sY} ex ${eX} ey ${eY} mx ${mX} my ${mY}`)
       if (mX == null && mY == null) {
         // 끝 좌표가 없으면 끝좌표를 저장하고 직선 그림
         ctx.moveTo(sX, sY);
