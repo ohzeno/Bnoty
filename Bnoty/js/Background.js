@@ -70,12 +70,32 @@ function ShowCapture(i){
     console.log("[Background] ShowCapture");
 
     // 함수로 저장
-    // global.tabs.captureVisibleTab(function(a) {
-    //     // 추출한 이미지를 이걸로
-    //     console.log(a);
-    // });
+    global.tabs.captureVisibleTab(function(a) {
+        // 추출한 이미지 a
+        let captureimgurl = a + "";
+        console.log(typeof(a)); 
+        console.log(captureimgurl); 
+        console.log(typeof(captureimgurl)); 
+           
+        chrome.storage.sync.set({ captureimgurl });
+        // global.tabs.create( { url: "capture.html" } );
+        let color = a + '';
+        var jam = 'spacecowboy';
+        chrome.storage.sync.set({ color });
+        chrome.storage.local.set({jam}, function () {
+            // 저장 완료
+            console.log(jam);
+            console.log("저장완료 됐습니다.");
+        });
+
+    });
 
     
+
+    setTimeout(function() {
+        global.tabs.create( { url: "capture.html" } );
+    }, 1000);
+
     // global.tabs.captureVisibleTab(function(a) {
     //     var o = global.extension.getURL("capture.html");
     //     global.tabs.create( 

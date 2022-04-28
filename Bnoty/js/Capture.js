@@ -9,12 +9,34 @@ chrome.runtime.onMessage.addListener(
 });
 
 
-!function(){
-    chrome.storage.sync.get(["captureimg"], function(result) {
-        console.log('Value currently is ' + result.key);
+// !function(){
+//     chrome.storage.sync.get(["captureimg"], function(result) {
+//         console.log('Value currently is ' + result.key);
+//     });
+
+// }
+
+
+function test(){
+    let today = new Date();   
+    console.log("테스트");
+    console.log(today);
+    
+    chrome.storage.sync.get("captureimgurl", ({ captureimgurl }) => {
+        console.log(captureimgurl);
+    });
+
+    chrome.storage.sync.get("color", ({ color }) => {
+        console.log(color);
+    });
+    chrome.storage.local.get("jam", ({ jam }) => {
+        console.log(jam);
     });
 
 }
+
+test();
+
 
 // /**
 //  * Copyright Liang Zhou
