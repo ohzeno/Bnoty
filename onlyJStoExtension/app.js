@@ -338,7 +338,6 @@ function onMouseMove(event) {
   } else {
     //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
     // console.log("stroke들어옴");
-    console.log(ctx.strokeStyle);
     if (activate == "pen") {
       ctx.lineTo(eX, eY);
       ctx.stroke();
@@ -357,14 +356,16 @@ function onMouseMove(event) {
     }
     else if (activate == "triangle") {
       // 세모
-      console.log((sX + eX) / 2, sY)
       ctx.beginPath();
       ctx.moveTo((sX + eX) / 2, sY); // 시작점(x,y)
       ctx.lineTo(sX, eY);
+      ctx.moveTo((sX + eX) / 2, sY); 
       ctx.lineTo(eX, eY);
-      ctx.lineTo((sX + eX) / 2, sY);
+      ctx.moveTo(sX, eY);
+      ctx.lineTo(eX, eY);
+      ctx.lineCap = 'round' // 끝을 둥글게
       ctx.stroke();
-      console.log((sX + eX) / 2, sY)
+      ctx.lineCap = 'butt' // 끝을 원래로
     } else if (activate == "circle") {
       // 동그라미
       var s = ((eX - sX) / 2) * 0.5522848,
