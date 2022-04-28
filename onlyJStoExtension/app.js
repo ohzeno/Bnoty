@@ -8,11 +8,11 @@ let INITIAL_COLOR = "red";
 let CANVAS_SIZE = 700;
 let painting = false;
 let paragraph;
-let strokeStyle = "rgba(0, 0, 0, 1)"; // 선 색상
+let strokeStyle = "rgb(0, 0, 0)"; // 선 색상
 let lineWidth = 3; // 선 두께
 
 var color = null; // 색상
-var transparency = 1; //투명도
+var globalAlpha  = 1; //투명도
 
 var activate = "pen"; // 지금 활성화된 도구 기본은 펜!
 var saveImage = null; // 지금 까지 그린 이미지를 저장
@@ -37,7 +37,7 @@ function createCanvas() {
   canvas.height = CANVAS_SIZE;
   //background: transparent; position: absolute; z-index: 2147483647; opacity: 1;
   //height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px
-  canvas.style = `height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px;  position: absolute; top: 0; left: 0; z-index: 2147483647; opacity: 0.4;`;
+  canvas.style = `height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px; position: absolute; top: 0; left: 0; z-index: 2147483647;`;
   // ctx.fillStyle = "skyblue";
   // ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
   // ctx.strokeStyle = INITIAL_COLOR; // 선 색
@@ -204,7 +204,6 @@ function createCanvas() {
     green = parseInt(color[3]+color[4],16);
     blue = parseInt(color[5]+color[6],16);
     colorConversion();
-    console.log(strokeStyle)
   });
 
   document.getElementById("inputLineWidth").addEventListener("input", function () {
@@ -213,9 +212,8 @@ function createCanvas() {
   });
 
   document.getElementById("inputTransparency").addEventListener("input", function () {
-    transparency = document.getElementById("inputTransparency").value;
-    colorConversion();
-    console.log(strokeStyle)
+    globalAlpha = document.getElementById("inputTransparency").value;
+    setCtxProp();
   });
 
   // ------------------------------------------------------------------- 임시 UI 종료
@@ -230,7 +228,7 @@ function createCanvas() {
 }
 
 function colorConversion(){
-  strokeStyle = "rgba(" +red +"," +green +"," +blue + "," +transparency+")";
+  strokeStyle = "rgb(" +red +"," +green +"," +blue +")";
   setCtxProp();
 }
 
@@ -284,6 +282,7 @@ function addHistory(){
 function setCtxProp() {
   ctx.strokeStyle = strokeStyle; // 선 색
   ctx.fillStyle = strokeStyle; // 채우기 색
+  ctx.globalAlpha  = globalAlpha; // 투명도
   ctx.lineWidth = lineWidth; // 선 굵기
 }
 
@@ -358,12 +357,14 @@ function onMouseMove(event) {
     }
     else if (activate == "triangle") {
       // 세모
+      console.log((sX + eX) / 2, sY)
       ctx.beginPath();
       ctx.moveTo((sX + eX) / 2, sY); // 시작점(x,y)
       ctx.lineTo(sX, eY);
       ctx.lineTo(eX, eY);
       ctx.lineTo((sX + eX) / 2, sY);
       ctx.stroke();
+      console.log((sX + eX) / 2, sY)
     } else if (activate == "circle") {
       // 동그라미
       var s = ((eX - sX) / 2) * 0.5522848,
