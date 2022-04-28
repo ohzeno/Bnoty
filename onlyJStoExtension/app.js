@@ -8,11 +8,11 @@ let INITIAL_COLOR = "red";
 let CANVAS_SIZE = 700;
 let painting = false;
 let paragraph;
-let strokeStyle = "rgba(255, 0, 0, 1)"; // 선 색상
+let strokeStyle = "rgba(0, 0, 0, 1)"; // 선 색상
 let lineWidth = 3; // 선 두께
 
 var color = null; // 색상
-var transparency = null; //투명도
+var transparency = 1; //투명도
 
 var activate = "pen"; // 지금 활성화된 도구 기본은 펜!
 var saveImage = null; // 지금 까지 그린 이미지를 저장
@@ -22,6 +22,10 @@ var historys = null; // 여기에 이제 그 작업한거 저장함
 var MAX_ITEMS; // 최대 저장 아이템
 var currentIndex ; // 지금 인덱스 위치
 var array; // 데이터 저장 공간
+
+var red = 0;
+var green = 0;
+var blue = 0;
 
 function createCanvas() {
   canvas = window.document.createElement("Canvas");
@@ -119,17 +123,21 @@ function createCanvas() {
 
   var input = window.document.createElement("input");
   input.setAttribute("id", "inputColor");
+  input.setAttribute("type", "color");
+  input.setAttribute("placeholder", "색상");
   window.document.body.appendChild(input);
   input.style = `position: absolute; top: 30px; left: 150px; z-index: 2147483647; width:30px`;
 
   var input = window.document.createElement("input");
   input.setAttribute("id", "inputLineWidth");
+  input.setAttribute("placeholder", "두께");
   window.document.body.appendChild(input);
   input.style = `position: absolute; top: 30px; left: 200px; z-index: 2147483647; width:30px`;
 
   
   var input = window.document.createElement("input");
   input.setAttribute("id", "inputTransparency");
+  input.setAttribute("placeholder", "투명도");
   window.document.body.appendChild(input);
   input.style = `position: absolute; top: 30px; left: 250px; z-index: 2147483647; width:30px`;
 
@@ -190,16 +198,24 @@ function createCanvas() {
     }
   });
   
-  document.getElementById("inputColor").addEventListener("onkeyup", function () {
+  document.getElementById("inputColor").addEventListener("input", function () {
     color = document.getElementById("inputColor").value;
+    red = parseInt(color[1]+color[2],16);
+    green = parseInt(color[3]+color[4],16);
+    blue = parseInt(color[5]+color[6],16);
+    colorConversion();
+    console.log(strokeStyle)
   });
 
-  document.getElementById("inputLineWidth").addEventListener("onkeyup", function () {
-    lineWidth = document.getElementById("inputColor").value;
+  document.getElementById("inputLineWidth").addEventListener("input", function () {
+    lineWidth = document.getElementById("inputLineWidth").value;
+    ctx.lineWidth = lineWidth;
   });
 
-  document.getElementById("inputTransparency").addEventListener("onkeyup", function () {
-    transparency = document.getElementById("inputColor").value;
+  document.getElementById("inputTransparency").addEventListener("input", function () {
+    transparency = document.getElementById("inputTransparency").value;
+    colorConversion();
+    console.log(strokeStyle)
   });
 
   // ------------------------------------------------------------------- 임시 UI 종료
@@ -213,6 +229,10 @@ function createCanvas() {
   Historys(); // 작업마다 저장한거 관리하는 부분
 }
 
+function colorConversion(){
+  strokeStyle = "rgba(" +red +"," +green +"," +blue + "," +transparency+")";
+  setCtxProp();
+}
 
 // 작업마다 저장한거 관리하는 부분 시작 -----------------------------
 function Historys(){ // 최초 변수 초기화
@@ -256,8 +276,6 @@ function Historys(){ // 최초 변수 초기화
 
 
 function addHistory(){
-  console.log("ddd")
-  console.log(saveImage)
   historys.add(saveImage)
   // 여기서 버튼 디스에이블하는것도 해줘야함
 }
@@ -321,7 +339,7 @@ function onMouseMove(event) {
   } else {
     //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
     // console.log("stroke들어옴");
-    // console.log(ctx.strokeStyle);
+    console.log(ctx.strokeStyle);
     if (activate == "pen") {
       ctx.lineTo(eX, eY);
       ctx.stroke();
@@ -336,7 +354,6 @@ function onMouseMove(event) {
       ctx.putImageData(saveImage, 0, 0);
     if (activate == "rectangle"){
       // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
-      ctx.strokeStyle = "rgba(255, 0, 0, 1)";
       ctx.strokeRect(sX, sY, eX - sX, eY - sY);
     }
     else if (activate == "triangle") {
