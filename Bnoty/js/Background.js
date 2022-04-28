@@ -1,5 +1,13 @@
 // 설정
-var global = "undefined" != typeof chrome ? chrome : "undefined" != typeof browser ? browser : void 0; 
+if ("undefined" != typeof chrome) {
+    global = chrome;
+} else {
+    if ("undefined" != typeof browser) {
+        global = browser;
+    } else {
+        void 0;
+    }
+}
 
 Bnoty = {
     init: function () {
@@ -9,10 +17,14 @@ Bnoty = {
                 Bnoty.test2();
                 sendResponse({ farewell: 'test funcion is called' });
             } else if ( request.method === 'ShowCapture' ){
-                Bnoty.screenShot();
-                sendResponse({ farewell: 'ShowCapture funcion is called' });
+                Bnoty.screenShot(sendResponse);
+                // sendResponse({ farewell: 'ShowCapture funcion is called' });
             }
         });
+
+        // global.runtime.onMessage.addListener(function (e, t, n) {
+        //     if ("ShowCapture" === e.method) Bnoty.screenShot(n);
+        // });
 
     },
     // inject: function () {
@@ -60,7 +72,7 @@ Bnoty = {
         });
     },
 
-    // 현재 화면 캡처
+    // 현재 화면 캡처 테스트
     ShowCapture : function(){
         console.log("[Background] ShowCapture");
 
@@ -91,7 +103,9 @@ Bnoty = {
         }, 1000);
     },
 
+    // 현재 화면 캡처 함수 2
     screenShot: function(i) {
+        console.log("[Background] ShowCapture");
         global.tabs.captureVisibleTab(function(a) {
             var o = global.extension.getURL("capture.html");
             global.tabs.query({}, function(e) {
@@ -102,22 +116,39 @@ Bnoty = {
                             t = e[n];
                             break;
                         }
-                t ? global.tabs.update(t.id, {
-                    active: !0
-                }, Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, a, i, 0)) : global.tabs.create({
-                    url: o
-                }, Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, a, i, 0));
+                
+                // 이미지 테스트
+                // var aa = "https://i2.tcafe2a.com/220427/cf582f5c59a78ed65decb42dcbee2883_1651006214_2591.jpg";
+                
+                if (t){
+                    global.tabs.update( 
+                        t.id,
+                        { active: true },
+                        Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, a, i, 0)
+                        );
+                } else {
+                    global.tabs.create({
+                        url: o
+                    }, Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, a, i, 0));
+                }
+            
             });
         });
     },
     updateScreenshot: function(t, n) {
         var a = arguments[2];
-        null == a && (a = 0), 10 < a || global.runtime.sendMessage({
-            method: "update_url",
-            url: t
-        }, function(e) {
-            e && e.success || window.setTimeout(Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, t, n, ++a), 300);
-        });
+        if ( a == null ){
+            (a = 0);
+        }
+        
+        if ( 10 >= a ){
+            global.runtime.sendMessage({
+                method: "update_url",
+                url: t
+            }, function(e) {
+                e && e.success || window.setTimeout(Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, t, n, ++a), 300);
+            });
+        }
     }
 
     //
