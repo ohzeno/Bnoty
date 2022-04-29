@@ -401,30 +401,20 @@ function onMouseMove(event) {
       }
       ctx.stroke();
     } else if (activate == "arrow") {
-      ctx.beginPath();
-      ctx.moveTo(sX, sY);
-      ctx.lineTo(eX, eY);
-      ctx.stroke(); // 직선 그리기
-
-      var aWidth = 5 + ctx.lineWidth;
-      var aLength = 12 + ctx.lineWidth;
+      var headlen = ctx.lineWidth * 6; // 화살표 선 길이
       var dx = eX - sX;
       var dy = eY - sY;
       var angle = Math.atan2(dy, dx);
-      var length = Math.sqrt(dx * dx + dy * dy);
-
-      // //두점 선긋기
-      ctx.translate(sX, sY);
-      ctx.rotate(angle);
-      ctx.beginPath();
-
-      //화살표 모양 만들기
-      ctx.moveTo(length - aLength, -aWidth);
-      ctx.lineTo(length, 0);
-      ctx.lineTo(length - aLength, aWidth);
-
-      ctx.fill();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.beginPath()
+      ctx.moveTo(sX, sY);
+      ctx.lineTo(eX, eY);
+      ctx.moveTo(eX, eY);
+      ctx.lineTo(eX - headlen * Math.cos(angle - Math.PI / 6), eY - headlen * Math.sin(angle - Math.PI / 6));
+      ctx.moveTo(eX, eY);
+      ctx.lineTo(eX - headlen * Math.cos(angle + Math.PI / 6), eY - headlen * Math.sin(angle + Math.PI / 6));
+      ctx.lineCap = 'round' // 끝을 둥글게
+      ctx.stroke();
+      ctx.lineCap = 'butt' // 끝을 원래로
     }
   }
 }

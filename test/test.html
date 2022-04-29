@@ -18,8 +18,8 @@
             context.canvas.height = window.innerHeight;
 
             context.lineWidth = 10; // 선 두께
-            context.strokeStyle = "rgba(255, 0, 0)"; // 선 색상 + 투명도
-            context.fillStyle = "rgba(255, 0, 0)"; // 채우기 색상
+            context.strokeStyle = "rgba(255, 0, 0,0.5)"; // 선 색상 + 투명도
+            context.fillStyle = "rgba(255, 0, 0,0.5)"; // 채우기 색상
 
             var sX,sY,eX,eY,mX,mY; // 시작 좌표, 끝 좌표, 끝 좌표(커브)
             var draw = false; // true 일때만 그림 그리기 가능
@@ -95,14 +95,28 @@
                         }
                         context.stroke()
                     }else if(figure == 'arrow'){
-                        context.beginPath(),
-                        context.moveTo(sX,sY)
-                        context.lineTo(eX, eY)
-                        context.lineTo(eX, eY+20)
-                        context.moveTo(eX, eY)
-                        context.lineTo(eX, eY-20)
+                        var headlen = context.lineWidth * 10; // length of head in pixels
+  var dx = eX - sX;
+  var dy = eY - sY;
+  var angle = Math.atan2(dy, dx);
+  context.beginPath()
+  context.moveTo(sX, sY);
+  context.lineTo(eX, eY);
+  context.moveTo(eX, eY);
+  context.lineTo(eX - headlen * Math.cos(angle - Math.PI / 6), eY - headlen * Math.sin(angle - Math.PI / 6));
+  context.moveTo(eX, eY);
+  context.lineTo(eX - headlen * Math.cos(angle + Math.PI / 6), eY - headlen * Math.sin(angle + Math.PI / 6));
+  context.lineCap = 'round' // 끝을 둥글게
+  context.stroke();
+  context.lineCap = 'butt' // 끝을 원래로
+                        // context.beginPath(),
+                        // context.moveTo(sX,sY)
+                        // context.lineTo(eX, eY)
+                        // context.lineTo(eX, eY+20)
+                        // context.moveTo(eX, eY)
+                        // context.lineTo(eX, eY-20)
                         
-                        context.stroke() // 직선 그리기
+                        // context.stroke() // 직선 그리기
 
 
                         // var aWidth = 5+context.lineWidth;
@@ -185,6 +199,11 @@
         function arrow(){
             figure = 'arrow'
         }
+
+
+        function canvas_arrow(context, sX, sY, eX, eY) {
+ 
+}
 
     </script>
     <style type="text/css">
