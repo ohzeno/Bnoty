@@ -11,7 +11,6 @@ let paragraph;
 let strokeStyle = "rgb(0, 0, 0)"; // 선 색상
 let lineWidth = 3; // 선 두께
 
-var color = null; // 색상
 var globalAlpha  = 1; //투명도
 
 var activate = "pen"; // 지금 활성화된 도구 기본은 펜!
@@ -187,9 +186,11 @@ function createCanvas() {
   });
 
   document.getElementById("previousBut").addEventListener("click", function () {
+    
     if(historys.hasPrevious()){
       ctx.putImageData(historys.previous(), 0, 0)
     }
+    console.log(currentIndex)
   });
 
   document.getElementById("nextBut").addEventListener("click", function () {
@@ -199,11 +200,13 @@ function createCanvas() {
   });
   
   document.getElementById("inputColor").addEventListener("input", function () {
-    color = document.getElementById("inputColor").value;
+    var color = document.getElementById("inputColor").value;
+    // 헥사값을 rgb로 변경
     red = parseInt(color[1]+color[2],16);
     green = parseInt(color[3]+color[4],16);
     blue = parseInt(color[5]+color[6],16);
-    colorConversion();
+    strokeStyle = "rgb(" +red +"," +green +"," +blue +")";
+    setCtxProp();
   });
 
   document.getElementById("inputLineWidth").addEventListener("input", function () {
@@ -227,10 +230,6 @@ function createCanvas() {
   Historys(); // 작업마다 저장한거 관리하는 부분
 }
 
-function colorConversion(){
-  strokeStyle = "rgb(" +red +"," +green +"," +blue +")";
-  setCtxProp();
-}
 
 // 작업마다 저장한거 관리하는 부분 시작 -----------------------------
 function Historys(){ // 최초 변수 초기화
@@ -339,17 +338,20 @@ function onMouseMove(event) {
     //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
     // console.log("stroke들어옴");
     if (activate == "pen") {
+      ctx.globalCompositeOperation = "destination-atop";
       ctx.lineTo(eX, eY);
       ctx.stroke();
+      ctx.globalCompositeOperation = "source-over";
       return;
     }else if(activate == "eraser"){ // 부분 지우기
       ctx.clearRect(eX-ctx.lineWidth*1.5, eY-ctx.lineWidth*1.5, ctx.lineWidth*3, ctx.lineWidth*3); // 해당 범위만큼 지운다.
       return;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (saveImage)
+    if (currentIndex != 0){
       // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
-      ctx.putImageData(saveImage, 0, 0);
+      ctx.putImageData(array[currentIndex],0,0);
+    }
     if (activate == "rectangle"){
       // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
       ctx.strokeRect(sX, sY, eX - sX, eY - sY);
