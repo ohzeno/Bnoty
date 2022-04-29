@@ -186,11 +186,9 @@ function createCanvas() {
   });
 
   document.getElementById("previousBut").addEventListener("click", function () {
-    
     if(historys.hasPrevious()){
       ctx.putImageData(historys.previous(), 0, 0)
     }
-    console.log(currentIndex)
   });
 
   document.getElementById("nextBut").addEventListener("click", function () {
@@ -337,13 +335,7 @@ function onMouseMove(event) {
   } else {
     //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
     // console.log("stroke들어옴");
-    if (activate == "pen") {
-      ctx.globalCompositeOperation = "destination-atop";
-      ctx.lineTo(eX, eY);
-      ctx.stroke();
-      ctx.globalCompositeOperation = "source-over";
-      return;
-    }else if(activate == "eraser"){ // 부분 지우기
+    if(activate == "eraser"){ // 부분 지우기
       ctx.clearRect(eX-ctx.lineWidth*1.5, eY-ctx.lineWidth*1.5, ctx.lineWidth*3, ctx.lineWidth*3); // 해당 범위만큼 지운다.
       return;
     }
@@ -352,7 +344,12 @@ function onMouseMove(event) {
       // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
       ctx.putImageData(array[currentIndex],0,0);
     }
-    if (activate == "rectangle"){
+
+    if (activate == "pen") { // 펜그리는 부분
+      ctx.lineTo(eX, eY);
+      ctx.stroke();
+    }
+    else if (activate == "rectangle"){
       // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
       ctx.strokeRect(sX, sY, eX - sX, eY - sY);
     }
