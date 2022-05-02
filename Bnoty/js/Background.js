@@ -30,8 +30,8 @@ Bnoty = {
             } else if ( request.method === 'ScrollCapture' ){
                 Bnoty.ScrollCapture();
                 sendResponse({ farewell: 'ScrollCapture funcion is called' });
-            } else if ( request.method === 'test5' ){
-                console.log("test5 데이터 출력 메소드 ");
+            } else if ( request.method === 'sendimg' ){
+                console.log("sendimg 데이터 출력 메소드 ");
                 console.error(request.dataUUU);
                 var img = request.dataUUU;
                 var o = global.extension.getURL("capture.html");
@@ -43,9 +43,6 @@ Bnoty = {
                                 t = e[n];
                                 break;
                             }
-                    
-                    // 이미지 테스트
-                    // var aa = "https://i2.tcafe2a.com/220427/cf582f5c59a78ed65decb42dcbee2883_1651006214_2591.jpg";
                     
                     if (t){
                         global.tabs.update( 
@@ -60,8 +57,6 @@ Bnoty = {
                     }
                 
                 });
-
-                // sendResponse({ farewell: 'ScrollCapture funcion is called' });
             }
         });
 

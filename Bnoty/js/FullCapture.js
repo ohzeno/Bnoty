@@ -186,10 +186,9 @@ window.CaptureAPI = (function() {
             var dataURI = screenshot.canvas.toDataURL();
             console.log("getBlobs : ");
             console.error(dataURI);
-            chrome.runtime.sendMessage( { method : 'test5', dataUUU : dataURI }, (response) => {
-                console.log("[popup.js] 스파시바 ");
+            chrome.runtime.sendMessage( { method : 'sendimg', dataUUU : dataURI }, (response) => {
                 console.log(response.farewell);
-              });
+            });
 
             // 문자열에 보관된 원시 바이너리 데이터로 
             // base64를 변환하면 URLEncoded DataURI가 처리되지 않습니다.
