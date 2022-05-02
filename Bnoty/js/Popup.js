@@ -36,18 +36,21 @@ function CropCapture() {
 };
 
 function FullCapture() {
+  console.log("[popup.js] 1. 전체페이지 캡처");
 
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    var tab = tabs[0];
-    currentTab = tab; // used in later calls to get tab info
+    var tab = tabs[0]; 
+    currentTab = tab; // 탭 정보를 얻기 위해 나중에 호출할 때 사용됨
     var filename = getFilename(tab.url);
+    // function captureToFiles(tab, filename, callback,
+    //                        errback, progress, splitnotifier) {
+    console.log("filename : " + filename);
     CaptureAPI.captureToFiles(tab, filename, displayCaptures,
                               errorHandler, progress, splitnotifier);
   });
 
 
-  // chrome.runtime.sendMessage( { method : 'FullCapture'}, (response) => {
-  //   console.log("[popup.js] 전체페이지 캡처");
+  // chrome.runtime.sendMessage( { method : 'FullCapture'}, (response) => {  
   //   console.log(response.farewell);
   // });
 
@@ -61,24 +64,21 @@ function ScrollCapture() {
 };
 
 
-// 후
-var currentTab, // result of chrome.tabs.query of current active tab
-    resultWindowId; // window id for putting resulting images
-
-
-//
-// Utility methods
-//
-
+// 설정 메소드
+var currentTab; // 현재 활성 탭의 chrome.tabs.query 결과
+var  resultWindowId; // 결과 이미지를 넣을 창 ID
+// 유틸 
 function $(id) { return document.getElementById(id); }
 function show(id) { $(id).style.display = 'block'; }
 function hide(id) { $(id).style.display = 'none'; }
 
-
+// 현재 uRL 받아서 그냥 파일명만 바꿔주는 함수
 function getFilename(contentURL) {
-    var name = contentURL.split('?')[0].split('#')[0];
-    if (name) {
-        name = name
+  console.log("[popup.js] 2. getFilename (현재URL) ");
+  console.log(contentURL);
+  var name = contentURL.split('?')[0].split('#')[0];
+  if (name) {
+    name = name
             .replace(/^https?:\/\//, '')
             .replace(/[^A-z0-9]+/g, '-')
             .replace(/-+/g, '-')
@@ -112,30 +112,37 @@ function _displayCapture(filenames, index) {
     index = index || 0;
 
     var filename = filenames[index];
+    
+    // console.log("완성된URL 이미지가아님근데 : " + filename);
+    // chrome.runtime.sendMessage( { method : 'test5', dataUUU : filename }, (response) => {
+    //   console.log("[popup.js] 스파시바 ");
+    //   console.log(response.farewell);
+    // });
+
     var last = index === filenames.length - 1;
 
-    if (currentTab.incognito && index === 0) {
-        // cannot access file system in incognito, so open in non-incognito
-        // window and add any additional tabs to that window.
-        //
-        // we have to be careful with focused too, because that will close
-        // the popup.
-        chrome.windows.create({
-            url: filename,
-            incognito: false,
-            focused: last
-        }, function(win) {
-            resultWindowId = win.id;
-        });
-    } else {
-        chrome.tabs.create({
-            url: filename,
-            active: last,
-            windowId: resultWindowId,
-            openerTabId: currentTab.id,
-            index: (currentTab.incognito ? 0 : currentTab.index) + 1 + index
-        });
-    }
+    // 여기서 url은 파일네임이고 
+    // if (currentTab.incognito && index === 0) {
+    //     // 시크릿 모드에서는 파일 시스템에 액세스할 수 없으므로 
+    //     // 시크릿 모드가 아닌 창에서 열고 해당 창에 추가 탭을 추가하세요.
+    //     // 팝업이 닫히기 때문에 포커스도 주의해야 합니다.
+    //     //
+    //     chrome.windows.create({
+    //         url: filename,
+    //         incognito: false,
+    //         focused: last
+    //     }, function(win) {
+    //         resultWindowId = win.id;
+    //     });
+    // } else {
+    //     chrome.tabs.create({
+    //         url: filename,
+    //         active: last,
+    //         windowId: resultWindowId,
+    //         openerTabId: currentTab.id,
+    //         index: (currentTab.incognito ? 0 : currentTab.index) + 1 + index
+    //     });
+    // }
 
     if (!last) {
         _displayCapture(filenames, index + 1);

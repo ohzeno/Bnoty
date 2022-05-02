@@ -184,9 +184,15 @@ window.CaptureAPI = (function() {
     function getBlobs(screenshots) {
         return screenshots.map(function(screenshot) {
             var dataURI = screenshot.canvas.toDataURL();
+            console.log("getBlobs : ");
+            console.error(dataURI);
+            chrome.runtime.sendMessage( { method : 'test5', dataUUU : dataURI }, (response) => {
+                console.log("[popup.js] 스파시바 ");
+                console.log(response.farewell);
+              });
 
-            // convert base64 to raw binary data held in a string
-            // doesn't handle URLEncoded DataURIs
+            // 문자열에 보관된 원시 바이너리 데이터로 
+            // base64를 변환하면 URLEncoded DataURI가 처리되지 않습니다.
             var byteString = atob(dataURI.split(',')[1]);
 
             // separate out the mime component
@@ -207,11 +213,12 @@ window.CaptureAPI = (function() {
 
 
     function saveBlob(blob, filename, index, callback, errback) {
+        console.log(" saveBlob function ")
         filename = _addFilenameSuffix(filename, index);
 
         function onwriteend() {
-            // open the file that now contains the blob - calling
-            // `openPage` again if we had to split up the image
+            // 이제 blob이 포함된 파일을 엽니다. 
+            // 이미지를 분할해야 하는 경우 'openPage'를 다시 호출합니다.
             var urlName = ('filesystem:chrome-extension://' +
                            chrome.i18n.getMessage('@@extension_id') +
                            '/temporary/' + filename);
@@ -219,17 +226,17 @@ window.CaptureAPI = (function() {
             callback(urlName);
         }
 
-        // come up with file-system size with a little buffer
+        // 약간의 버퍼로 파일 시스템 크기 계산
         var size = blob.size + (1024 / 2);
 
-        // create a blob for writing to a file
+        // 파일에 쓰기 위한 blob 생성
         var reqFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
         reqFileSystem(window.TEMPORARY, size, function(fs){
             fs.root.getFile(filename, {create: true}, function(fileEntry) {
                 fileEntry.createWriter(function(fileWriter) {
                     fileWriter.onwriteend = onwriteend;
                     fileWriter.write(blob);
-                }, errback); // TODO - standardize error callbacks?
+                }, errback); // 오류콜백 표준화 필요
             }, errback);
         }, errback);
     }
@@ -246,7 +253,7 @@ window.CaptureAPI = (function() {
 
 
     function captureToBlobs(tab, callback, errback, progress, splitnotifier) {
-        console.log("captureToBlobs");
+        console.log("[fullcaptrue.js] 4. captureToBlobs func ");
 
         var loaded = false,
             screenshots = [],
@@ -306,8 +313,10 @@ window.CaptureAPI = (function() {
         }, timeout);
     }
 
-
+    // 캡처를 파일로 바꿔주는 함수
     function captureToFiles(tab, filename, callback, errback, progress, splitnotifier) {
+        console.log("[fullcaptrue.js] 3. captureTofiles fun ");
+        // function captureToBlobs(tab, callback, errback, progress, splitnotifier) {
         captureToBlobs(tab, function(blobs) {
             var i = 0,
                 len = blobs.length,

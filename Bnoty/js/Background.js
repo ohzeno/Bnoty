@@ -20,14 +20,48 @@ Bnoty = {
                 Bnoty.screenShot(sendResponse);
                 // sendResponse({ farewell: 'ShowCapture funcion is called' });
             } else if ( request.method === 'CropCapture' ){
-                Bnoty.CropCapture();
-                sendResponse({ farewell: 'CropCapture funcion is called' });
+                console.log("ㄹ암러만라인 왜 됑라미ㅓㄴㅇㄹ;이");
+                // Bnoty.CropCapture();
+                // sendResponse({ farewell: 'CropCapture funcion is called' });
             } else if ( request.method === 'FullCapture' ){
-                Bnoty.FullCapture();
-                sendResponse({ farewell: 'FullCapture funcion is called' });
+                console.log("ㄹ암러만이");
+                // Bnoty.FullCapture();
+                // sendResponse({ farewell: 'FullCapture funcion is called' });
             } else if ( request.method === 'ScrollCapture' ){
                 Bnoty.ScrollCapture();
                 sendResponse({ farewell: 'ScrollCapture funcion is called' });
+            } else if ( request.method === 'test5' ){
+                console.log("test5 데이터 출력 메소드 ");
+                console.error(request.dataUUU);
+                var img = request.dataUUU;
+                var o = global.extension.getURL("capture.html");
+                global.tabs.query({}, function(e) {
+                    var t;
+                    if (e && e.length)
+                        for (var n = e.length - 1; 0 <= n; n--)
+                            if (e[n].url === o) {
+                                t = e[n];
+                                break;
+                            }
+                    
+                    // 이미지 테스트
+                    // var aa = "https://i2.tcafe2a.com/220427/cf582f5c59a78ed65decb42dcbee2883_1651006214_2591.jpg";
+                    
+                    if (t){
+                        global.tabs.update( 
+                            t.id,
+                            { active: true },
+                            Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, img, sendResponse, 0)
+                            );
+                    } else {
+                        global.tabs.create({
+                            url: o
+                        }, Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, img, sendResponse, 0));
+                    }
+                
+                });
+
+                // sendResponse({ farewell: 'ScrollCapture funcion is called' });
             }
         });
 
@@ -89,6 +123,7 @@ Bnoty = {
         global.tabs.captureVisibleTab(function(a) {
             // 추출한 이미지 a
             let captureimgurl = a + "";
+            console.log(" ShowCapture 함수 : ");
             console.log(typeof(a)); 
             console.log(captureimgurl); 
             console.log(typeof(captureimgurl)); 
@@ -183,8 +218,14 @@ Bnoty = {
         // 나. 순선대로 코딩
         // 다. 테스트
         
+        // chrome.tabs.captureVisibleTab(
+        //     null, {format: 'png'}, function(dataURI) {
+        //         console.log(dataURI);
+        //     });
+        // chrome
         chrome.tabs.captureVisibleTab(
             null, {format: 'png'}, function(dataURI) {
+                console.log("background.js ");
                 console.log(dataURI);
             });
         // capturing.then(onCaptured, onError);
