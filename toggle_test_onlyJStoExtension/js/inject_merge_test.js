@@ -140,6 +140,7 @@
             this.ctx.lineWidth * 3
           ); // 해당 범위만큼 지운다.
           this.ctx.restore();
+          this.lineWidth = this.ctx.lineWidth;
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -152,6 +153,11 @@
           // 펜그리는 부분
           this.ctx.lineTo(this.eX, this.eY);
           this.ctx.stroke();
+        } else if (this.activate == "highlighter") {
+          this.ctx.globalAlpha = 0.5; // 형광펜 그리는 동안 알파 변경
+          this.ctx.lineTo(this.eX, this.eY);
+          this.ctx.stroke();
+          this.ctx.globalAlpha = this.globalAlpha; // 알파 초기화
         } else if (this.activate == "rectangle") {
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.strokeRect(
@@ -342,6 +348,20 @@
       input.setAttribute("placeholder", "투명도");
       window_e.document.body.appendChild(input);
       input.style = `position: absolute; top: 30px; left: 250px; z-index: 2147483647; width:30px`;
+
+      var button = window_e.document.createElement("button");
+      var buttonText = window_e.document.createTextNode("형광펜");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "highlighter");
+      window_e.document.body.appendChild(button);
+      button.style = `position: absolute; top: 30px; left: 300px; z-index: 2147483647;`;
+
+      document
+        .getElementById("highlighter")
+        .addEventListener("click", function () {
+          e_group.activate = "highlighter";
+          e_group.canvas.style.cursor = "pointer";
+        });
 
       document.getElementById("delBut").addEventListener("click", function () {
         e_group.ctx.clearRect(
