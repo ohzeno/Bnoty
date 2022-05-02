@@ -147,11 +147,12 @@ function createCanvas() {
 
   document.getElementById("delPartBut").addEventListener("click", function () {
     activate = "eraser";
-    // test.style.cursor = url(images/image38.png), 2,2, auto;
+    test.style.cursor = `url("https://cdn.discordapp.com/attachments/901731363844132894/970567643847356457/2e2938dfcaaf1173.png") 8 8, auto`;
   });
 
   document.getElementById("penBut").addEventListener("click", function () {
     activate = "pen";
+    test.style.cursor = 'pointer'
   });
 
   document
@@ -338,8 +339,11 @@ function onMouseMove(event) { // 마우스 움직일때 실행
     //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
     // console.log("stroke들어옴");
     if(activate == "eraser"){ // 부분 지우기
-      // ctx.strokeRect(eX-ctx.lineWidth*1.49, eY-ctx.lineWidth*1.49, ctx.lineWidth*2.9, ctx.lineWidth*2.9);
+      ctx.save();
+      lineWidth = 4;
+      setCtxProp();
       ctx.clearRect(eX-ctx.lineWidth*1.5, eY-ctx.lineWidth*1.5, ctx.lineWidth*3, ctx.lineWidth*3); // 해당 범위만큼 지운다.
+      ctx.restore();
       return;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
