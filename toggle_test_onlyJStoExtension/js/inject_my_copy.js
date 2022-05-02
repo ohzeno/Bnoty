@@ -80,11 +80,6 @@
       window_e.document.body.appendChild(this.canvas);
       window_e.addEventListener("resize", this.resizeBinded);
       window_e.addEventListener("scroll", this.resizeBinded);
-      this.canvas.width = this.CANVAS_SIZE;
-      this.canvas.height = this.CANVAS_SIZE;
-      //background: transparent; position: absolute; z-index: 2147483647; opacity: 1;
-      //height: ${CANVAS_SIZE}px; width: ${CANVAS_SIZE}px
-      this.canvas.style = `height: ${this.CANVAS_SIZE}px; width: ${this.CANVAS_SIZE}px; position: absolute; top: 0; left: 0; z-index: 2147483647;`;
       // ctx.fillStyle = "skyblue";
       // ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
       this.setCtxProp();

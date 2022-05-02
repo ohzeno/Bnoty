@@ -1,9 +1,9 @@
-var g;
+var global;
 if ("undefined" != typeof chrome) {
-  g = chrome;
+  global = chrome;
 } else {
   if ("undefined" != typeof browser) {
-    g = browser;
+    global = browser;
   } else {
     void 0;
   }
