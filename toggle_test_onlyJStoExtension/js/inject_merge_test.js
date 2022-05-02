@@ -41,7 +41,7 @@
     resizeTimeoutID: null,
     paragraph: null,
     strokeStyle: "rgb(0, 0, 0)", // 선 색상
-    lineWidth: 20, // 선 두께
+    lineWidth: 3, // 선 두께
     globalAlpha: 1, //투명도
     activate: "pen", // 지금 활성화된 도구 기본은 펜!
     saveImage: null, // 지금 까지 그린 이미지를 저장
@@ -130,12 +130,16 @@
         if (this.activate == "eraser") {
           // 부분 지우기
           // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
+          this.ctx.save();
+          this.lineWidth = 4;
+          this.setCtxProp();
           this.ctx.clearRect(
             this.eX - this.ctx.lineWidth * 1.5,
             this.eY - this.ctx.lineWidth * 1.5,
             this.ctx.lineWidth * 3,
             this.ctx.lineWidth * 3
           ); // 해당 범위만큼 지운다.
+          this.ctx.restore();
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -340,24 +344,32 @@
       input.style = `position: absolute; top: 30px; left: 250px; z-index: 2147483647; width:30px`;
 
       document.getElementById("delBut").addEventListener("click", function () {
-        e_group.saveImage = null;
         e_group.ctx.clearRect(
           0,
           0,
           e_group.canvas.width,
           e_group.canvas.height
         ); //clear canvas
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        );
+        e_group.addHistory();
       });
 
       document
         .getElementById("delPartBut")
         .addEventListener("click", function () {
           e_group.activate = "eraser";
+          e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/901731363844132894/970567643847356457/2e2938dfcaaf1173.png") 8 8, auto`;
           // e.canvas.style.cursor = url(images/image38.png), 2,2, auto;
         });
 
       document.getElementById("penBut").addEventListener("click", function () {
         e_group.activate = "pen";
+        e_group.canvas.style.cursor = "pointer";
       });
 
       document
