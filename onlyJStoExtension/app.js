@@ -496,6 +496,7 @@ function addInput(x, y) {
   input.style.outline = "none";
   input.style.border = "none";
   input.style.backgroundColor = "transparent";
+  input.style.fontSize = size;
 
   input.onkeydown = handleENTER;
 
