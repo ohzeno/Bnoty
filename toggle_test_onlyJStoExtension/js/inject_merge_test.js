@@ -155,9 +155,14 @@
           this.ctx.stroke();
         } else if (this.activate == "highlighter") {
           this.ctx.globalAlpha = 0.5; // 형광펜 그리는 동안 알파 변경
+          if (this.ctx.lineWidth < 15) {
+            // 너무 얇으면 최소굵기 지정
+            this.ctx.lineWidth = 15;
+          }
           this.ctx.lineTo(this.eX, this.eY);
           this.ctx.stroke();
           this.ctx.globalAlpha = this.globalAlpha; // 알파 초기화
+          this.ctx.lineWidth = this.lineWidth; // 굵기 초기화
         } else if (this.activate == "rectangle") {
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.strokeRect(
