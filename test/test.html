@@ -53,6 +53,11 @@
                 if(draw){
                     eX=me.offsetX;
                     eY=me.offsetY;
+                    if(figure == "eraser"){ // 부분 지우기
+                    // ctx.strokeRect(eX-ctx.lineWidth*1.49, eY-ctx.lineWidth*1.49, ctx.lineWidth*2.9, ctx.lineWidth*2.9);
+                    context.clearRect(eX-context.lineWidth*1.5, eY-context.lineWidth*1.5, context.lineWidth*3, context.lineWidth*3); // 해당 범위만큼 지운다.
+                    return;
+                    }
                     context.clearRect(0,0,canvas.width,canvas.height); // 계속 컨버스를 지워준다 why? 도중에 마우스 움직일떄마다 그려지기 때문
                     if(saveImage) // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러ㅗㅁ
                         context.putImageData(saveImage, 0, 0);
@@ -200,15 +205,15 @@
             figure = 'arrow'
         }
 
+        function eraser(){
+            figure = 'eraser'
+            context.style.cursor = 'url("https://blog.kakaocdn.net/dn/BQXpN/btq3qNR67Lg/8tx8tGzkOcr5BuX5dyIaKk/img.png"), auto';
+        }
 
-        function canvas_arrow(context, sX, sY, eX, eY) {
- 
-}
 
     </script>
     <style type="text/css">
         canvas {
-            background:black; 
             cursor:crosshair;
             width:  100%;
             height: 100%;
@@ -218,6 +223,7 @@
   </head>
   <body onload="draw();">
     <button onclick="del();">전체지우기</button>
+    <button onclick="eraser()">부분</button>
     <button onclick="rectangle();">네모</button>
     <button onclick="triangle();">세모</button>
     <button onclick="circle();">동그라미</button>

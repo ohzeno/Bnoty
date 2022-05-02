@@ -147,6 +147,7 @@ function createCanvas() {
 
   document.getElementById("delPartBut").addEventListener("click", function () {
     activate = "eraser";
+    // test.style.cursor = url(images/image38.png), 2,2, auto;
   });
 
   document.getElementById("penBut").addEventListener("click", function () {
@@ -225,7 +226,7 @@ function createCanvas() {
     test.addEventListener("mouseup", stopPainting);
     test.addEventListener("mouseleave", leaveStopPainting);
   }
-  Historys(); // 작업마다 저장한거 관리하는 부분
+  Historys(); // 작업마다 저장한거 관리하는 부분 처음 초기화 및 프로퍼티 추가 객체 할당
 }
 
 
@@ -237,7 +238,7 @@ function Historys(){ // 최초 변수 초기화
     array = []
   };
   
-  historys = new historySave(); // 함수 할당
+  historys = new historySave(); // 객체 할당
 
   // 프로토 타입 객체 생성. 다른 객체도 사용 가능
   historySave.prototype.add = function (t) { // 작업 저장하는 프로토타입
@@ -276,14 +277,14 @@ function addHistory(){
 }
 
 
-function setCtxProp() {
+function setCtxProp() { // 선색상 투명도 굵기 설정하는 부분
   ctx.strokeStyle = strokeStyle; // 선 색
   ctx.fillStyle = strokeStyle; // 채우기 색
   ctx.globalAlpha  = globalAlpha; // 투명도
   ctx.lineWidth = lineWidth; // 선 굵기
 }
 
-function startPainting(event) {
+function startPainting(event) { // 마우스 클릭버튼 누름
   if (painting) {// 이부분은 곡선그리는 부분떄문에 사용
     painting = false;
     return;
@@ -293,7 +294,7 @@ function startPainting(event) {
   sY = event.offsetY;
 }
 
-function stopPainting(event) {
+function stopPainting(event) { // 마우스 클릭 버튼 떔
   // console.log("stop들어옴");
   if (activate == "curve") {
     // 커브면 끝좌표 초기화 or 갱신
@@ -310,7 +311,7 @@ function stopPainting(event) {
   addHistory();
 }
 
-function leaveStopPainting(){
+function leaveStopPainting(){ // 마우스 범위 밖으로 나감
   if(painting){
     painting = false;
     saveImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // 지금까지 그린 정보를 저장
@@ -322,7 +323,7 @@ function leaveStopPainting(){
   }
 }
 
-function onMouseMove(event) {
+function onMouseMove(event) { // 마우스 움직일때 실행
   // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
   eX = event.offsetX;
   eY = event.offsetY;
@@ -332,10 +333,12 @@ function onMouseMove(event) {
     // console.log("begin들어옴");
     ctx.beginPath();
     ctx.moveTo(eX, eY);
+    
   } else {
     //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
     // console.log("stroke들어옴");
     if(activate == "eraser"){ // 부분 지우기
+      // ctx.strokeRect(eX-ctx.lineWidth*1.49, eY-ctx.lineWidth*1.49, ctx.lineWidth*2.9, ctx.lineWidth*2.9);
       ctx.clearRect(eX-ctx.lineWidth*1.5, eY-ctx.lineWidth*1.5, ctx.lineWidth*3, ctx.lineWidth*3); // 해당 범위만큼 지운다.
       return;
     }
@@ -417,7 +420,6 @@ function onMouseMove(event) {
     }
   }
 }
-
 
 // 윈도우 사이즈 변할때마다 작동
 window.onresize = function (event) {
