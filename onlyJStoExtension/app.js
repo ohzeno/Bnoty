@@ -13,6 +13,7 @@ let size = "20px"; // 텍스트 사이즈
 let font = "sans-serif"; // 텍스트 폰트
 let boldtext = ""; // 볼드
 let italictext = ""; // 기울이기
+let textactive = false; // 텍스트 입력중인지 체크
 
 var activate = "pen"; // 지금 활성화된 도구 기본은 펜!
 var saveImage = null; // 지금 까지 그린 이미지를 저장
@@ -472,8 +473,13 @@ function onMouseMove(event) {
 
 function onMouseClick(e) {
   if (activate == "text") {
-    if (hasInput) return;
-    addInput(e.offsetX, e.offsetY);
+    if (textactive) {
+      console.log("실행됨");
+      handleMouseClick();
+    }
+    if (!hasInput) {
+      addInput(e.offsetX, e.offsetY);
+    }
   } else return;
 }
 
@@ -481,6 +487,7 @@ function onMouseClick(e) {
 function addInput(x, y) {
   var input = document.createElement("input");
 
+  input.id = "textbox";
   input.type = "text";
   input.style.position = "fixed";
   input.style.left = x + "px";
@@ -497,11 +504,12 @@ function addInput(x, y) {
   input.focus();
 
   hasInput = true;
+  textactive = true;
 }
 
 // 엔터치면 입력종료하고 글자 캔버스에 그리기
-function handleENTER(e) {
-  var keyCode = e.keyCode;
+function handleENTER(event) {
+  var keyCode = event.keyCode;
   if (keyCode === 13) {
     drawText(
       this.value,
@@ -510,7 +518,21 @@ function handleENTER(e) {
     );
     document.body.removeChild(this);
     hasInput = false;
+    textactive = false;
   }
+}
+
+function handleMouseClick() {
+  var inputs = document.getElementById("textbox");
+
+  drawText(
+    inputs.value,
+    parseInt(inputs.style.left, 10),
+    parseInt(inputs.style.top, 10)
+  );
+  document.body.removeChild(inputs);
+  hasInput = false;
+  textactive = false;
 }
 
 // 캔버스에 글자 그리는 함수
