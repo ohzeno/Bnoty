@@ -654,28 +654,42 @@
       var button = window_e.document.createElement("button");
       var buttonText = window_e.document.createTextNode("형광펜");
       button.appendChild(buttonText);
-      button.setAttribute("id", "highlighter");
+      button.setAttribute("id", "highlighterBtn");
       window_e.document.body.appendChild(button);
       button.style = `position: absolute; top: 30px; left: 300px; z-index: 2147483647;`;
 
       var button = window.document.createElement("button");
       var buttonText = window.document.createTextNode("채우기");
       button.appendChild(buttonText);
-      button.setAttribute("id", "fill");
+      button.setAttribute("id", "fillBtn");
+      window.document.body.appendChild(button);
+      button.style = `position: absolute; top: 30px; left: 380px; z-index: 2147483647;`;
+
+      var button = window.document.createElement("button");
+      var buttonText = window.document.createTextNode("나가기");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "exitBtn");
       window.document.body.appendChild(button);
       button.style = `position: absolute; top: 30px; left: 380px; z-index: 2147483647;`;
 
       document
-        .getElementById("highlighter")
+        .getElementById("highlighterBtn")
         .addEventListener("click", function () {
           e_group.activate = "highlighter";
           e_group.canvas.style.cursor = "pointer";
         });
 
-      document.getElementById("fill").addEventListener("click", function () {
+      document.getElementById("fillBtn").addEventListener("click", function () {
         e_group.activate = "fill";
         e_group.canvas.style.cursor = "pointer";
       });
+
+      document
+        .getElementById("exitBtn")
+        .addEventListener(
+          "click",
+          Function.prototype.bind.call(this.exit, this)
+        );
 
       document.getElementById("delBut").addEventListener("click", function () {
         e_group.ctx.clearRect(
@@ -932,6 +946,46 @@
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
       this.ctx.lineWidth = this.lineWidth; // 선 굵기
+    },
+    exit: function () {
+      console.log("inject.js e 내부 exit");
+      this.canvas.parentNode.removeChild(this.canvas),
+        window_e.removeEventListener("resize", this.resizeBinded),
+        window_e.removeEventListener("scroll", this.resizeBinded),
+        (this.canvas = null),
+        (this.ctx = null),
+        (this.initialized = !1),
+        (this.painting = false),
+        (this.resizeTimeoutID = null),
+        (this.paragraph = null),
+        (this.strokeStyle = "rgb(0, 0, 0)"),
+        (this.lineWidth = 3),
+        (this.globalAlpha = 1),
+        (this.paragraph = null),
+        (this.activate = "pen"),
+        (this.saveImage = null),
+        (this.histories = null),
+        (this.MAX_ITEMS = null),
+        (this.currentIndex = null),
+        (this.array = []),
+        (this.red = 0),
+        (this.green = 0),
+        (this.blue = 0),
+        (this.sX = null),
+        (this.sY = null),
+        (this.eX = null),
+        (this.eY = null),
+        (this.mX = null),
+        (this.mY = null),
+        (this.hasInput = false),
+        (this.size = "20px"),
+        (this.font = "sans-serif"),
+        (this.boldtext = ""),
+        (this.italictext = ""),
+        (this.textactive = false),
+        "undefined" != typeof unsafeWindow &&
+          null !== unsafeWindow &&
+          ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
     },
     handleResize: function (t) {
       // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
