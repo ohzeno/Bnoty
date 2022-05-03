@@ -6,16 +6,11 @@ window.CaptureAPI = (function() {
         MAX_AREA = MAX_PRIMARY_DIMENSION * MAX_SECONDARY_DIMENSION;
 
 
-    //
-    // URL Matching test - to verify we can talk to this URL
-    //
-
     var matches = ['http://*/*', 'https://*/*', 'ftp://*/*', 'file://*/*'],
         noMatches = [/^https?:\/\/chrome.google.com\/.*$/];
 
     function isValidUrl(url) {
-        // executeScript가 작동하지 않는지 알 수 있는 더 
-        // 좋은 방법을 찾을 수 없으므로 알려진 URL에 대해 테스트하기만 하면 됩니다.
+        // 가능한 URL만 찍을 것
         // 일단....
         var r, i;
         for (i = noMatches.length - 1; i >= 0; i--) {
@@ -56,11 +51,8 @@ window.CaptureAPI = (function() {
                         console.log(data.image);
                         
 
-                        // given device mode emulation or zooming, we may end up with
-                        // a different sized image than expected, so let's adjust to
-                        // match it!
-                        // 126 / 5,000
-                        // 주어진 장치 모드 에뮬레이션 또는 확대/축소로 인해 예상과 다른 크기의 이미지가 나타날 수 있으므로 그에 맞게 조정합시다!
+                        // 
+                        //  브라우저 크기가 다르기 때문에 조정해야함
                         if (data.windowWidth !== image.width) {
                             var scale = image.width / data.windowWidth;
                             data.x *= scale;
@@ -69,8 +61,7 @@ window.CaptureAPI = (function() {
                             data.totalHeight *= scale;
                         }
 
-                        // lazy initialization of screenshot canvases (since we need to wait
-                        // for actual image size)
+                        // 
                         // 스크린샷 캔버스의 지연 초기화(실제 이미지 크기를 기다려야 하기 때문에)
                         if (!screenshots.length) {
                             Array.prototype.push.apply(
@@ -86,7 +77,7 @@ window.CaptureAPI = (function() {
                             }
                         }
 
-                        // draw it on matching screenshot canvases
+                        // 
                         // 일치하는 스크린샷 캔버스에 그리기
                         _filterScreenshots(
                             data.x, data.y, image.width, image.height, screenshots
@@ -100,8 +91,7 @@ window.CaptureAPI = (function() {
                             console.log(image);
                         });
 
-                        // send back log data for debugging (but keep it truthy to
-                        // indicate success)
+                        // 응답
                         sendResponse(JSON.stringify(data, null, 4) || true);
                     };
                     image.src = dataURI;
@@ -111,14 +101,8 @@ window.CaptureAPI = (function() {
 
 
     function _initScreenshots(totalWidth, totalHeight) {
-        // Create and return an array of screenshot objects based
-        // on the `totalWidth` and `totalHeight` of the final image.
-        // We have to account for multiple canvases if too large,
-        // because Chrome won't generate an image otherwise.
         // 최종 이미지의 'totalWidth' 및 'totalHeight'를 기반으로 
-        // 스크린샷 개체의 배열을 만들고 반환합니다. 
-        // Chrome이 그렇지 않으면 이미지를 생성하지 않기 때문에 
-        // 너무 큰 경우 여러 캔버스를 고려해야 합니다.
+        // 스크린샷 개체의 배열을 만들고 반환
         // 
         var badSize = (totalHeight > MAX_PRIMARY_DIMENSION ||
                        totalWidth > MAX_PRIMARY_DIMENSION ||
@@ -167,8 +151,7 @@ window.CaptureAPI = (function() {
     function _filterScreenshots(imgLeft, imgTop, imgWidth, imgHeight, screenshots) {
         console.log(" fun -- _filterScreenshots : api.js // 164 line")
 
-        // Filter down the screenshots to ones that match the location
-        // of the given image.
+        // 
         // 주어진 이미지의 위치와 일치하는 것으로 스크린샷을 필터링합니다.
 
         var imgRight = imgLeft + imgWidth,
@@ -199,8 +182,8 @@ window.CaptureAPI = (function() {
         filename = _addFilenameSuffix(filename, index);
 
         function onwriteend() {
-            // 이제 blob이 포함된 파일을 엽니다. 
-            // 이미지를 분할해야 하는 경우 'openPage'를 다시 호출합니다.
+            // blob이 포함된 파일을 엽니다. 
+            // 이미지를 분할해야 하는 경우 'openPage'를 다시 호출
             var urlName = ('filesystem:chrome-extension://' +
                            chrome.i18n.getMessage('@@extension_id') +
                            '/temporary/' + filename);
@@ -251,22 +234,13 @@ window.CaptureAPI = (function() {
             errback('invalid url'); // TODO errors
         }
 
-        // TODO will this stack up if run multiple times? (I think it will get cleared?)
-        // 여러 번 실행하면 스택이 쌓이나요? (해결될 것 같은데요?)
         chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             if (request.msg === 'capture') {
                 console.log(" onMessage / capture ");
                 progress(request.complete);
                 capture(request, screenshots, sendResponse, splitnotifier);
 
-                // setTimeout(progress(request.complete), 1000);
-                // setTimeout(capture(request, screenshots, sendResponse, splitnotifier), 1000);
-
-                // https://developer.chrome.com/extensions/messaging#simple
-                //
-                // If you want to asynchronously use sendResponse, add return true;
-                // to the onMessage event handler.
-                // 비동기적으로 sendResponse를 사용하려면 return true를 추가하십시오.
+                // 비동기적으로 sendResponse를 사용하려면 return true를 추가
                 // onMessage 이벤트 핸들러에
                 return true;
             } else {
@@ -278,8 +252,7 @@ window.CaptureAPI = (function() {
 
         chrome.tabs.executeScript(tab.id, {file: 'js/Page.js'}, function() {
             if (timedOut) {
-                console.error('Timed out too early while waiting for ' +
-                              'chrome.tabs.executeScript. Try increasing the timeout.');
+                console.error("시간초과 오류");
             } else {
                 loaded = true;
                 progress(0);

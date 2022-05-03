@@ -38,6 +38,7 @@ function FullCapture() {
 
 };
 
+
 // 설정 메소드
 var currentTab; // 현재 활성 탭의 chrome.tabs.query 결과
 var  resultWindowId; // 결과 이미지를 넣을 창 ID
@@ -65,12 +66,16 @@ function getFilename(contentURL) {
     return 'screencapture' + name + '-' + Date.now() + '.png';
 }
 
+
+//
 // Capture Handlers
 function displayCaptures(filenames) {
     if (!filenames || !filenames.length) {
-        show('uh-oh');
+      alert("Full Capture Error!");  
+      // show('uh-oh');
         return;
     }
+
     _displayCapture(filenames);
 }
 
