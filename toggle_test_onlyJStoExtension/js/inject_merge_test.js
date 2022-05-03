@@ -425,6 +425,8 @@
       this.textactive = true;
     },
     handleENTER: function (event) {
+      // 공백문자인지 판단하는 패턴
+      var blank_pattern = /^\s+|\s+$/g;
       var keyCode = event.keyCode;
       if (keyCode === 13) {
         e_group.drawText(
@@ -433,8 +435,31 @@
           parseInt(this.style.top, 10)
         );
         document.body.removeChild(this);
-        e_group.hasInput = false;
-        e_group.textactive = false;
+        // 공백문자일 경우 저장안됨
+        if (this.value.replace(blank_pattern, "") != "") {
+          e_group.saveImage = e_group.ctx.getImageData(
+            0,
+            0,
+            e_group.canvas.width,
+            e_group.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          e_group.addHistory();
+        }
+      }
+      e_group.hasInput = false;
+      e_group.textactive = false;
+    },
+    handleMouseClick: function () {
+      var inputs = document.getElementById("textbox");
+
+      if (this.value != null) {
+        console.log("value : " + this.value);
+        e_group.drawText(
+          inputs.value,
+          parseInt(inputs.style.left, 10),
+          parseInt(inputs.style.top, 10)
+        );
+        document.body.removeChild(inputs);
         e_group.saveImage = e_group.ctx.getImageData(
           0,
           0,
@@ -443,24 +468,7 @@
         ); // 지금까지 그린 정보를 저장
         e_group.addHistory();
       }
-    },
-    handleMouseClick: function () {
-      var inputs = document.getElementById("textbox");
-
-      e_group.drawText(
-        inputs.value,
-        parseInt(inputs.style.left, 10),
-        parseInt(inputs.style.top, 10)
-      );
-      document.body.removeChild(inputs);
       e_group.hasInput = false;
-      e_group.saveImage = e_group.ctx.getImageData(
-        0,
-        0,
-        e_group.canvas.width,
-        e_group.canvas.height
-      ); // 지금까지 그린 정보를 저장
-      e_group.addHistory();
     },
     // 캔버스에 글자 그리는 함수
     drawText: function (txt, x, y) {
