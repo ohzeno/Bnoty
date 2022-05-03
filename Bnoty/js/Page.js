@@ -1,5 +1,5 @@
 
-var CAPTURE_DELAY = 150;
+// var CAPTURE_DELAY = 150;
 
 function onMessage(data, sender, callback) {
     if (data.msg === 'scrollPage') {
@@ -22,6 +22,9 @@ function max(nums) {
 }
 
 function getPositions(callback) {
+    console.log("[page.js] getPositions ");
+    
+    // MAX_CAPTURE_VISIBLE_TAB_CALLS_PER_SECOND
 
     var body = document.body,
         originalBodyOverflowYStyle = body ? body.style.overflowY : '',
@@ -143,9 +146,10 @@ function getPositions(callback) {
 
         console.log('>> DATA', JSON.stringify(data, null, 4));
 
-        // Need to wait for things to settle 상황이 안정될 때까지 기다려야 함
+        // WAIT();
+
+        // 상황이 안정될 때까지 기다려야 함
         window.setTimeout(function() {
-            // In case the below callback never returns, cleanup
             // 아래 콜백이 반환되지 않는 경우 정리
             var cleanUpTimeout = window.setTimeout(cleanUp, 1250);
 
@@ -155,17 +159,43 @@ function getPositions(callback) {
                 window.clearTimeout(cleanUpTimeout);
 
                 if (captured) {
-                    // Move on to capture next arrangement.
-                    // 다음 배열을 캡처하기 위해 이동합니다.
+                    // 다음 배열을 캡처하기 위해 이동.
                     processArrangements();
                 } else {
-                    // If there's an error in popup.js, the response value can be
-                    // undefined, so cleanup
                     // popup.js에 오류가 있으면 응답 값이 정의되지 않을 수 있으므로 정리
                     cleanUp();
                 }
             });
 
-        }, CAPTURE_DELAY);
+        }, 500 );
+
     })();
 }
+
+
+// function WAIT() {
+//     new Promise(function(resolve, reject){
+//         setTimeout(function() {
+//             resolve(1);
+//         }, 1000);
+//     })
+//     .then(function(result) {
+//         console.log( " 대기 " + result); // 1
+//         chrome.runtime.sendMessage(data, function(captured) {
+//             console.log("capterd show----")
+//             console.log(captured);
+//             window.clearTimeout(cleanUpTimeout);
+
+//             if (captured) {
+//                 // 다음 배열을 캡처하기 위해 이동.
+//                 processArrangements();
+//             } else {
+//                 // popup.js에 오류가 있으면 응답 값이 정의되지 않을 수 있으므로 정리
+//                 cleanUp();
+//             }
+//         });
+
+
+//         return result + 10;
+//     })
+// }

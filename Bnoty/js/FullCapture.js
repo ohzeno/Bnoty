@@ -52,6 +52,7 @@ window.CaptureAPI = (function() {
                     var image = new Image();
                     image.onload = function() {
                         data.image = {width: image.width, height: image.height};
+                        console.log("capture 함수 ( api.js  ) : data.image" );
                         console.log(data.image);
                         
 
@@ -180,7 +181,7 @@ window.CaptureAPI = (function() {
         });
     }
 
-
+    // 최종 이미지 보내주기
     function getBlobs(screenshots) {
         return screenshots.map(function(screenshot) {
             var dataURI = screenshot.canvas.toDataURL();
@@ -189,24 +190,6 @@ window.CaptureAPI = (function() {
             chrome.runtime.sendMessage( { method : 'sendimg', dataUUU : dataURI }, (response) => {
                 console.log(response.farewell);
             });
-
-            // 문자열에 보관된 원시 바이너리 데이터로 
-            // base64를 변환하면 URLEncoded DataURI가 처리되지 않습니다.
-            var byteString = atob(dataURI.split(',')[1]);
-
-            // separate out the mime component
-            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-            // write the bytes of the string to an ArrayBuffer
-            var ab = new ArrayBuffer(byteString.length);
-            var ia = new Uint8Array(ab);
-            for (var i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-
-            // create a blob for writing to a file
-            var blob = new Blob([ab], {type: mimeString});
-            return blob;
         });
     }
 
@@ -276,6 +259,9 @@ window.CaptureAPI = (function() {
                 progress(request.complete);
                 capture(request, screenshots, sendResponse, splitnotifier);
 
+                // setTimeout(progress(request.complete), 1000);
+                // setTimeout(capture(request, screenshots, sendResponse, splitnotifier), 1000);
+
                 // https://developer.chrome.com/extensions/messaging#simple
                 //
                 // If you want to asynchronously use sendResponse, add return true;
@@ -299,6 +285,7 @@ window.CaptureAPI = (function() {
                 progress(0);
 
                 initiateCapture(tab, function() {
+                    // 최종 이미지 전송
                     callback(getBlobs(screenshots));
                 });
             }
