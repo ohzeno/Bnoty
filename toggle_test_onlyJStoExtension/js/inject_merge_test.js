@@ -78,6 +78,9 @@
         this.painting = true;
         this.sX = event.offsetX;
         this.sY = event.offsetY;
+        if (this.activate == "fill") {
+          this.handleFill(event.clientX, event.clientY);
+        }
       }
     },
     stopPainting: function (event) {
@@ -266,7 +269,137 @@
           console.log("실행됨");
           this.addInput(event.offsetX, event.offsetY);
         }
-      } else return;
+      }
+    },
+    matchOutlineColor: function (a, b, c, d) {
+      console.log("inject.js e 내부 matchOutlineColor");
+      return 255 !== a && 255 !== b && 255 !== c && 0 !== d;
+    },
+    handleFill: function (x, y) {
+      var currentImage = this.ctx.getImageData(
+        0,
+        0,
+        this.canvas.width,
+        this.canvas.height
+      );
+      i = 4 * (y * this.canvas.width + x);
+      r = currentImage.data[i];
+      g = currentImage.data[i + 1];
+      b = currentImage.data[i + 2];
+      a = currentImage.data[i + 3];
+      red_option = this.red;
+      green_option = this.green;
+      blue_option = this.blue;
+      alpha_option = Math.round(255 * this.globalAlpha);
+      if (
+        !(
+          r === red_option &&
+          g === green_option &&
+          b === blue_option &&
+          a === alpha_option
+        )
+      ) {
+        if (!this.matchOutlineColor(r, g, b, a)) {
+          this.floodFill(
+            x,
+            y,
+            [
+              this.red,
+              this.green,
+              this.blue,
+              Math.round(255 * this.globalAlpha),
+            ],
+            !1,
+            currentImage,
+            0,
+            !0
+          );
+          this.ctx.putImageData(currentImage, 0, 0);
+          // this.storeCanvas();
+          // this.storeHistory();
+        }
+      }
+    },
+    floodFill: function (x, y, option, i, image, a, s) {
+      console.log("inject.js e 내부 floodFill");
+      var r,
+        h,
+        c,
+        data = image.data,
+        array_1 = [],
+        u = !!0,
+        p = !1,
+        width = image.width,
+        height = image.height,
+        array_wh = new Uint8ClampedArray(width * height),
+        width_4 = 4 * width,
+        x2 = x,
+        y2 = y,
+        w = y2 * width_4 + 4 * x2,
+        C = data[w],
+        b = data[w + 1],
+        L = data[w + 2],
+        P = data[w + 3],
+        T = !1,
+        D = function (t, e) {
+          if (t < 0 || e < 0 || height <= e || width <= t) return !1;
+          var i = e * width_4 + 4 * t,
+            n = Math.max(
+              Math.abs(C - data[i]),
+              Math.abs(b - data[i + 1]),
+              Math.abs(L - data[i + 2]),
+              Math.abs(P - data[i + 3])
+            );
+          if (n < a) {
+            n = 0;
+          }
+          var s = Math.abs(0 - array_wh[e * width + t]);
+          return (
+            T ||
+              (0 !== n &&
+                255 !== s &&
+                ((data[i] = option[0]),
+                (data[i + 1] = option[1]),
+                (data[i + 2] = option[2]),
+                (data[i + 3] = (option[3] + data[i + 3]) / 2),
+                (array_wh[e * width + t] = 255))),
+            n + s === 0
+          );
+        };
+      for (array_1.push([x2, y2]); array_1.length; ) {
+        var k = array_1.pop();
+        for (x2 = k[0], y2 = k[1], T = !0; D(x2, y2 - 1); ) y2 -= 1;
+        for (
+          T = !1,
+            i &&
+              (!D(x2 - 1, y2) &&
+                D(x2 - 1, y2 - 1) &&
+                array_1.push([x2 - 1, y2 - 1]),
+              !D(x2 + 1, y2) &&
+                D(x2 + 1, y2 - 1) &&
+                array_1.push([x2 + 1, y2 - 1])),
+            p = u = !1;
+          D(x2, y2);
+
+        )
+          void 0,
+            (data[(c = (h = y2) * width_4 + 4 * (r = x2))] = option[0]),
+            (data[c + 1] = option[1]),
+            (data[c + 2] = option[2]),
+            (data[c + 3] = option[3]),
+            (array_wh[h * width + r] = 255),
+            D(x2 - 1, y2)
+              ? u || (array_1.push([x2 - 1, y2]), (u = !0))
+              : u && (u = !1),
+            D(x2 + 1, y2)
+              ? p || (array_1.push([x2 + 1, y2]), (p = !0))
+              : p && (p = !1),
+            (y2 += 1);
+        if (i) {
+          D(x2 - 1, y2) && !u && array_1.push([x2 - 1, y2]);
+          D(x2 + 1, y2) && !p && array_1.push([x2 + 1, y2]);
+        }
+      }
     },
     addInput: function (x, y) {
       var input = document.createElement("input");
@@ -517,12 +650,24 @@
       window_e.document.body.appendChild(button);
       button.style = `position: absolute; top: 30px; left: 300px; z-index: 2147483647;`;
 
+      var button = window.document.createElement("button");
+      var buttonText = window.document.createTextNode("채우기");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "fill");
+      window.document.body.appendChild(button);
+      button.style = `position: absolute; top: 30px; left: 380px; z-index: 2147483647;`;
+
       document
         .getElementById("highlighter")
         .addEventListener("click", function () {
           e_group.activate = "highlighter";
           e_group.canvas.style.cursor = "pointer";
         });
+
+      document.getElementById("fill").addEventListener("click", function () {
+        e_group.activate = "fill";
+        e_group.canvas.style.cursor = "pointer";
+      });
 
       document.getElementById("delBut").addEventListener("click", function () {
         e_group.ctx.clearRect(
@@ -837,12 +982,13 @@
       // }
       // updatePaintStyle();
       this.ctx.lineWidth = n;
-      if (this.array.length == 0){ // 저장된 정보가 없으면 현재 정보 초기값을 추가해줌
+      if (this.array.length == 0) {
+        // 저장된 정보가 없으면 현재 정보 초기값을 추가해줌
         this.histories.add(
           this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
-        )
-      }
-      else{ // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
+        );
+      } else {
+        // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
         this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
       }
     },
