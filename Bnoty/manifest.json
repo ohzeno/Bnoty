@@ -10,8 +10,7 @@
   },
 
   "browser_action": {
-    "default_icon": "/images/bnotylogo.png",
-    "default_popup": "popup.html"
+    "default_icon": "/images/bnotylogo.png"
   },
 
   "permissions": [ "identity", "identity.email", "activeTab", "storage", "scripting", "unlimitedStorage", "tabs", "activeTab", "\u003Call_urls>" ],
