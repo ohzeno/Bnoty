@@ -45,6 +45,7 @@
     globalAlpha: 1, //투명도
     activate: "pen", // 지금 활성화된 도구 기본은 펜!
     saveImage: null, // 지금 까지 그린 이미지를 저장
+    saveLasso: null, // 올가미로 선택한 영역을 이미지로 저장
     histories: null, // 여기에 이제 그 작업한거 저장함
     MAX_ITEMS: null, // 최대 저장 아이템
     currentIndex: null, // 지금 인덱스 위치
@@ -58,6 +59,10 @@
     eY: null,
     mX: null,
     mY: null,
+    lassosX:null,
+    lassosY:null,
+    lassoeX:null,
+    lassoeY:null,
     hasInput: false, // 텍스트 입력 여부
     size: "20px", // 텍스트 사이즈
     font: "sans-serif", // 텍스트 폰트
@@ -81,6 +86,10 @@
         if (this.activate == "fill") {
           this.handleFill(event.clientX, event.clientY);
         }
+        if(this.activate == 'lasso' && this.saveLasso == null){
+          this.lassosX = event.offsetX;
+          this.lassosY = event.offsetY;
+        }
       }
     },
     stopPainting: function (event) {
@@ -95,9 +104,20 @@
         }
         this.mX = null;
         this.mY = null;
+      }else if (this.activate == 'lasso'){
+        if(this.saveLasso == null){
+          this.saveLasso = this.ctx.getImageData(
+          this.lassosX,
+          this.lassosY,
+          this.lassoeX - this.lassosX,
+          this.lassoeY - this.lassosY
+          );
+        }else{
+          this.saveLasso = null
+        }
       }
       this.painting = false;
-      if (this.activate != "text") {
+      if (this.activate != "text" && this.activate != 'lasso') {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -257,6 +277,33 @@
           this.ctx.lineCap = "round"; // 끝을 둥글게
           this.ctx.stroke();
           this.ctx.lineCap = "butt"; // 끝을 원래로
+        }
+        else if (this.activate == 'lasso'){ // 올가미
+          if(this.saveLasso != null){
+            this.ctx.clearRect(
+              this.lassosX,
+              this.lassosY,
+              this.lassoeX - this.lassosX,
+              this.lassoeY - this.lassosY
+            );
+            this.ctx.putImageData(this.saveLasso, this.eX, this.eY);
+            return;
+          }
+          this.lassoeX = event.offsetX;
+          this.lassoeY = event.offsetY;
+          this.ctx.save();
+          this.ctx.strokeStyle = 'rgba(46,112,245)';
+          this.ctx.lineWidth = 1;
+          // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
+          this.ctx.setLineDash([5]); // 간격이 20인 점선 설정
+          this.ctx.strokeRect(
+            this.sX,
+            this.sY,
+            this.eX - this.sX,
+            this.eY - this.sY
+          );
+          this.ctx.setLineDash([]); // 실선으로 변경
+          this.ctx.restore();
         }
       }
     },
@@ -554,6 +601,13 @@
       button.style = `position: absolute; top: 0; left: 380px; z-index: 2147483647;`;
 
       var button = window_e.document.createElement("button");
+      var buttonText = window_e.document.createTextNode("올가미");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "lassoBut");
+      window_e.document.body.appendChild(button);
+      button.style = `position: absolute; top: 0; left: 450px; z-index: 2147483647;`;
+
+      var button = window_e.document.createElement("button");
       var buttonText = window_e.document.createTextNode("부분");
       button.appendChild(buttonText);
       button.setAttribute("id", "delPartBut");
@@ -758,6 +812,13 @@
         .addEventListener("click", function () {
           e_group.activate = "arrow";
           e_group.canvas.style.cursor = "crosshair";
+        });
+
+        document
+        .getElementById("lassoBut")
+        .addEventListener("click", function () {
+          e_group.activate = "lasso";
+          e_group.canvas.style.cursor = "pointer";
         });
 
       document
