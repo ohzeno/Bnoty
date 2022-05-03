@@ -151,6 +151,7 @@
             this.ctx.lineWidth * 3
           ); // 해당 범위만큼 지운다.
           this.ctx.restore();
+          this.lineWidth = this.ctx.lineWidth;
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -163,6 +164,16 @@
           // 펜그리는 부분
           this.ctx.lineTo(this.eX, this.eY);
           this.ctx.stroke();
+        } else if (this.activate == "highlighter") {
+          this.ctx.globalAlpha = 0.5; // 형광펜 그리는 동안 알파 변경
+          if (this.ctx.lineWidth < 15) {
+            // 너무 얇으면 최소굵기 지정
+            this.ctx.lineWidth = 15;
+          }
+          this.ctx.lineTo(this.eX, this.eY);
+          this.ctx.stroke();
+          this.ctx.globalAlpha = this.globalAlpha; // 알파 초기화
+          this.ctx.lineWidth = this.lineWidth; // 굵기 초기화
         } else if (this.activate == "rectangle") {
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.strokeRect(
@@ -246,18 +257,18 @@
         }
       }
     },
-    onMouseClick: function(event) {
+    onMouseClick: function (event) {
       if (this.activate == "text") {
         if (this.textactive) {
           this.handleMouseClick();
         }
         if (!this.hasInput) {
-          console.log("실행됨")
+          console.log("실행됨");
           this.addInput(event.offsetX, event.offsetY);
         }
       } else return;
     },
-    addInput: function(x, y) {
+    addInput: function (x, y) {
       var input = document.createElement("input");
 
       input.id = "textbox";
@@ -270,17 +281,17 @@
       input.style.border = "none";
       input.style.backgroundColor = "transparent";
       input.style.fontSize = e_group.size;
-    
+
       input.onkeydown = this.handleENTER;
-    
+
       document.body.appendChild(input);
-    
+
       input.focus();
-    
+
       this.hasInput = true;
       this.textactive = true;
     },
-    handleENTER: function(event){
+    handleENTER: function (event) {
       var keyCode = event.keyCode;
       if (keyCode === 13) {
         e_group.drawText(
@@ -300,9 +311,9 @@
         e_group.addHistory();
       }
     },
-    handleMouseClick: function() {
+    handleMouseClick: function () {
       var inputs = document.getElementById("textbox");
-    
+
       e_group.drawText(
         inputs.value,
         parseInt(inputs.style.left, 10),
@@ -323,7 +334,14 @@
       this.ctx.textBaseline = "top";
       this.ctx.textAlign = "left";
       // 폰트는 굵기, 기울이기, 크기, 폰트로 들어감
-      this.ctx.font = e_group.boldtext + " " + e_group.italictext + " " + e_group.size + " " + e_group.font;
+      this.ctx.font =
+        e_group.boldtext +
+        " " +
+        e_group.italictext +
+        " " +
+        e_group.size +
+        " " +
+        e_group.font;
       this.ctx.fillText(txt, x, y);
     },
     createCanvas: function () {
@@ -492,6 +510,20 @@
       window.document.body.appendChild(select);
       select.style = `position: absolute; top: 30px; left: 600px; z-index: 2147483647;`;
 
+      var button = window_e.document.createElement("button");
+      var buttonText = window_e.document.createTextNode("형광펜");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "highlighter");
+      window_e.document.body.appendChild(button);
+      button.style = `position: absolute; top: 30px; left: 300px; z-index: 2147483647;`;
+
+      document
+        .getElementById("highlighter")
+        .addEventListener("click", function () {
+          e_group.activate = "highlighter";
+          e_group.canvas.style.cursor = "pointer";
+        });
+
       document.getElementById("delBut").addEventListener("click", function () {
         e_group.ctx.clearRect(
           0,
@@ -609,11 +641,13 @@
           e_group.setCtxProp();
         });
 
-        document.getElementById("textBut").addEventListener("click", function () {
-          e_group.activate = "text";
-        });
-      
-        document.getElementById("textboldBut").addEventListener("click", function () {
+      document.getElementById("textBut").addEventListener("click", function () {
+        e_group.activate = "text";
+      });
+
+      document
+        .getElementById("textboldBut")
+        .addEventListener("click", function () {
           if (e_group.boldtext == "bold") {
             e_group.boldtext = "";
             this.innerText = "진하게";
@@ -622,26 +656,28 @@
             this.innerText = "연하게";
           }
         });
-      
-        document
-          .getElementById("textitalicBut")
-          .addEventListener("click", function () {
-            if (e_group.italictext == "italic") {
-              e_group.italictext = "";
-              this.innerText = "기울이기";
-            } else {
-              e_group.italictext = "italic";
-              this.innerText = "기울이지 않기";
-            }
-          });
-      
-        document.getElementById("jsFontSize").addEventListener("input", function () {
+
+      document
+        .getElementById("textitalicBut")
+        .addEventListener("click", function () {
+          if (e_group.italictext == "italic") {
+            e_group.italictext = "";
+            this.innerText = "기울이기";
+          } else {
+            e_group.italictext = "italic";
+            this.innerText = "기울이지 않기";
+          }
+        });
+
+      document
+        .getElementById("jsFontSize")
+        .addEventListener("input", function () {
           e_group.size = document.getElementById("jsFontSize").value + "px";
         });
-      
-        document.getElementById("jsFont").addEventListener("input", function () {
-          e_group.font = document.getElementById("jsFont").value;
-        });
+
+      document.getElementById("jsFont").addEventListener("input", function () {
+        e_group.font = document.getElementById("jsFont").value;
+      });
 
       // ------------------------------------------------------------------- 임시 UI 종료
       this.Histories();
