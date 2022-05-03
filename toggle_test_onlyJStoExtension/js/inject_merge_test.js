@@ -58,6 +58,13 @@
     eY: null,
     mX: null,
     mY: null,
+    hasInput: false, // 텍스트 입력 여부
+    size: "20px", // 텍스트 사이즈
+    font: "sans-serif", // 텍스트 폰트
+    boldtext: "", // 볼드
+    italictext: "", // 기울이기
+    textactive: false, // 텍스트 입력중인지 체크
+
     startPainting: function (event) {
       // 마우스 클릭버튼 누름
       if (event.which === 1) {
@@ -87,18 +94,7 @@
         this.mY = null;
       }
       this.painting = false;
-      this.saveImage = this.ctx.getImageData(
-        0,
-        0,
-        this.canvas.width,
-        this.canvas.height
-      ); // 지금까지 그린 정보를 저장
-      this.addHistory();
-    },
-    leaveStopPainting: function () {
-      // 마우스 범위 밖으로 나감
-      if (this.painting) {
-        this.painting = false;
+      if (this.activate != "text") {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -106,6 +102,21 @@
           this.canvas.height
         ); // 지금까지 그린 정보를 저장
         this.addHistory();
+      }
+    },
+    leaveStopPainting: function () {
+      // 마우스 범위 밖으로 나감
+      if (this.painting) {
+        this.painting = false;
+        if (this.activate != "text") {
+          this.saveImage = this.ctx.getImageData(
+            0,
+            0,
+            this.canvas.width,
+            this.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          this.addHistory();
+        }
       }
       if (this.activate == "curve") {
         this.mX = null;
@@ -235,6 +246,86 @@
         }
       }
     },
+    onMouseClick: function(event) {
+      if (this.activate == "text") {
+        if (this.textactive) {
+          this.handleMouseClick();
+        }
+        if (!this.hasInput) {
+          console.log("실행됨")
+          this.addInput(event.offsetX, event.offsetY);
+        }
+      } else return;
+    },
+    addInput: function(x, y) {
+      var input = document.createElement("input");
+
+      input.id = "textbox";
+      input.type = "text";
+      input.style.position = "fixed";
+      input.style.left = x + "px";
+      input.style.top = y + "px";
+      input.style.width = "1000px";
+      input.style.outline = "none";
+      input.style.border = "none";
+      input.style.backgroundColor = "transparent";
+      input.style.fontSize = e_group.size;
+    
+      input.onkeydown = this.handleENTER;
+    
+      document.body.appendChild(input);
+    
+      input.focus();
+    
+      this.hasInput = true;
+      this.textactive = true;
+    },
+    handleENTER: function(event){
+      var keyCode = event.keyCode;
+      if (keyCode === 13) {
+        e_group.drawText(
+          this.value,
+          parseInt(this.style.left, 10),
+          parseInt(this.style.top, 10)
+        );
+        document.body.removeChild(this);
+        e_group.hasInput = false;
+        e_group.textactive = false;
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        e_group.addHistory();
+      }
+    },
+    handleMouseClick: function() {
+      var inputs = document.getElementById("textbox");
+    
+      e_group.drawText(
+        inputs.value,
+        parseInt(inputs.style.left, 10),
+        parseInt(inputs.style.top, 10)
+      );
+      document.body.removeChild(inputs);
+      e_group.hasInput = false;
+      e_group.saveImage = e_group.ctx.getImageData(
+        0,
+        0,
+        e_group.canvas.width,
+        e_group.canvas.height
+      ); // 지금까지 그린 정보를 저장
+      e_group.addHistory();
+    },
+    // 캔버스에 글자 그리는 함수
+    drawText: function (txt, x, y) {
+      this.ctx.textBaseline = "top";
+      this.ctx.textAlign = "left";
+      // 폰트는 굵기, 기울이기, 크기, 폰트로 들어감
+      this.ctx.font = e_group.boldtext + " " + e_group.italictext + " " + e_group.size + " " + e_group.font;
+      this.ctx.fillText(txt, x, y);
+    },
     createCanvas: function () {
       console.log("inject.js e 내부 createCanvas");
       this.canvas = window_e.document.createElement("Canvas");
@@ -342,6 +433,64 @@
       input.setAttribute("placeholder", "투명도");
       window_e.document.body.appendChild(input);
       input.style = `position: absolute; top: 30px; left: 250px; z-index: 2147483647; width:30px`;
+
+      var button = window.document.createElement("button");
+      var buttonText = window.document.createTextNode("텍스트");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "textBut");
+      window.document.body.appendChild(button);
+      button.style = `position: absolute; top: 60px; left: 150px; z-index: 2147483647;`;
+
+      var button = window.document.createElement("button");
+      var buttonText = window.document.createTextNode("진하게");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "textboldBut");
+      window.document.body.appendChild(button);
+      button.style = `position: absolute; top: 60px; left: 220px; z-index: 2147483647;`;
+
+      var button = window.document.createElement("button");
+      var buttonText = window.document.createTextNode("기울이기");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "textitalicBut");
+      window.document.body.appendChild(button);
+      button.style = `position: absolute; top: 60px; left: 290px; z-index: 2147483647;`;
+
+      var input = window.document.createElement("input");
+      input.setAttribute("id", "jsFontSize");
+      input.setAttribute("type", "number");
+      input.setAttribute("value", "20");
+      window.document.body.appendChild(input);
+      input.style = `position: absolute; top: 60px; left: 380px; z-index: 2147483647;`;
+
+      var select = window.document.createElement("select");
+      select.setAttribute("id", "jsFont");
+      var opt = window.document.createElement("option");
+      opt.setAttribute("value", "sans-serif");
+      var optText = window.document.createTextNode("고딕체");
+      opt.appendChild(optText);
+      select.appendChild(opt);
+      var opt = window.document.createElement("option");
+      opt.setAttribute("value", "monospace");
+      var optText = window.document.createTextNode("바탕체");
+      opt.appendChild(optText);
+      select.appendChild(opt);
+      var opt = window.document.createElement("option");
+      opt.setAttribute("value", "serif");
+      var optText = window.document.createTextNode("명조체");
+      opt.appendChild(optText);
+      select.appendChild(opt);
+      var opt = window.document.createElement("option");
+      opt.setAttribute("value", "cursive");
+      var optText = window.document.createTextNode("손글씨");
+      opt.appendChild(optText);
+      select.appendChild(opt);
+      var opt = window.document.createElement("option");
+      opt.setAttribute("value", "fantasy");
+      var optText = window.document.createTextNode("화려체");
+      opt.appendChild(optText);
+      select.appendChild(opt);
+      window.document.body.appendChild(select);
+      select.style = `position: absolute; top: 30px; left: 600px; z-index: 2147483647;`;
 
       document.getElementById("delBut").addEventListener("click", function () {
         e_group.ctx.clearRect(
@@ -460,6 +609,40 @@
           e_group.setCtxProp();
         });
 
+        document.getElementById("textBut").addEventListener("click", function () {
+          e_group.activate = "text";
+        });
+      
+        document.getElementById("textboldBut").addEventListener("click", function () {
+          if (e_group.boldtext == "bold") {
+            e_group.boldtext = "";
+            this.innerText = "진하게";
+          } else {
+            e_group.boldtext = "bold";
+            this.innerText = "연하게";
+          }
+        });
+      
+        document
+          .getElementById("textitalicBut")
+          .addEventListener("click", function () {
+            if (e_group.italictext == "italic") {
+              e_group.italictext = "";
+              this.innerText = "기울이기";
+            } else {
+              e_group.italictext = "italic";
+              this.innerText = "기울이지 않기";
+            }
+          });
+      
+        document.getElementById("jsFontSize").addEventListener("input", function () {
+          e_group.size = document.getElementById("jsFontSize").value + "px";
+        });
+      
+        document.getElementById("jsFont").addEventListener("input", function () {
+          e_group.font = document.getElementById("jsFont").value;
+        });
+
       // ------------------------------------------------------------------- 임시 UI 종료
       this.Histories();
       this.initCanvas();
@@ -487,6 +670,7 @@
         this.leaveStopPainting,
         this
       );
+      var onMouseClick = Function.prototype.bind.call(this.onMouseClick, this);
       this.canvas.addEventListener("mousedown", startPainting);
       this.canvas.addEventListener("touchstart", startPainting);
       this.canvas.addEventListener("mousemove", onMouseMove);
@@ -494,6 +678,7 @@
       this.canvas.addEventListener("mouseup", stopPainting);
       this.canvas.addEventListener("touchend", stopPainting);
       this.canvas.addEventListener("mouseleave", leaveStopPainting);
+      this.canvas.addEventListener("click", onMouseClick);
       // window_e.document.addEventListener("keydown", this.keydownBinded);
       // window_e.document.addEventListener("keypress", this.keypressBinded);
     },
