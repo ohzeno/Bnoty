@@ -1,19 +1,23 @@
 // 초기화
 var btn1 = document.getElementById("test");
+var btn2 = document.getElementById("test2");
 // 연결
 btn1.addEventListener('click', startAutoSave );
+btn2.addEventListener('click', startAutoRead );
 
 function startAutoSave() {
-    let url;
-    console.log(window.location.toString());
-    console.log("pop");
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-        url = tabs[0].url;
-        console.log(url);
-    })
-    chrome.runtime.sendMessage( { method : '10SecSave', url : url}, (response) => {
+    chrome.runtime.sendMessage( { method : '10SecSave'}, (response) => {
         console.log("[popup.js] chrome.runtime.sendMessage()");
         console.log(response.farewell);
     });
 
 };
+
+function startAutoRead() {
+    chrome.runtime.sendMessage( { method : 'startRead'}, (response) => {
+        console.log("[popup.js] chrome.runtime.sendMessage()");
+        console.log(response.farewell);
+    });
+
+};
+
