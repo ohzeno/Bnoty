@@ -837,13 +837,14 @@
       // }
       // updatePaintStyle();
       this.ctx.lineWidth = n;
-      if (this.saveImage)
-        // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
-        this.ctx.putImageData(this.saveImage, 0, 0);
-      if (this.array.length == 0)
+      if (this.array.length == 0){ // 저장된 정보가 없으면 현재 정보 초기값을 추가해줌
         this.histories.add(
           this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
-        );
+        )
+      }
+      else{ // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
+        this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+      }
     },
     render: function (t) {
       console.log("inject.js e 내부 render");
