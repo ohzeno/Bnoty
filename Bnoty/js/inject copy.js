@@ -183,257 +183,6 @@ var getCSSAnimationManager = function () {
     italictext: "", // 기울이기
     textactive: false, // 텍스트 입력중인지 체크
 
-    startPainting: function (event) {
-      console.log("여긴 왔는데");
-      // 마우스 클릭버튼 누름
-      if (event.which === 1) {
-        console.log("여긴 왔는데");
-        //좌클릭 일 때만 그리기
-        if (this.painting) {
-          // 이부분은 곡선그리는 부분떄문에 사용
-          this.painting = false;
-          return;
-        }
-        // console.log("start들어옴");
-        this.painting = true;
-        this.sX = event.offsetX;
-        this.sY = event.offsetY;
-        if (this.activate == "fill") {
-          console.log("여긴 왔는데");
-          this.handleFill(event.clientX, event.clientY);
-        }
-        if (this.activate == "lasso" && this.saveLasso == null) {
-          this.lassosX = event.offsetX;
-          this.lassosY = event.offsetY;
-        }
-      }
-    },
-    stopPainting: function (event) {
-      // 마우스 클릭 버튼 떔
-      // console.log("stop들어옴");
-      if (this.activate == "curve") {
-        // 커브면 끝좌표 초기화 or 갱신
-        if (this.mX == null && this.mY == null) {
-          this.mX = event.offsetX;
-          this.mY = event.offsetY;
-          return; // 여기서는 끝좌표만 갱신하고 리턴해줘야 다음작업 가능
-        }
-        this.mX = null;
-        this.mY = null;
-      } else if (this.activate == "lasso") {
-        if (this.saveLasso == null) {
-          this.saveLasso = this.ctx.getImageData(
-            this.lassosX,
-            this.lassosY,
-            this.lassoeX - this.lassosX,
-            this.lassoeY - this.lassosY
-          );
-        } else {
-          this.saveLasso = null;
-        }
-      }
-      this.painting = false;
-      if (this.activate != "text" && this.activate != "lasso") {
-        this.saveImage = this.ctx.getImageData(
-          0,
-          0,
-          this.canvas.width,
-          this.canvas.height
-        ); // 지금까지 그린 정보를 저장
-        this.addHistory();
-      }
-    },
-    leaveStopPainting: function () {
-      // 마우스 범위 밖으로 나감
-      if (this.painting) {
-        this.painting = false;
-        if (this.activate != "text") {
-          this.saveImage = this.ctx.getImageData(
-            0,
-            0,
-            this.canvas.width,
-            this.canvas.height
-          ); // 지금까지 그린 정보를 저장
-          this.addHistory();
-        }
-      }
-      if (this.activate == "curve") {
-        this.mX = null;
-        this.mY = null;
-      }
-    },
-    onMouseMove: function (event) {
-      // 마우스 움직일때 실행
-      // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
-      this.eX = event.offsetX;
-      this.eY = event.offsetY;
-
-      // console.log("좌표", x, y);
-      if (!this.painting) {
-        // console.log("begin들어옴");
-        // this.ctx.globalCompositeOperation = "destination-atop"; // 이 줄 추가로 펜선 안겹침. 즉 투명하게 그릴 수 있음. 기존엔 투명도 설정해도 계속 겹쳐서 불투명하게 그려짐. + 부작용> 두번째 그릴때 이전에 그린거 초기화됨. restore, buffer캔버스 사용해야 할 듯...
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.eX, this.eY);
-      } else {
-        //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
-        // console.log("stroke들어옴");
-        if (this.activate == "eraser") {
-          // 부분 지우기
-          // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
-          this.ctx.save();
-          this.lineWidth = 4;
-          this.setCtxProp();
-          this.ctx.clearRect(
-            this.eX - this.ctx.lineWidth * 1.5,
-            this.eY - this.ctx.lineWidth * 1.5,
-            this.ctx.lineWidth * 3,
-            this.ctx.lineWidth * 3
-          ); // 해당 범위만큼 지운다.
-          this.ctx.restore();
-          this.lineWidth = this.ctx.lineWidth;
-          return;
-        }
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        if (this.currentIndex != 0) {
-          // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
-          this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
-        }
-
-        if (this.activate == "pen") {
-          // 펜그리는 부분
-          this.ctx.lineTo(this.eX, this.eY);
-          this.ctx.stroke();
-        } else if (this.activate == "highlighter") {
-          this.ctx.globalAlpha = 0.5; // 형광펜 그리는 동안 알파 변경
-          if (this.ctx.lineWidth < 15) {
-            // 너무 얇으면 최소굵기 지정
-            this.ctx.lineWidth = 15;
-          }
-          this.ctx.lineTo(this.eX, this.eY);
-          this.ctx.stroke();
-          this.ctx.globalAlpha = this.globalAlpha; // 알파 초기화
-          this.ctx.lineWidth = this.lineWidth; // 굵기 초기화
-        } else if (this.activate == "rectangle") {
-          // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
-          this.ctx.strokeRect(
-            this.sX,
-            this.sY,
-            this.eX - this.sX,
-            this.eY - this.sY
-          );
-        } else if (this.activate == "triangle") {
-          // 세모
-          this.ctx.beginPath();
-          this.ctx.moveTo((this.sX + this.eX) / 2, this.sY); // 시작점(x,y)
-          this.ctx.lineTo(this.sX, this.eY);
-          this.ctx.moveTo((this.sX + this.eX) / 2, this.sY);
-          this.ctx.lineTo(this.eX, this.eY);
-          this.ctx.moveTo(this.sX, this.eY);
-          this.ctx.lineTo(this.eX, this.eY);
-          this.ctx.lineCap = "round"; // 끝을 둥글게
-          this.ctx.stroke();
-          this.ctx.lineCap = "butt"; // 끝을 원래로
-        } else if (this.activate == "circle") {
-          // 동그라미
-          var s = ((this.eX - this.sX) / 2) * 0.5522848,
-            o = ((this.eY - this.sY) / 2) * 0.5522848,
-            a = this.sX + this.eX - this.sX,
-            r = this.sY + this.eY - this.sY,
-            h = this.sX + (this.eX - this.sX) / 2,
-            c = this.sY + (this.eY - this.sY) / 2;
-          this.ctx.beginPath(); // 새로운 경로 시작함을 알림 약간 기존 저장된 시작점 그런거 초기화느낌?
-          this.ctx.moveTo(this.sX, c); // 시작점(x,y)
-          this.ctx.bezierCurveTo(this.sX, c - o, h - s, this.sY, h, this.sY); //곡선 그리는 부분 첫번째 제어점 (x,y), 두번째 제어점(x,y), 끝점x,y
-          this.ctx.bezierCurveTo(h + s, this.sY, a, c - o, a, c);
-          this.ctx.bezierCurveTo(a, c + o, h + s, r, h, r);
-          this.ctx.bezierCurveTo(h - s, r, this.sX, c + o, this.sX, c);
-          this.ctx.stroke(); // 이걸 해줌으로써 위에서 작성한 것들 화면에 뿌려줌?
-        } else if (this.activate == "line") {
-          // 직선
-          this.ctx.beginPath();
-          this.ctx.moveTo(this.sX, this.sY);
-          this.ctx.lineTo(this.eX, this.eY);
-          this.ctx.stroke();
-        } else if (this.activate == "curve") {
-          // 그 여기 들어온 수를 판단해서 점 찍고 하는식으로 해야할거 같은데?
-          this.ctx.beginPath();
-          if (this.mX == null && this.mY == null) {
-            // 끝 좌표가 없으면 끝좌표를 저장하고 직선 그림
-            this.ctx.moveTo(this.sX, this.sY);
-            this.ctx.lineTo(this.eX, this.eY);
-          } else {
-            // 끝 좌표가 존재하면 마우스 이동좌표에 따른 곡선 그림
-            this.ctx.moveTo(this.sX, this.sY);
-            this.ctx.quadraticCurveTo(
-              event.offsetX,
-              event.offsetY,
-              this.mX,
-              this.mY
-            );
-          }
-          this.ctx.stroke();
-        } else if (this.activate == "arrow") {
-          var headlen = this.ctx.lineWidth * 6; // 화살표 선 길이
-          var dx = this.eX - this.sX;
-          var dy = this.eY - this.sY;
-          var angle = Math.atan2(dy, dx);
-          this.ctx.beginPath();
-          this.ctx.moveTo(this.sX, this.sY);
-          this.ctx.lineTo(this.eX, this.eY);
-          this.ctx.moveTo(this.eX, this.eY);
-          this.ctx.lineTo(
-            this.eX - headlen * Math.cos(angle - Math.PI / 6),
-            this.eY - headlen * Math.sin(angle - Math.PI / 6)
-          );
-          this.ctx.moveTo(this.eX, this.eY);
-          this.ctx.lineTo(
-            this.eX - headlen * Math.cos(angle + Math.PI / 6),
-            this.eY - headlen * Math.sin(angle + Math.PI / 6)
-          );
-          this.ctx.lineCap = "round"; // 끝을 둥글게
-          this.ctx.stroke();
-          this.ctx.lineCap = "butt"; // 끝을 원래로
-        } else if (this.activate == "lasso") {
-          // 올가미
-          if (this.saveLasso != null) {
-            this.ctx.clearRect(
-              this.lassosX,
-              this.lassosY,
-              this.lassoeX - this.lassosX,
-              this.lassoeY - this.lassosY
-            );
-            this.ctx.putImageData(this.saveLasso, this.eX, this.eY);
-            return;
-          }
-          this.lassoeX = event.offsetX;
-          this.lassoeY = event.offsetY;
-          this.ctx.save();
-          this.ctx.strokeStyle = "rgba(46,112,245)";
-          this.ctx.lineWidth = 1;
-          // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
-          this.ctx.setLineDash([5]); // 간격이 20인 점선 설정
-          this.ctx.strokeRect(
-            this.sX,
-            this.sY,
-            this.eX - this.sX,
-            this.eY - this.sY
-          );
-          this.ctx.setLineDash([]); // 실선으로 변경
-          this.ctx.restore();
-        }
-      }
-    },
-    onMouseClick: function (event) {
-      if (this.activate == "text") {
-        if (this.textactive) {
-          this.handleMouseClick();
-        }
-        if (!this.hasInput) {
-          console.log("실행됨");
-          this.addInput(event.offsetX, event.offsetY);
-        }
-      }
-    },
     createCanvas: function () {
       console.log("inject.js e 내부 createCanvas");
       this.canvas = window_e.document.createElement("Canvas");
@@ -446,39 +195,9 @@ var getCSSAnimationManager = function () {
       this.initCanvas();
     },
     initCanvas: function (t) {
-      console.log("inject.js e 내부 initCanvas");
-      if (t) {
-        this.handleResize(!0);
-        // this.ctx.drawImage(t, 0, 0);
-        // this.storeCanvas(!0);
-      } else {
-        this.handleResize();
-      }
-      // this.storeHistory();
-    },
-    addMouseEventListener: function () {
-      console.log("inject.js e 내부 addMouseEventListener");
-      var startPainting = Function.prototype.bind.call(
-        this.startPainting,
-        this
-      );
-      var onMouseMove = Function.prototype.bind.call(this.onMouseMove, this);
-      var stopPainting = Function.prototype.bind.call(this.stopPainting, this);
-      var leaveStopPainting = Function.prototype.bind.call(
-        this.leaveStopPainting,
-        this
-      );
-      var onMouseClick = Function.prototype.bind.call(this.onMouseClick, this);
-      this.canvas.addEventListener("mousedown", startPainting);
-      this.canvas.addEventListener("touchstart", startPainting);
-      this.canvas.addEventListener("mousemove", onMouseMove);
-      this.canvas.addEventListener("touchmove", onMouseMove);
-      this.canvas.addEventListener("mouseup", stopPainting);
-      this.canvas.addEventListener("touchend", stopPainting);
-      this.canvas.addEventListener("mouseleave", leaveStopPainting);
-      // this.canvas.addEventListener("click", onMouseClick);
-      // window_e.document.addEventListener("keydown", this.keydownBinded);
-      // window_e.document.addEventListener("keypress", this.keypressBinded);
+      t
+        ? (this.handleResize(!0), this.ctx.drawImage(t, 0, 0))
+        : this.handleResize();
     },
     setCtxProp: function () {
       console.log("inject.js e 내부 setCtxProp");
@@ -486,10 +205,6 @@ var getCSSAnimationManager = function () {
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
       this.ctx.lineWidth = this.lineWidth; // 선 굵기
-    },
-    handlePanelAppearing: function (t) {
-      console.log("inject.js e 내부 handlePanelAppearing");
-      t.target.style.opacity = 1;
     },
     handleResize: function (t) {
       var e = !1,
@@ -567,20 +282,14 @@ var getCSSAnimationManager = function () {
       for (var o = 0; o < this.drawOptions.length; o++) {
         var a = this.drawOptions[o],
           r = window_e.document.createElement("div");
-        r.setAttribute("class", "bnoty_controls_draw_option");
-        r.setAttribute("title", a.title);
-        this.addClass(r, a.type);
-        // r.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.onControlPanelClick, this, o)
-        // ),
-        if (a.type == "fill") {
-          r.addEventListener("click", function () {
-            e_group.activate = "fill";
-            e_group.canvas.style.cursor = "pointer";
-          });
-        }
-        tools.appendChild(r);
+        r.setAttribute("class", "bnoty_controls_draw_option"),
+          r.setAttribute("title", a.title),
+          this.addClass(r, a.type),
+          // r.addEventListener(
+          //   "click",
+          //   Function.prototype.bind.call(this.onControlPanelClick, this, o)
+          // ),
+          tools.appendChild(r);
         if (
           !(
             ((null !== this.config.tool && void 0 !== this.config.tool) ||
@@ -734,142 +443,11 @@ var getCSSAnimationManager = function () {
     removeClass: function (t, e) {
       t.className = t.className.replace(new RegExp("\\b" + e + "\\b", "g"), "");
     },
-    matchOutlineColor: function (a, b, c, d) {
-      console.log("inject.js e 내부 matchOutlineColor");
-      return 255 !== a && 255 !== b && 255 !== c && 0 !== d;
-    },
-    handleFill: function (x, y) {
-      var currentImage = this.ctx.getImageData(
-        0,
-        0,
-        this.canvas.width,
-        this.canvas.height
-      );
-      i = 4 * (y * this.canvas.width + x);
-      r = currentImage.data[i];
-      g = currentImage.data[i + 1];
-      b = currentImage.data[i + 2];
-      a = currentImage.data[i + 3];
-      red_option = this.red;
-      green_option = this.green;
-      blue_option = this.blue;
-      alpha_option = Math.round(255 * this.globalAlpha);
-      if (
-        !(
-          r === red_option &&
-          g === green_option &&
-          b === blue_option &&
-          a === alpha_option
-        )
-      ) {
-        if (!this.matchOutlineColor(r, g, b, a)) {
-          this.floodFill(
-            x,
-            y,
-            [
-              this.red,
-              this.green,
-              this.blue,
-              Math.round(255 * this.globalAlpha),
-            ],
-            !1,
-            currentImage,
-            0,
-            !0
-          );
-          this.ctx.putImageData(currentImage, 0, 0);
-          // this.storeCanvas();
-          // this.storeHistory();
-        }
-      }
-    },
-    floodFill: function (x, y, option, i, image, a, s) {
-      console.log("inject.js e 내부 floodFill");
-      var r,
-        h,
-        c,
-        data = image.data,
-        array_1 = [],
-        u = !!0,
-        p = !1,
-        width = image.width,
-        height = image.height,
-        array_wh = new Uint8ClampedArray(width * height),
-        width_4 = 4 * width,
-        x2 = x,
-        y2 = y,
-        w = y2 * width_4 + 4 * x2,
-        C = data[w],
-        b = data[w + 1],
-        L = data[w + 2],
-        P = data[w + 3],
-        T = !1,
-        D = function (t, e) {
-          if (t < 0 || e < 0 || height <= e || width <= t) return !1;
-          var i = e * width_4 + 4 * t,
-            n = Math.max(
-              Math.abs(C - data[i]),
-              Math.abs(b - data[i + 1]),
-              Math.abs(L - data[i + 2]),
-              Math.abs(P - data[i + 3])
-            );
-          if (n < a) {
-            n = 0;
-          }
-          var s = Math.abs(0 - array_wh[e * width + t]);
-          return (
-            T ||
-              (0 !== n &&
-                255 !== s &&
-                ((data[i] = option[0]),
-                (data[i + 1] = option[1]),
-                (data[i + 2] = option[2]),
-                (data[i + 3] = (option[3] + data[i + 3]) / 2),
-                (array_wh[e * width + t] = 255))),
-            n + s === 0
-          );
-        };
-      for (array_1.push([x2, y2]); array_1.length; ) {
-        var k = array_1.pop();
-        for (x2 = k[0], y2 = k[1], T = !0; D(x2, y2 - 1); ) y2 -= 1;
-        for (
-          T = !1,
-            i &&
-              (!D(x2 - 1, y2) &&
-                D(x2 - 1, y2 - 1) &&
-                array_1.push([x2 - 1, y2 - 1]),
-              !D(x2 + 1, y2) &&
-                D(x2 + 1, y2 - 1) &&
-                array_1.push([x2 + 1, y2 - 1])),
-            p = u = !1;
-          D(x2, y2);
-
-        )
-          void 0,
-            (data[(c = (h = y2) * width_4 + 4 * (r = x2))] = option[0]),
-            (data[c + 1] = option[1]),
-            (data[c + 2] = option[2]),
-            (data[c + 3] = option[3]),
-            (array_wh[h * width + r] = 255),
-            D(x2 - 1, y2)
-              ? u || (array_1.push([x2 - 1, y2]), (u = !0))
-              : u && (u = !1),
-            D(x2 + 1, y2)
-              ? p || (array_1.push([x2 + 1, y2]), (p = !0))
-              : p && (p = !1),
-            (y2 += 1);
-        if (i) {
-          D(x2 - 1, y2) && !u && array_1.push([x2 - 1, y2]);
-          D(x2 + 1, y2) && !p && array_1.push([x2 + 1, y2]);
-        }
-      }
-    },
     render: function (t) {
-      this.config = t || {};
-      this.createCanvas();
-      // this.setLineProperty();
-      this.createControlPanel();
-      this.addMouseEventListener();
+      (this.config = t || {}),
+        this.createCanvas(),
+        // this.setLineProperty(),
+        this.createControlPanel();
       // this.initDragging(),
       // this.addMouseEventListener(),
       // this.addKeyEventListeners();
