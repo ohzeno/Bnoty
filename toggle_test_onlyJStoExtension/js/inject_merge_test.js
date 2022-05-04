@@ -45,7 +45,7 @@
     globalAlpha: 1, //투명도
     activate: "pen", // 지금 활성화된 도구 기본은 펜!
     saveImage: null, // 지금 까지 그린 이미지를 저장
-    saveLasso: null, // 올가미로 선택한 영역을 이미지로 저장
+    saveLasso: [null, null], // 올가미로 선택한 영역을 이미지로 저장 (테투리 x , 테두리 o)
     histories: null, // 여기에 이제 그 작업한거 저장함
     MAX_ITEMS: null, // 최대 저장 아이템
     currentIndex: null, // 지금 인덱스 위치
@@ -86,7 +86,7 @@
         if (this.activate == "fill") {
           this.handleFill(event.clientX, event.clientY);
         }
-        if(this.activate == 'lasso' && this.saveLasso == null){
+        if(this.activate == 'lasso' && this.saveLasso[0] == null){
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
         }
@@ -105,19 +105,33 @@
         this.mX = null;
         this.mY = null;
       }else if (this.activate == 'lasso'){
-        if(this.saveLasso == null){
-          this.saveLasso = this.ctx.getImageData(
+        if(this.saveLasso[1] == null){
+          this.saveLasso[1] = this.ctx.getImageData(
           this.lassosX,
           this.lassosY,
           this.lassoeX - this.lassosX,
           this.lassoeY - this.lassosY
           );
-        }else{
-          this.saveLasso = null
+        }else {
+          this.ctx.putImageData(this.saveLasso[0], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY)),
+          this.saveLasso[0] = null,
+        this.saveLasso[1] = null,
+        this.lassosX = null,
+        this.lassosY= null,
+        this.lassoeX = null,
+        this.lassoeY = null
         }
       }
+      if(this.activate != "lasso"){
+        this.saveLasso[0] = null,
+        this.saveLasso[1] = null,
+        this.lassosX = null,
+        this.lassosY= null,
+        this.lassoeX = null,
+        this.lassoeY = null
+      }
       this.painting = false;
-      if (this.activate != "text" && this.saveLasso == null) {
+      if (this.activate != "text" && this.saveLasso[0] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -151,6 +165,14 @@
       // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
       this.eX = event.offsetX;
       this.eY = event.offsetY;
+
+      if (this.activate == "lasso") {
+        if(this.lassosX <= this.eX && this.lassoeX >= this.eX && this.lassosY <= this.eY && this.lassoeY >= this.eY ){
+          this.canvas.style.cursor = "move";
+        }else{
+          this.canvas.style.cursor = "crosshair";
+        }
+      }
 
       // console.log("좌표", x, y);
       if (!this.painting) {
@@ -279,16 +301,27 @@
           this.ctx.lineCap = "butt"; // 끝을 원래로
         }
         else if (this.activate == 'lasso'){ // 올가미
-          if(this.saveLasso != null){
+          if(this.saveLasso[1] != null){
             this.ctx.clearRect(
               this.lassosX,
               this.lassosY,
               this.lassoeX - this.lassosX,
               this.lassoeY - this.lassosY
             );
-            this.ctx.putImageData(this.saveLasso, this.eX, this.eY);
+            // this.ctx.putImageData(this.saveLasso[1], this.eX, this.eY);
+            // console.log(this.eX-(this.eX-this.lassosX), this.eY-(this.eY-this.lassosY))
+            this.ctx.putImageData(this.saveLasso[1], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY));
             return;
           }
+          if(this.eX != this.lassosX && this.eY != this.lassosY){
+            this.saveLasso[0] = this.ctx.getImageData(
+              this.lassosX,
+              this.lassosY,
+              this.eX - this.lassosX,
+              this.eY - this.lassosY
+            );
+          }
+
           this.lassoeX = event.offsetX;
           this.lassoeY = event.offsetY;
           this.ctx.save();
