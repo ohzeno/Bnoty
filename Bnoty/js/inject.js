@@ -184,10 +184,8 @@ var getCSSAnimationManager = function () {
     textactive: false, // 텍스트 입력중인지 체크
 
     startPainting: function (event) {
-      console.log("여긴 왔는데");
       // 마우스 클릭버튼 누름
       if (event.which === 1) {
-        console.log("여긴 왔는데");
         //좌클릭 일 때만 그리기
         if (this.painting) {
           // 이부분은 곡선그리는 부분떄문에 사용
@@ -199,7 +197,6 @@ var getCSSAnimationManager = function () {
         this.sX = event.offsetX;
         this.sY = event.offsetY;
         if (this.activate == "fill") {
-          console.log("여긴 왔는데");
           this.handleFill(event.clientX, event.clientY);
         }
         if (this.activate == "lasso" && this.saveLasso == null) {
@@ -557,13 +554,17 @@ var getCSSAnimationManager = function () {
           "class",
           "bnoty_controls_range alpha_control"
         ),
-        size_control.setAttribute("class", "bnoty_controls_range size_control"),
-        window_e.document.body.appendChild(this.panel),
-        this.panel.appendChild(tools),
-        this.panel.appendChild(color),
-        this.panel.appendChild(transparency),
-        this.panel.appendChild(size_control),
-        this.panel.appendChild(controls);
+        size_control.setAttribute("class", "bnoty_controls_range size_control");
+      var box = window_e.document.createElement("div");
+      box.setAttribute("class", "top_box");
+      window_e.document.body.appendChild(box);
+      box.appendChild(this.panel);
+      // window_e.document.body.appendChild(this.panel);
+      this.panel.appendChild(tools);
+      this.panel.appendChild(color);
+      this.panel.appendChild(transparency);
+      this.panel.appendChild(size_control);
+      this.panel.appendChild(controls);
       for (var o = 0; o < this.drawOptions.length; o++) {
         var a = this.drawOptions[o],
           r = window_e.document.createElement("div");
@@ -578,6 +579,13 @@ var getCSSAnimationManager = function () {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
             e_group.canvas.style.cursor = "pointer";
+          });
+        } else if (a.type == "pen") {
+          r.addEventListener("click", function () {
+            console.log("this.panel", e_group.panel);
+            var tmp_pen = window_e.document.createElement("div");
+            tmp_pen.setAttribute("class", "test_for_me");
+            box.appendChild(tmp_pen);
           });
         }
         tools.appendChild(r);
