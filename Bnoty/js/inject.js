@@ -148,6 +148,10 @@ var getCSSAnimationManager = function () {
         type: "fill",
         title: "Paint Bucket - fill an area",
       },
+      {
+        type: "injection_link",
+        title: "LINK INJECTION~~~~~~~ ",
+      }
     ],
     selectedAlphaOption: null,
     resizeTimeoutID: null,
@@ -206,6 +210,17 @@ var getCSSAnimationManager = function () {
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
         }
+        // 링크삽입
+        if ( this.activate == "injection_link"){
+          // alert("링크삽입");
+          this.injectionLink( event.offsetX, event.offsetY);
+
+        }
+        if ( this.activate == "injection_end"){
+          console.log("링크삽입 종료");
+        }
+
+
       }
     },
     stopPainting: function (event) {
@@ -576,10 +591,12 @@ var getCSSAnimationManager = function () {
         // ),
         if (a.type == "fill") {
           r.addEventListener("click", function () {
-            e_group.activate = "fill";
-            e_group.canvas.style.cursor = "pointer";
+            // e_group.activate = "fill";
+            e_group.activate = "injection_link";
+            // e_group.canvas.style.cursor = "pointer";
           });
         }
+
         tools.appendChild(r);
         if (
           !(
@@ -927,6 +944,26 @@ var getCSSAnimationManager = function () {
           null !== unsafeWindow &&
           (unsafeWindow.bnoty_INIT = !0);
     },
+    // 링크 삽입함수
+    injectionLink: function (x, y) {
+      console.log("injection link START~~~");
+      console.log(x + " , " + y);
+      var x = document.createElement("IMG");
+      x.setAttribute("src", "https://1.bp.blogspot.com/-x5UnU81HjR8/YPbIDsXjVvI/AAAAAAAJXNM/eZgJX2vCxyc_lAW8DioFRMpu8D5uxaEWwCLcBGAsYHQ/s1600/8.png");
+      x.setAttribute("width", "100");
+      x.setAttribute("height", "100");
+      x.setAttribute("alt", "IU");  
+      x.setAttribute("z-index", 10);  
+      x.setAttribute("position", "absolute" );
+      x.setAttribute("top", x );
+      x.setAttribute("left", y );
+
+      // 추가 
+      document.body.appendChild(x);
+      e_group.activate = "injection_end";
+
+
+    }
   };
   return e_group;
 });
