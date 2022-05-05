@@ -63,6 +63,8 @@
     lassosY:null,
     lassoeX:null,
     lassoeY:null,
+    lassosubX:null,
+    lassosubY:null,
     hasInput: false, // 텍스트 입력 여부
     size: "20px", // 텍스트 사이즈
     font: "sans-serif", // 텍스트 폰트
@@ -89,6 +91,8 @@
         if(this.activate == 'lasso' && this.saveLasso[0] == null){
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
+          this.lassosubX = event.offsetX;
+          this.lassosubY = event.offsetY;
         }
       }
     },
@@ -119,7 +123,9 @@
         this.lassosX = null,
         this.lassosY= null,
         this.lassoeX = null,
-        this.lassoeY = null
+        this.lassoeY = null,
+        this.lassosubX = null,
+        this.lassosubY = null
         }
       }
       if(this.activate != "lasso"){
@@ -128,7 +134,9 @@
         this.lassosX = null,
         this.lassosY= null,
         this.lassoeX = null,
-        this.lassoeY = null
+        this.lassoeY = null,
+        this.lassosubX = null,
+        this.lassosubY = null
       }
       this.painting = false;
       if (this.activate != "text" && this.saveLasso[0] == null) {
@@ -166,13 +174,6 @@
       this.eX = event.offsetX;
       this.eY = event.offsetY;
 
-      if (this.activate == "lasso") {
-        if(this.lassosX <= this.eX && this.lassoeX >= this.eX && this.lassosY <= this.eY && this.lassoeY >= this.eY ){
-          this.canvas.style.cursor = "move";
-        }else{
-          this.canvas.style.cursor = "crosshair";
-        }
-      }
 
       // console.log("좌표", x, y);
       if (!this.painting) {
@@ -301,16 +302,19 @@
           this.ctx.lineCap = "butt"; // 끝을 원래로
         }
         else if (this.activate == 'lasso'){ // 올가미
-          if(this.saveLasso[1] != null){
+          if(this.saveLasso[1] != null){  // 여기 수정해야함 올가미 바뀌는거에 따라서 마우스커서도 같이 바뀔수있도록!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if(this.lassosX <= this.eX && this.lassoeX >= this.eX && this.lassosY <= this.eY && this.lassoeY >= this.eY ){
+              this.canvas.style.cursor = "move";
+            }else{
+              this.canvas.style.cursor = "crosshair";
+            }
             this.ctx.clearRect(
               this.lassosX,
               this.lassosY,
               this.lassoeX - this.lassosX,
               this.lassoeY - this.lassosY
             );
-            // this.ctx.putImageData(this.saveLasso[1], this.eX, this.eY);
-            // console.log(this.eX-(this.eX-this.lassosX), this.eY-(this.eY-this.lassosY))
-            this.ctx.putImageData(this.saveLasso[1], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY));
+            this.ctx.putImageData(this.saveLasso[1], this.eX-(this.sX-this.lassosubX), this.eY-(this.sY-this.lassosubY));
             return;
           }
           if(this.eX != this.lassosX && this.eY != this.lassosY){
