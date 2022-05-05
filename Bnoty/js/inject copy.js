@@ -554,17 +554,13 @@ var getCSSAnimationManager = function () {
           "class",
           "bnoty_controls_range alpha_control"
         ),
-        size_control.setAttribute("class", "bnoty_controls_range size_control");
-      var box = window_e.document.createElement("div");
-      box.setAttribute("class", "top_box");
-      window_e.document.body.appendChild(box);
-      box.appendChild(this.panel);
-      // window_e.document.body.appendChild(this.panel);
-      this.panel.appendChild(tools);
-      this.panel.appendChild(color);
-      this.panel.appendChild(transparency);
-      this.panel.appendChild(size_control);
-      this.panel.appendChild(controls);
+        size_control.setAttribute("class", "bnoty_controls_range size_control"),
+        window_e.document.body.appendChild(this.panel),
+        this.panel.appendChild(tools),
+        this.panel.appendChild(color),
+        this.panel.appendChild(transparency),
+        this.panel.appendChild(size_control),
+        this.panel.appendChild(controls);
       for (var o = 0; o < this.drawOptions.length; o++) {
         var a = this.drawOptions[o],
           r = window_e.document.createElement("div");
@@ -585,7 +581,7 @@ var getCSSAnimationManager = function () {
             console.log("this.panel", e_group.panel);
             var tmp_pen = window_e.document.createElement("div");
             tmp_pen.setAttribute("class", "test_for_me");
-            box.appendChild(tmp_pen);
+            e_group.panel.appendChild(tmp_pen);
           });
         }
         tools.appendChild(r);
