@@ -561,6 +561,9 @@ var getCSSAnimationManager = function () {
       var penBox = window_e.document.createElement("div");
       penBox.setAttribute("class", "pen_box");
       penBox.setAttribute("id", "penBox");
+      var textBox = window_e.document.createElement("div");
+      textBox.setAttribute("class", "pen_box");
+      textBox.setAttribute("id", "textBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -578,6 +581,38 @@ var getCSSAnimationManager = function () {
         //   "click",
         //   Function.prototype.bind.call(this.onControlPanelClick, this, o)
         // ),
+
+        if(!window_e.document.getElementById("penBox")){
+          box.appendChild(penBox);
+          var tmp_pen = window_e.document.createElement("div");
+          var highlighterPen = window_e.document.createElement("div");
+          tmp_pen.setAttribute("class", "linePen");
+          tmp_pen.setAttribute("id", "pen1");
+          highlighterPen.setAttribute("class", "highlighterPen");
+          highlighterPen.setAttribute("id", "pen2");
+          penBox.appendChild(tmp_pen);
+          penBox.appendChild(highlighterPen);
+          window_e.document.getElementById("penBox").style.display = 'none';
+        }
+
+        if(!window_e.document.getElementById("textBox")){
+          box.appendChild(textBox);
+          var text = window_e.document.createElement("div"),
+          boldText = window_e.document.createElement("div"),
+          italicText = window_e.document.createElement("div");
+          text.setAttribute("class", "text");
+          text.setAttribute("id", "text");
+          boldText.setAttribute("class", "boldText");
+          boldText.setAttribute("id", "boldText");
+          italicText.setAttribute("class", "italicText");
+          italicText.setAttribute("id", "italicText");
+          textBox.appendChild(text);
+          textBox.appendChild(boldText);
+          textBox.appendChild(italicText);
+          window_e.document.getElementById("textBox").style.display = 'none';
+        }
+
+
         if (a.type == "fill") {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
@@ -585,24 +620,23 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            if(!window_e.document.getElementById("penBox")){
-              box.appendChild(penBox);
-              var tmp_pen = window_e.document.createElement("div");
-              var highlighterPen = window_e.document.createElement("div");
-              tmp_pen.setAttribute("class", "linePen");
-              tmp_pen.setAttribute("id", "pen1");
-              highlighterPen.setAttribute("class", "highlighterPen");
-              highlighterPen.setAttribute("id", "pen2");
-              penBox.appendChild(tmp_pen);
-              penBox.appendChild(highlighterPen);
-              window_e.document.getElementById("penBox").style.display = 'none';
-            }
             if(window_e.document.getElementById("penBox").style.display === 'none'){
               window_e.document.getElementById("penBox").style.display = 'block';
+              window_e.document.getElementById("textBox").style.display = 'none';
             }else {
               window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
             }
-            
+          });
+        } else if (a.type == "text") {
+          r.addEventListener("click", function () {
+            if(window_e.document.getElementById("textBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'block';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+            }
           });
         }
         tools.appendChild(r);
@@ -620,11 +654,22 @@ var getCSSAnimationManager = function () {
         this.colorPicker.setAttribute("type", "color"),
         (this.colorPicker.value = this.config.color || "#000000"),
         this.colorPicker.setAttribute("title", "Select a color"),
-        // this.colorPicker.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onColorPanelClick, this),
-        //   !1
-        // ),
+        this.colorPicker.addEventListener("change", function (event) {
+          var color = event.currentTarget.value;
+          // 헥사값을 rgb로 변경
+          e_group.red = parseInt(color[1] + color[2], 16);
+          e_group.green = parseInt(color[3] + color[4], 16);
+          e_group.blue = parseInt(color[5] + color[6], 16);
+          e_group.strokeStyle =
+            "rgb(" +
+            e_group.red +
+            "," +
+            e_group.green +
+            "," +
+            e_group.blue +
+            ")";
+          e_group.setCtxProp();
+        }),
         color.appendChild(this.colorPicker),
         (this.alphaPicker = window_e.document.createElement("input")),
         this.alphaPicker.setAttribute("type", "range"),
@@ -636,16 +681,17 @@ var getCSSAnimationManager = function () {
             ? this.config.alpha
             : 1),
         this.alphaPicker.setAttribute("title", "Select transparency"),
-        // this.alphaPicker.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onAlphaChange, this),
-        //   !1
-        // ),
-        // this.alphaPicker.addEventListener(
-        //   "input",
-        //   Function.prototype.bind.call(this.onAlphaUpdate, this),
-        //   !1
-        // ),
+        this.alphaPicker.addEventListener("change", function (event) {
+          e_group.globalAlpha = event.currentTarget.value;
+          e_group.setCtxProp();
+        }),
+        this.alphaPicker.addEventListener("input", function (event) {
+          console.log("inject.js e 내부 onAlphaUpdate");
+          if (e_group.alphaPickerPreview) {
+            e_group.alphaPickerPreview.innerHTML =
+              Math.round(100 * event.currentTarget.value) + "%";
+          }
+        }),
         (this.alphaPickerPreview = window_e.document.createElement("p")),
         transparency.appendChild(this.alphaPicker),
         transparency.appendChild(this.alphaPickerPreview);
@@ -712,10 +758,10 @@ var getCSSAnimationManager = function () {
         //   "click",
         //   Function.prototype.bind.call(this.onPrintButtonClick, this)
         // ),
-        // l.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.exit, this)
-        // ),
+        l.addEventListener(
+          "click",
+          Function.prototype.bind.call(this.exit, this)
+        ),
         // this.backBtn.addEventListener(
         //   "click",
         //   Function.prototype.bind.call(this.handleBackButtonClick, this)
@@ -888,6 +934,54 @@ var getCSSAnimationManager = function () {
           D(x2 + 1, y2) && !p && array_1.push([x2 + 1, y2]);
         }
       }
+    },
+    exit: function () {
+      console.log("inject.js e 내부 exit");
+      this.canvas.parentNode.removeChild(this.canvas),
+        this.panel.parentNode.parentNode.removeChild(this.panel.parentNode),
+        window_e.removeEventListener("resize", this.resizeBinded),
+        window_e.removeEventListener("scroll", this.resizeBinded),
+        (this.canvas = null),
+        (this.ctx = null),
+        (this.initialized = !1),
+        (this.painting = false),
+        (this.selectedAlphaOption = null),
+        (this.resizeTimeoutID = null),
+        (this.paragraph = null),
+        (this.panel = null),
+        (this.strokeStyle = "rgb(0, 0, 0)"),
+        (this.lineWidth = 3),
+        (this.globalAlpha = 1),
+        (this.paragraph = null),
+        (this.activate = "pen"),
+        (this.saveImage = null),
+        (this.saveLasso = null),
+        (this.histories = null),
+        (this.MAX_ITEMS = null),
+        (this.currentIndex = null),
+        (this.array = []),
+        (this.red = 0),
+        (this.green = 0),
+        (this.blue = 0),
+        (this.sX = null),
+        (this.sY = null),
+        (this.eX = null),
+        (this.eY = null),
+        (this.mX = null),
+        (this.mY = null),
+        (this.lassosX = null),
+        (this.lassosY = null),
+        (this.lassoeX = null),
+        (this.lassoeY = null),
+        (this.hasInput = false),
+        (this.size = "20px"),
+        (this.font = "sans-serif"),
+        (this.boldtext = ""),
+        (this.italictext = ""),
+        (this.textactive = false),
+        "undefined" != typeof unsafeWindow &&
+          null !== unsafeWindow &&
+          ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
     },
     render: function (t) {
       this.config = t || {};

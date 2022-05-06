@@ -23,9 +23,6 @@
   -moz-background-clip: padding-box;
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
-  -webkit-box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
   padding: 3px;
   margin: 0;
   font-size: initial;
@@ -115,6 +112,48 @@
   background-repeat: no-repeat;
   margin: 2px;
   background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930748108017664/57435d2eb9ab7d60.png);
+}
+.pen_box .text {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  z-index: 2147483647;
+  /* right: 106px; */
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  display: inline-block;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  margin: 2px;
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930626171228190/text2.png);
+}
+.pen_box .boldText {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  z-index: 2147483647;
+  /* right: 106px; */
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  display: inline-block;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  margin: 2px;
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930625370120252/b.png);
+}
+.pen_box .italicText {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  z-index: 2147483647;
+  /* right: 106px; */
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  display: inline-block;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  margin: 2px;
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930625785348246/i.png);
 }
 #bnoty,
 #bnoty div,
@@ -379,7 +418,7 @@
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAQ0lEQVR42mNkoDFgpIcFUkDMSSPzv4Ms+AXEd2lkgTLIgt9AzEojC36PWjBqwagFoxaMWjBkLKB5hUPzKpOmgOYWAAC0pCXxC93NMgAAAABJRU5ErkJggg==);
 }
 #bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.text {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAA5UlEQVR42mNkoDFgHAgL+ID4DxB/I9EsLiBmBeKPhCzIBuIcIL4ExEwkWKAPxDOBuJeQBVVA3ALEu4B4E5qLFkLpeCQxbiAOBGIPIK4B4lZCFvQBsS8Qa0KDChn8htKsaOLMQHwRiHcAcQkhCxYA8UMgrsciB7LgPxCzYZGrgDoK2XdYLQgH4rNAfIdEC5SAWBWIdxKyAB/AFUQ4ATkW4PLBqAVwC0BgaMfB0PfB0A0iYSB+DWULAfEHallgwgApZ0CFmBc0iDYD8RIgvscAKbcosmACEEvjkHsKxAXUCiKywNC3AABEbjQZJFMYHwAAAABJRU5ErkJggg==);
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930625982496818/text.png);
 }
 #bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.eraser {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAACAklEQVR42rXUT0iUQRjH8dlANA0pl8AQBFFP3kxU0IO2+fcgCOohKcJUUhQE/x1EIoKoVlEETYLolIoHQTGwoMTCS3USBBEJEXQxSKGoIDT9DvO88Lrsy77r6sDnsPvu+/xmnpkdjzrn4Yny/STs4+g8Ap6hDSuokKAzCxiEDxOoxCWUhAo5TYAufhON+INdvEIySoNDIg2wZl6FB7iHVLTjIvLk+c/TBDyRdrzEBt6gE0v4Cj+yEavMnvyKJOAh6mTW73GILHyTNmXiO/5K8D8rxE2AVfyGzLgLcehDP67hlrRPh+ajUFrnCxegi3djB6MYwn3sYRqPsIBlaZ3+vIm3sheJnjDF9czL8BjpeI4pXJCNnpPVFGARV5Ar777Tq3UK6EWzLDUgezWCJqThBxowDi/K8Ro5+Cy/7XDa5G5pQzG2gp7pFvQocyxfYACz+CQtuy4zb7Fe8ERQ3BodstnDsrFXUS/tXJWVH4UKcFPcGndlw2uwjjVlro0Txe0BtXiKIhfFrVGNSfzGTKji9gB9M+oLq9VlcT0SlDmeX5yK2wNS8FGZU+F3UTwe88qcsNv47/RD+x7of96iixB78TvKXBuOI/gUWSFjypyQqIqHCtAjAx+UuT3HoinuFGAPibF9p6+Ey8rcmk49P1DmqgiEC9BDnyqvm1kGBWy7WcGZjWN7QHsjxBaMRwAAAABJRU5ErkJggg==);
