@@ -121,7 +121,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 2147483647;
+  z-index: 100000000;
   background: transparent;
   pointer-events: auto;
 }
@@ -164,7 +164,8 @@
   position: fixed;
   top: 2px;
   right: 5px;
-  z-index: 2147483647;
+  /* z-index: 2147483647; */
+  z-index: 100000010;
   background-color: #b8dff8;
   border: 1px solid #eee;
   -webkit-border-top-right-radius: 8px;
@@ -603,4 +604,33 @@
   to {
     opacity: 1;
   }
+}
+
+#bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.IU {
+  background-image: url(
+    https://media.discordapp.net/attachments/971933189545263135/971933229382782996/IU.PNG
+    );
+
+}
+
+#bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.subIU1 {
+  background-image: url(
+    https://cdn.discordapp.com/attachments/971933189545263135/971933229596696576/subIU1.PNG
+    );
+
+}
+
+#bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.subIU2 {
+  background-image: url(
+    https://media.discordapp.net/attachments/971933189545263135/971933229907083304/subIU2.PNG
+    );
+
+}
+
+#subtools {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  right : 30px;
+
 }

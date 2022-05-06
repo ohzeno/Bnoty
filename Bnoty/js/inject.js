@@ -151,6 +151,18 @@ var getCSSAnimationManager = function () {
       {
         type: "injection_link",
         title: "LINK INJECTION~~~~~~~ ",
+      },
+      {
+        type: "IU",
+        title: "IU의 얼굴입니다.",
+      },
+      {
+        type: "subIU1",
+        title: "서브아이유",
+      },
+      {
+        type: "subIU2",
+        title: "서브아이유2",
       }
     ],
     selectedAlphaOption: null,
@@ -186,6 +198,9 @@ var getCSSAnimationManager = function () {
     boldtext: "", // 볼드
     italictext: "", // 기울이기
     textactive: false, // 텍스트 입력중인지 체크
+    //링크용함수
+    linkX : null,
+    linkY : null,
 
     startPainting: function (event) {
       console.log("여긴 왔는데");
@@ -219,7 +234,10 @@ var getCSSAnimationManager = function () {
         if ( this.activate == "injection_end"){
           console.log("링크삽입 종료");
         }
-
+        if ( this.activate == "IU"){
+          // this.IUfunction();
+          this.LinkInputField( event.offsetX, event.offsetY);
+        }
 
       }
     },
@@ -564,8 +582,9 @@ var getCSSAnimationManager = function () {
         controls = window_e.document.createElement("div"),
         transparency = window_e.document.createElement("div"),
         size_control = window_e.document.createElement("div");
-      this.panel.setAttribute("id", "bnoty_controls"),
-        tools.setAttribute("class", "bnoty_controls_draw"),
+      this.panel.setAttribute("id", "bnoty_controls");
+        
+      tools.setAttribute("class", "bnoty_controls_draw"),
         color.setAttribute("class", "bnoty_controls_color"),
         controls.setAttribute("class", "bnoty_controls_control"),
         transparency.setAttribute(
@@ -573,12 +592,20 @@ var getCSSAnimationManager = function () {
           "bnoty_controls_range alpha_control"
         ),
         size_control.setAttribute("class", "bnoty_controls_range size_control"),
-        window_e.document.body.appendChild(this.panel),
+        window_e.document.body.appendChild(this.panel);
+
+        // 추가 (서브)
+        var subtools = window_e.document.createElement("div");
+        subtools.id = "subtools";
+
         this.panel.appendChild(tools),
         this.panel.appendChild(color),
         this.panel.appendChild(transparency),
         this.panel.appendChild(size_control),
         this.panel.appendChild(controls);
+
+        this.panel.appendChild(subtools);
+
       for (var o = 0; o < this.drawOptions.length; o++) {
         var a = this.drawOptions[o],
           r = window_e.document.createElement("div");
@@ -596,6 +623,24 @@ var getCSSAnimationManager = function () {
             // e_group.canvas.style.cursor = "pointer";
           });
         }
+        // 아이유관련
+        if ( a.type == "IU" ){
+          r.addEventListener("click", function () {
+            e_group.activate = "IU";
+            // 여기에다가 추가하는 함수를 그리면 될듯.
+            e_group.addsubIUbutton();
+            // 아니면 여기다가 바로
+
+
+          });
+        }
+        if ( a.type == "subIU1" || a.type  == "subIU2") {
+          console.log("아이유페이스에 아이디 추가");
+          r.id = "IUface";
+          // r.style.display = "none";
+
+        }
+
 
         tools.appendChild(r);
         if (
@@ -948,22 +993,147 @@ var getCSSAnimationManager = function () {
     injectionLink: function (x, y) {
       console.log("injection link START~~~");
       console.log(x + " , " + y);
-      var x = document.createElement("IMG");
-      x.setAttribute("src", "https://1.bp.blogspot.com/-x5UnU81HjR8/YPbIDsXjVvI/AAAAAAAJXNM/eZgJX2vCxyc_lAW8DioFRMpu8D5uxaEWwCLcBGAsYHQ/s1600/8.png");
-      x.setAttribute("width", "100");
-      x.setAttribute("height", "100");
-      x.setAttribute("alt", "IU");  
-      x.setAttribute("z-index", 10);  
-      x.setAttribute("position", "absolute" );
-      x.setAttribute("top", x );
-      x.setAttribute("left", y );
 
-      // 추가 
-      document.body.appendChild(x);
+      // var x = window_e.document.createElement("img");
+      // // var x = document.createElement("IMG");
+      // x.setAttribute("src", "https://1.bp.blogspot.com/-x5UnU81HjR8/YPbIDsXjVvI/AAAAAAAJXNM/eZgJX2vCxyc_lAW8DioFRMpu8D5uxaEWwCLcBGAsYHQ/s1600/8.png");
+      // x.setAttribute("width", "100");
+      // x.setAttribute("height", "100");
+      // x.setAttribute("alt", "IU");  
+      // // x.setAttribute("z-index", 2147483647);  
+      // // x.setAttribute("position", "fixed" );
+      // // x.setAttribute("top", 500 );
+      // // x.setAttribute("left", 500 );
+      // x.setAttribute( 'href', "https://cdn.discordapp.com/attachments/971933189545263135/971937623096578048/KakaoTalk_20220421_075022958.jpg" );
+
+      // x.style.position = 'absolute';
+      // x.style.left = 500 + 'px';
+      // x.style.top = 500 + 'px';
+      // x.style.zIndex = 2147483647;
+      
+      // // 추가 
+      // // var bnotycan = document.getElementById("bnoty");//
+      // // bnotycan.appendChild(x);
+      // document.body.appendChild(x);
+
+      // inputfield 추가
+
+      //확인 버튼 클릭시
+
+      //
+
+      // a태그
+      var atag = window_e.document.createElement("a");
+      atag.setAttribute( 'target', "”_blank”" );
+      atag.setAttribute( 'href', "https://cdn.discordapp.com/attachments/971933189545263135/971937623096578048/KakaoTalk_20220421_075022958.jpg" );
+       atag.style.position = 'absolute';
+      atag.style.width = 100 + 'px';
+      atag.style.height = 100 + 'px';
+      atag.style.left = x + 'px';
+      atag.style.top = y + 'px';
+      e_group.x
+      atag.style.zIndex = 2147483647;
+
+      var imgtag = window_e.document.createElement("img");
+      imgtag.setAttribute("src", "https://1.bp.blogspot.com/-x5UnU81HjR8/YPbIDsXjVvI/AAAAAAAJXNM/eZgJX2vCxyc_lAW8DioFRMpu8D5uxaEWwCLcBGAsYHQ/s1600/8.png");
+      imgtag.setAttribute("alt", "IU");  
+      imgtag.setAttribute("width", "100");
+      imgtag.setAttribute("height", "100");
+      // 추가
+      atag.appendChild(imgtag);
+      document.body.appendChild(atag);
+
+
       e_group.activate = "injection_end";
 
 
+    },
+    IUfunction:function(){
+      alert("아이유를 누른 상태입니다.");
+      document.getElementById("IUface").style.display = "none";
+    },
+    addsubIUbutton:function(){
+      alert("아이유를 눌렀습니다.");
+      document.getElementById("IUface").style.display = "";
+    },
+    // 링크 넣는 창 입력하기 
+    LinkInputField: function (x, y) {
+      alert("링크입력");
+
+      // a태그
+      var atag = window_e.document.createElement("div");
+      atag.setAttribute("id", "linkdiv");
+      atag.style.position = 'absolute';
+      atag.style.width = 280 + 'px';
+      atag.style.left = x + 'px';
+      atag.style.top = y + 'px';
+      atag.style.zIndex = 2147483647;
+      e_group.linkX = x;
+      e_group.linkY = y;
+      var input1 = window_e.document.createElement("input");
+      input1.setAttribute("id", "linkinput");
+      input1.setAttribute("type", "text");
+      input1.setAttribute("placeholder", "링크입력");
+
+      var input2 = window_e.document.createElement("input");
+      input2.setAttribute("type", "button");
+      input2.setAttribute("value", "확인");
+      input2.addEventListener("click", this.linkclickfuntion);
+
+      // 추가
+      atag.appendChild(input1);
+      atag.appendChild(input2);
+      document.body.appendChild(atag);
+
+      //<div style="background-color: black; width: 280px;" ;>
+      //   <input type="text" value="" placeholder="이메일 주소입력">
+      //   <input type="button" value="Link Injection">
+      //   <button type="button"> Link Injection </button>
+      // </div>
+      // this.canvas.addEventListener("click", startPainting);
+
+      // 바꿔주기
+      e_group.activate = "injection_end";
+
+
+    },
+    linkclickfuntion:function(){
+      alert("클릭");
+      
+      // 링크 가져오기
+      var goto = document.getElementById("linkinput").value;
+      // console.log(document.getElementById("linkinput").value);
+      console.log(goto);
+
+      // 이미지 생성
+      var atag = window_e.document.createElement("a");
+      atag.setAttribute( 'target', "”_blank”" );
+      atag.setAttribute( 'href', goto );
+       atag.style.position = 'absolute';
+      atag.style.width = 100 + 'px';
+      atag.style.height = 100 + 'px';
+      atag.style.left = e_group.linkX + 'px';
+      atag.style.top = e_group.linkY + 'px';
+      atag.style.zIndex = 2147483647;
+
+      var imgtag = window_e.document.createElement("img");
+      imgtag.setAttribute("src", "https://1.bp.blogspot.com/-x5UnU81HjR8/YPbIDsXjVvI/AAAAAAAJXNM/eZgJX2vCxyc_lAW8DioFRMpu8D5uxaEWwCLcBGAsYHQ/s1600/8.png");
+      imgtag.setAttribute("alt", "IU");  
+      imgtag.setAttribute("width", "100");
+      imgtag.setAttribute("height", "100");
+
+      // 추가
+      atag.appendChild(imgtag);
+      document.body.appendChild(atag);
+
+      // 지워주기 
+      let target = document.getElementById("linkdiv");
+      target.remove();
+
+      // 이미지 생성 
     }
+
+
   };
   return e_group;
 });
