@@ -1138,7 +1138,7 @@ var getCSSAnimationManager = function () {
         return 255 !== t && 255 !== e && 255 !== i && 0 !== n;
       },
       handleFill: function (t) {
-        console.log("inject.js e 내부 handleFill");
+        console.log("inject.js e 내부 handleFill", typeof t);
         var e = this.context.getImageData(
             0,
             0,

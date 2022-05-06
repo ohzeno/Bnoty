@@ -45,6 +45,7 @@
     globalAlpha: 1, //투명도
     activate: "pen", // 지금 활성화된 도구 기본은 펜!
     saveImage: null, // 지금 까지 그린 이미지를 저장
+    saveLasso: null, // 올가미로 선택한 영역을 이미지로 저장
     histories: null, // 여기에 이제 그 작업한거 저장함
     MAX_ITEMS: null, // 최대 저장 아이템
     currentIndex: null, // 지금 인덱스 위치
@@ -58,6 +59,10 @@
     eY: null,
     mX: null,
     mY: null,
+    lassosX: null,
+    lassosY: null,
+    lassoeX: null,
+    lassoeY: null,
     hasInput: false, // 텍스트 입력 여부
     size: "20px", // 텍스트 사이즈
     font: "sans-serif", // 텍스트 폰트
@@ -79,6 +84,13 @@
         this.painting = true;
         this.sX = event.offsetX;
         this.sY = event.offsetY;
+        if (this.activate == "fill") {
+          this.handleFill(event.clientX, event.clientY);
+        }
+        if (this.activate == "lasso" && this.saveLasso == null) {
+          this.lassosX = event.offsetX;
+          this.lassosY = event.offsetY;
+        }
       }
     },
     stopPainting: function (event) {
@@ -93,9 +105,20 @@
         }
         this.mX = null;
         this.mY = null;
+      } else if (this.activate == "lasso") {
+        if (this.saveLasso == null) {
+          this.saveLasso = this.ctx.getImageData(
+            this.lassosX,
+            this.lassosY,
+            this.lassoeX - this.lassosX,
+            this.lassoeY - this.lassosY
+          );
+        } else {
+          this.saveLasso = null;
+        }
       }
       this.painting = false;
-      if (this.activate != "text") {
+      if (this.activate != "text" && this.activate != "lasso") {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -265,6 +288,33 @@
             this.eY - this.sY
           );
           // e_group.ctx.restore();
+        } else if (this.activate == "lasso") {
+          // 올가미
+          if (this.saveLasso != null) {
+            this.ctx.clearRect(
+              this.lassosX,
+              this.lassosY,
+              this.lassoeX - this.lassosX,
+              this.lassoeY - this.lassosY
+            );
+            this.ctx.putImageData(this.saveLasso, this.eX, this.eY);
+            return;
+          }
+          this.lassoeX = event.offsetX;
+          this.lassoeY = event.offsetY;
+          this.ctx.save();
+          this.ctx.strokeStyle = "rgba(46,112,245)";
+          this.ctx.lineWidth = 1;
+          // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
+          this.ctx.setLineDash([5]); // 간격이 20인 점선 설정
+          this.ctx.strokeRect(
+            this.sX,
+            this.sY,
+            this.eX - this.sX,
+            this.eY - this.sY
+          );
+          this.ctx.setLineDash([]); // 실선으로 변경
+          this.ctx.restore();
         }
       }
     },
@@ -278,7 +328,137 @@
           console.log("실행됨");
           this.addInput(event.offsetX, event.offsetY);
         }
-      } else return;
+      }
+    },
+    matchOutlineColor: function (a, b, c, d) {
+      console.log("inject.js e 내부 matchOutlineColor");
+      return 255 !== a && 255 !== b && 255 !== c && 0 !== d;
+    },
+    handleFill: function (x, y) {
+      var currentImage = this.ctx.getImageData(
+        0,
+        0,
+        this.canvas.width,
+        this.canvas.height
+      );
+      i = 4 * (y * this.canvas.width + x);
+      r = currentImage.data[i];
+      g = currentImage.data[i + 1];
+      b = currentImage.data[i + 2];
+      a = currentImage.data[i + 3];
+      red_option = this.red;
+      green_option = this.green;
+      blue_option = this.blue;
+      alpha_option = Math.round(255 * this.globalAlpha);
+      if (
+        !(
+          r === red_option &&
+          g === green_option &&
+          b === blue_option &&
+          a === alpha_option
+        )
+      ) {
+        if (!this.matchOutlineColor(r, g, b, a)) {
+          this.floodFill(
+            x,
+            y,
+            [
+              this.red,
+              this.green,
+              this.blue,
+              Math.round(255 * this.globalAlpha),
+            ],
+            !1,
+            currentImage,
+            0,
+            !0
+          );
+          this.ctx.putImageData(currentImage, 0, 0);
+          // this.storeCanvas();
+          // this.storeHistory();
+        }
+      }
+    },
+    floodFill: function (x, y, option, i, image, a, s) {
+      console.log("inject.js e 내부 floodFill");
+      var r,
+        h,
+        c,
+        data = image.data,
+        array_1 = [],
+        u = !!0,
+        p = !1,
+        width = image.width,
+        height = image.height,
+        array_wh = new Uint8ClampedArray(width * height),
+        width_4 = 4 * width,
+        x2 = x,
+        y2 = y,
+        w = y2 * width_4 + 4 * x2,
+        C = data[w],
+        b = data[w + 1],
+        L = data[w + 2],
+        P = data[w + 3],
+        T = !1,
+        D = function (t, e) {
+          if (t < 0 || e < 0 || height <= e || width <= t) return !1;
+          var i = e * width_4 + 4 * t,
+            n = Math.max(
+              Math.abs(C - data[i]),
+              Math.abs(b - data[i + 1]),
+              Math.abs(L - data[i + 2]),
+              Math.abs(P - data[i + 3])
+            );
+          if (n < a) {
+            n = 0;
+          }
+          var s = Math.abs(0 - array_wh[e * width + t]);
+          return (
+            T ||
+              (0 !== n &&
+                255 !== s &&
+                ((data[i] = option[0]),
+                (data[i + 1] = option[1]),
+                (data[i + 2] = option[2]),
+                (data[i + 3] = (option[3] + data[i + 3]) / 2),
+                (array_wh[e * width + t] = 255))),
+            n + s === 0
+          );
+        };
+      for (array_1.push([x2, y2]); array_1.length; ) {
+        var k = array_1.pop();
+        for (x2 = k[0], y2 = k[1], T = !0; D(x2, y2 - 1); ) y2 -= 1;
+        for (
+          T = !1,
+            i &&
+              (!D(x2 - 1, y2) &&
+                D(x2 - 1, y2 - 1) &&
+                array_1.push([x2 - 1, y2 - 1]),
+              !D(x2 + 1, y2) &&
+                D(x2 + 1, y2 - 1) &&
+                array_1.push([x2 + 1, y2 - 1])),
+            p = u = !1;
+          D(x2, y2);
+
+        )
+          void 0,
+            (data[(c = (h = y2) * width_4 + 4 * (r = x2))] = option[0]),
+            (data[c + 1] = option[1]),
+            (data[c + 2] = option[2]),
+            (data[c + 3] = option[3]),
+            (array_wh[h * width + r] = 255),
+            D(x2 - 1, y2)
+              ? u || (array_1.push([x2 - 1, y2]), (u = !0))
+              : u && (u = !1),
+            D(x2 + 1, y2)
+              ? p || (array_1.push([x2 + 1, y2]), (p = !0))
+              : p && (p = !1),
+            (y2 += 1);
+        if (i) {
+          D(x2 - 1, y2) && !u && array_1.push([x2 - 1, y2]);
+          D(x2 + 1, y2) && !p && array_1.push([x2 + 1, y2]);
+        }
+      }
     },
     addInput: function (x, y) {
       var input = document.createElement("input");
@@ -434,6 +614,13 @@
       button.style = `position: absolute; top: 0; left: 380px; z-index: 2147483647;`;
 
       var button = window_e.document.createElement("button");
+      var buttonText = window_e.document.createTextNode("올가미");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "lassoBut");
+      window_e.document.body.appendChild(button);
+      button.style = `position: absolute; top: 0; left: 450px; z-index: 2147483647;`;
+
+      var button = window_e.document.createElement("button");
       var buttonText = window_e.document.createTextNode("부분");
       button.appendChild(buttonText);
       button.setAttribute("id", "delPartBut");
@@ -534,7 +721,7 @@
       var button = window_e.document.createElement("button");
       var buttonText = window_e.document.createTextNode("형광펜");
       button.appendChild(buttonText);
-      button.setAttribute("id", "highlighter");
+      button.setAttribute("id", "highlighterBtn");
       window_e.document.body.appendChild(button);
       button.style = `position: absolute; top: 30px; left: 300px; z-index: 2147483647;`;
 
@@ -567,12 +754,38 @@
           reader.readAsDataURL(event.target.files[0]);
         });
 
+      var button = window.document.createElement("button");
+      var buttonText = window.document.createTextNode("채우기");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "fillBtn");
+      window.document.body.appendChild(button);
+      button.style = `position: absolute; top: 30px; left: 380px; z-index: 2147483647;`;
+
+      var button = window.document.createElement("button");
+      var buttonText = window.document.createTextNode("나가기");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "exitBtn");
+      window.document.body.appendChild(button);
+      button.style = `position: absolute; top: 30px; left: 380px; z-index: 2147483647;`;
+
       document
-        .getElementById("highlighter")
+        .getElementById("highlighterBtn")
         .addEventListener("click", function () {
           e_group.activate = "highlighter";
           e_group.canvas.style.cursor = "pointer";
         });
+
+      document.getElementById("fillBtn").addEventListener("click", function () {
+        e_group.activate = "fill";
+        e_group.canvas.style.cursor = "pointer";
+      });
+
+      document
+        .getElementById("exitBtn")
+        .addEventListener(
+          "click",
+          Function.prototype.bind.call(this.exit, this)
+        );
 
       document.getElementById("delBut").addEventListener("click", function () {
         e_group.ctx.clearRect(
@@ -641,6 +854,13 @@
         .addEventListener("click", function () {
           e_group.activate = "arrow";
           e_group.canvas.style.cursor = "crosshair";
+        });
+
+      document
+        .getElementById("lassoBut")
+        .addEventListener("click", function () {
+          e_group.activate = "lasso";
+          e_group.canvas.style.cursor = "pointer";
         });
 
       document
@@ -829,6 +1049,46 @@
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
       this.ctx.lineWidth = this.lineWidth; // 선 굵기
+    },
+    exit: function () {
+      console.log("inject.js e 내부 exit");
+      this.canvas.parentNode.removeChild(this.canvas),
+        window_e.removeEventListener("resize", this.resizeBinded),
+        window_e.removeEventListener("scroll", this.resizeBinded),
+        (this.canvas = null),
+        (this.ctx = null),
+        (this.initialized = !1),
+        (this.painting = false),
+        (this.resizeTimeoutID = null),
+        (this.paragraph = null),
+        (this.strokeStyle = "rgb(0, 0, 0)"),
+        (this.lineWidth = 3),
+        (this.globalAlpha = 1),
+        (this.paragraph = null),
+        (this.activate = "pen"),
+        (this.saveImage = null),
+        (this.histories = null),
+        (this.MAX_ITEMS = null),
+        (this.currentIndex = null),
+        (this.array = []),
+        (this.red = 0),
+        (this.green = 0),
+        (this.blue = 0),
+        (this.sX = null),
+        (this.sY = null),
+        (this.eX = null),
+        (this.eY = null),
+        (this.mX = null),
+        (this.mY = null),
+        (this.hasInput = false),
+        (this.size = "20px"),
+        (this.font = "sans-serif"),
+        (this.boldtext = ""),
+        (this.italictext = ""),
+        (this.textactive = false),
+        "undefined" != typeof unsafeWindow &&
+          null !== unsafeWindow &&
+          ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
     },
     handleResize: function (t) {
       // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
