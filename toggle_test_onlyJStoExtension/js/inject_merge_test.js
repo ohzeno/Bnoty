@@ -352,7 +352,49 @@
         e_group.font;
       this.ctx.fillText(txt, x, y);
     },
-    createCanvas: function () {
+    getConfig: async function() {
+      var pageUrl = document.location.href;
+
+      await chrome.runtime.sendMessage( { method : 'startRead', url : pageUrl}, (response) => {
+        console.log("[popup.js] chrome.runtime.sendMessage()");
+      })
+
+      var t;
+      await chrome.storage.local.get(['key'], function(result) {
+        t = result.key;
+        if (t) {
+          console.log("this : ", this);
+          console.log("e_group : ", e_group);
+          var e = new Image();
+          (e.onload = Function.prototype.bind.call(e_group.initCanvas, e_group, e)),
+            (e.src = t);
+        } else e_group.initCanvas();    
+      });
+
+      return t;
+    },
+    saveConfig: async function(){
+      e_group.saveImage = await e_group.ctx.getImageData(
+        0,
+        0,
+        e_group.canvas.width,
+        e_group.canvas.height
+      ); // 지금까지 그린 정보를 저장
+      await e_group.addHistory();
+    },
+    get_time: async function(){
+      let today = new Date();
+      let minutes = today.getMinutes();
+      let seconds = today.getSeconds();
+      let milseconds = today.getMilliseconds();
+      console.log(minutes + " : " + seconds + " : " + milseconds);
+    },
+    autoRead: async function(){
+      console.log("AutoRead");
+      await e_group.getConfig();
+      await e_group.saveConfig();
+    },
+    createCanvas: async function () {
       console.log("inject.js e 내부 createCanvas");
       this.canvas = window_e.document.createElement("Canvas");
       this.ctx = this.canvas.getContext("2d");
@@ -363,7 +405,39 @@
       // ctx.fillStyle = "skyblue";
       // ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
       this.setCtxProp();
+
       // 여기부터 테스트를 위해서 임시 UI 시작 ----------------------------------
+
+      var button = window_e.document.createElement("button");
+      var buttonText = window_e.document.createTextNode("저장");
+      button.appendChild(buttonText);
+      button.setAttribute("id", "startSave");
+      window_e.document.body.appendChild(button);
+      button.style = `position: absolute; top: 30px; left: 500px; z-index: 2147483647;`;
+      document
+            .getElementById("startSave")
+            .addEventListener("click", function () {
+              console.log("canvas : ", e_group.canvas);
+              var pageUrl = document.location.href;
+              chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+                console.log("[popup.js] chrome.runtime.sendMessage()");
+              });
+            });
+
+      var button = window_e.document.createElement("button");
+              var buttonText = window_e.document.createTextNode("읽기");
+              button.appendChild(buttonText);
+              button.setAttribute("id", "startAutoRead");
+              window_e.document.body.appendChild(button);
+              button.style = `position: absolute; top: 30px; left: 550px; z-index: 2147483647;`;
+      document
+              .getElementById("startAutoRead")
+              .addEventListener("click", async function () {
+                await e_group.getConfig();
+                await e_group.saveConfig();
+              });
+
+
       var button = window_e.document.createElement("button");
       var buttonText = window_e.document.createTextNode("전체");
       button.appendChild(buttonText);
@@ -690,15 +764,26 @@
       // ------------------------------------------------------------------- 임시 UI 종료
       this.Histories();
       this.initCanvas();
+      console.log("내부 createCanvas");
+      e_group.get_time();
+      await e_group.autoRead();
+      console.log("AutoReadEnd");
     },
-    initCanvas: function (t) {
+    initCanvas: async function (t) {
       console.log("inject.js e 내부 initCanvas");
       if (t) {
-        this.handleResize(!0);
-        // this.ctx.drawImage(t, 0, 0);
+        await this.handleResize(!0);
+        await this.ctx.drawImage(t, 0, 0);
+        e_group.saveImage = await e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        await e_group.addHistory();
         // this.storeCanvas(!0);
       } else {
-        this.handleResize();
+        await this.handleResize();
       }
       // this.storeHistory();
     },
@@ -725,6 +810,8 @@
       this.canvas.addEventListener("click", onMouseClick);
       // window_e.document.addEventListener("keydown", this.keydownBinded);
       // window_e.document.addEventListener("keypress", this.keypressBinded);
+      console.log("내부 addMouseEventListener");
+      e_group.get_time();
     },
     // 작업마다 저장한거 관리하는 부분 시작 -----------------------------
     Histories: function () {
@@ -778,7 +865,9 @@
     },
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
+      console.log('addHistory')
       this.histories.add(this.saveImage);
+      console.log("addhistory : ", e_group.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
@@ -845,18 +934,20 @@
       // }
       // updatePaintStyle();
       this.ctx.lineWidth = n;
-      if (this.array.length == 0) {
-        // 저장된 정보가 없으면 현재 정보 초기값을 추가해줌
-        this.histories.add(
-          this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
-        );
-      } else {
+      if (this.array.length != 0) {
         // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
         this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
-      }
+      } 
+      // else {
+      //   this.histories.add(
+      //     this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
+      //   );
+      // }
     },
     render: function (t) {
       console.log("inject.js e 내부 render");
+      console.log("내부 render");
+      e_group.get_time();
       this.config = t || {};
       this.createCanvas();
       this.addMouseEventListener();
@@ -869,6 +960,8 @@
         },
         this.renderBinded // init에서 바인딩된 render 여기서 실행
       );
+      console.log("내부 initConfig");
+      e_group.get_time();
     },
     init: function () {
       console.log("inject.js e 내부 init");
@@ -912,6 +1005,8 @@
         (unsafeWindow.bnoty_INIT = !0);
     },
   };
+  console.log("내부 init");
+  e_group.get_time();
   return e_group;
 });
 
