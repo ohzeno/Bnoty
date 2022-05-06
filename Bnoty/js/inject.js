@@ -691,10 +691,13 @@ var getCSSAnimationManager = function () {
             italicText = window_e.document.createElement("div");
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
+          text.setAttribute("title", "Input Text");
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
+          boldText.setAttribute("title", "Bold Text");
           italicText.setAttribute("class", "italicText");
           italicText.setAttribute("id", "italicText");
+          italicText.setAttribute("title", "Italic Text");
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
@@ -712,16 +715,22 @@ var getCSSAnimationManager = function () {
 
           square.setAttribute("class", "square");
           square.setAttribute("id", "square");
+          square.setAttribute("title", "Square");
           triangle.setAttribute("class", "triangle");
           triangle.setAttribute("id", "triangle");
+          triangle.setAttribute("title", "Triangle");
           circle.setAttribute("class", "circle");
           circle.setAttribute("id", "circle");
+          circle.setAttribute("title", "Circle");
           line.setAttribute("class", "line");
           line.setAttribute("id", "line");
+          line.setAttribute("title", "Line");
           curve.setAttribute("class", "curve");
           curve.setAttribute("id", "curve");
+          curve.setAttribute("title", "Curve");
           arrow.setAttribute("class", "arrow");
           arrow.setAttribute("id", "arrow");
+          arrow.setAttribute("title", "Arrow");
           figureBox.appendChild(square);
           figureBox.appendChild(triangle);
           figureBox.appendChild(circle);
