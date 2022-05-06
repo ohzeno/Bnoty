@@ -106,7 +106,7 @@ function getPositions(callback) {
     }
 
     (function processArrangements() {
-        console.log("fun :::  processArrangements ")
+        // console.log("fun :::  processArrangements ");
         if (!arrangements.length) {
             cleanUp();
             if (callback) {
@@ -140,8 +140,8 @@ function getPositions(callback) {
             var cleanUpTimeout = window.setTimeout(cleanUp, 1250);
 
             chrome.runtime.sendMessage(data, function(captured) {
-                console.log("capterd show----")
-                console.log(captured);
+                // console.log("capterd show----")
+                // console.log(captured);
                 window.clearTimeout(cleanUpTimeout);
 
                 if (captured) {
