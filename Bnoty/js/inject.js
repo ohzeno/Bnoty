@@ -558,6 +558,9 @@ var getCSSAnimationManager = function () {
       var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
       window_e.document.body.appendChild(box);
+      var penBox = window_e.document.createElement("div");
+      penBox.setAttribute("class", "pen_box");
+      penBox.setAttribute("id", "penBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -582,10 +585,24 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            console.log("this.panel", e_group.panel);
-            var tmp_pen = window_e.document.createElement("div");
-            tmp_pen.setAttribute("class", "test_for_me");
-            box.appendChild(tmp_pen);
+            if(!window_e.document.getElementById("penBox")){
+              box.appendChild(penBox);
+              var tmp_pen = window_e.document.createElement("div");
+              var highlighterPen = window_e.document.createElement("div");
+              tmp_pen.setAttribute("class", "linePen");
+              tmp_pen.setAttribute("id", "pen1");
+              highlighterPen.setAttribute("class", "highlighterPen");
+              highlighterPen.setAttribute("id", "pen2");
+              penBox.appendChild(tmp_pen);
+              penBox.appendChild(highlighterPen);
+              window_e.document.getElementById("penBox").style.display = 'none';
+            }
+            if(window_e.document.getElementById("penBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'block';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+            }
+            
           });
         }
         tools.appendChild(r);
