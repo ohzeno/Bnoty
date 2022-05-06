@@ -612,32 +612,36 @@ var getCSSAnimationManager = function () {
       }
     },
     createControlPanel: function () {
-      (this.panel = window_e.document.createElement("div")),
-        (this.backBtn = window_e.document.createElement("div")),
-        (this.nextBtn = window_e.document.createElement("div"));
+      this.panel = window_e.document.createElement("div");
+      this.backBtn = window_e.document.createElement("div");
+      this.nextBtn = window_e.document.createElement("div");
       var tools = window_e.document.createElement("div"),
         color = window_e.document.createElement("div"),
         controls = window_e.document.createElement("div"),
         transparency = window_e.document.createElement("div"),
         size_control = window_e.document.createElement("div");
-      this.panel.setAttribute("id", "bnoty_controls"),
-        tools.setAttribute("class", "bnoty_controls_draw"),
-        color.setAttribute("class", "bnoty_controls_color"),
-        controls.setAttribute("class", "bnoty_controls_control"),
-        transparency.setAttribute(
-          "class",
-          "bnoty_controls_range alpha_control"
-        ),
-        size_control.setAttribute("class", "bnoty_controls_range size_control");
+      this.panel.setAttribute("id", "bnoty_controls");
+      tools.setAttribute("class", "bnoty_controls_draw");
+      color.setAttribute("class", "bnoty_controls_color");
+      controls.setAttribute("class", "bnoty_controls_control");
+      transparency.setAttribute("class", "bnoty_controls_range alpha_control");
+      size_control.setAttribute("class", "bnoty_controls_range size_control");
+
       var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
       window_e.document.body.appendChild(box);
-      var penBox = window_e.document.createElement("div");
+      var penBox = window_e.document.createElement("div"); // pen
       penBox.setAttribute("class", "pen_box");
       penBox.setAttribute("id", "penBox");
-      var textBox = window_e.document.createElement("div");
+      var textBox = window_e.document.createElement("div"); // text
       textBox.setAttribute("class", "pen_box");
       textBox.setAttribute("id", "textBox");
+      var figureBox = window_e.document.createElement("div"); // figure
+      figureBox.setAttribute("class", "pen_box");
+      figureBox.setAttribute("id", "figureBox");
+      var eraserBox = window_e.document.createElement("div"); // eraser
+      eraserBox.setAttribute("class", "pen_box");
+      eraserBox.setAttribute("class", "eraserBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -684,14 +688,53 @@ var getCSSAnimationManager = function () {
             italicText = window_e.document.createElement("div");
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
+          text.setAttribute("title", "Input Text");
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
+          boldText.setAttribute("title", "Bold Text");
           italicText.setAttribute("class", "italicText");
           italicText.setAttribute("id", "italicText");
+          italicText.setAttribute("title", "Italic Text");
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
           window_e.document.getElementById("textBox").style.display = "none";
+        }
+
+        if (!window_e.document.getElementById("figureBox")) {
+          box.appendChild(figureBox);
+          var square = window_e.document.createElement("div");
+          var triangle = window_e.document.createElement("div");
+          var circle = window_e.document.createElement("div");
+          var line = window_e.document.createElement("div");
+          var curve = window_e.document.createElement("div");
+          var arrow = window_e.document.createElement("div");
+
+          square.setAttribute("class", "square");
+          square.setAttribute("id", "square");
+          square.setAttribute("title", "Square");
+          triangle.setAttribute("class", "triangle");
+          triangle.setAttribute("id", "triangle");
+          triangle.setAttribute("title", "Triangle");
+          circle.setAttribute("class", "circle");
+          circle.setAttribute("id", "circle");
+          circle.setAttribute("title", "Circle");
+          line.setAttribute("class", "line");
+          line.setAttribute("id", "line");
+          line.setAttribute("title", "Line");
+          curve.setAttribute("class", "curve");
+          curve.setAttribute("id", "curve");
+          curve.setAttribute("title", "Curve");
+          arrow.setAttribute("class", "arrow");
+          arrow.setAttribute("id", "arrow");
+          arrow.setAttribute("title", "Arrow");
+          figureBox.appendChild(square);
+          figureBox.appendChild(triangle);
+          figureBox.appendChild(circle);
+          figureBox.appendChild(line);
+          figureBox.appendChild(curve);
+          figureBox.appendChild(arrow);
+          window_e.document.getElementById("figureBox").style.display = "none";
         }
 
         if (a.type == "fill") {
@@ -709,9 +752,13 @@ var getCSSAnimationManager = function () {
                 "block";
               window_e.document.getElementById("textBox").style.display =
                 "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
                 "none";
             }
           });
@@ -724,9 +771,32 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
                 "block";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+            }
+          });
+        } else if (a.type == "line") {
+          r.addEventListener("click", function () {
+            if (
+              window_e.document.getElementById("figureBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "block";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
                 "none";
             }
           });
@@ -742,154 +812,149 @@ var getCSSAnimationManager = function () {
           // this.triggerClick(r);
         }
       }
-      (this.colorPicker = window_e.document.createElement("input")),
-        this.colorPicker.setAttribute("type", "color"),
-        (this.colorPicker.value = this.config.color || "#000000"),
-        this.colorPicker.setAttribute("title", "Select a color"),
-        this.colorPicker.addEventListener("change", function (event) {
-          var color = event.currentTarget.value;
-          // 헥사값을 rgb로 변경
-          e_group.red = parseInt(color[1] + color[2], 16);
-          e_group.green = parseInt(color[3] + color[4], 16);
-          e_group.blue = parseInt(color[5] + color[6], 16);
-          e_group.strokeStyle =
-            "rgb(" +
-            e_group.red +
-            "," +
-            e_group.green +
-            "," +
-            e_group.blue +
-            ")";
-          e_group.setCtxProp();
-        }),
-        color.appendChild(this.colorPicker),
-        (this.alphaPicker = window_e.document.createElement("input")),
-        this.alphaPicker.setAttribute("type", "range"),
-        this.alphaPicker.setAttribute("min", "0"),
-        this.alphaPicker.setAttribute("max", "1"),
-        this.alphaPicker.setAttribute("step", "0.01"),
-        (this.alphaPicker.value =
-          null !== this.config.alpha && void 0 !== this.config.alpha
-            ? this.config.alpha
-            : 1),
-        this.alphaPicker.setAttribute("title", "Select transparency"),
-        this.alphaPicker.addEventListener("change", function (event) {
-          e_group.globalAlpha = event.currentTarget.value;
-          e_group.setCtxProp();
-        }),
-        this.alphaPicker.addEventListener("input", function (event) {
-          console.log("inject.js e 내부 onAlphaUpdate");
-          if (e_group.alphaPickerPreview) {
-            e_group.alphaPickerPreview.innerHTML =
-              Math.round(100 * event.currentTarget.value) + "%";
-          }
-        }),
-        (this.alphaPickerPreview = window_e.document.createElement("p")),
-        transparency.appendChild(this.alphaPicker),
-        transparency.appendChild(this.alphaPickerPreview);
-      var h = window_e.document.createElement("input");
-      h.setAttribute("type", "range"),
-        h.setAttribute("min", "1"),
-        h.setAttribute("max", "20"),
-        h.setAttribute("step", "1"),
-        (h.value = this.config.thickness || 1),
-        h.setAttribute("title", "Select line width"),
-        // h.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onLineChange, this),
-        //   !1
-        // ),
-        // h.addEventListener(
-        //   "input",
-        //   Function.prototype.bind.call(this.onLineUpdate, this),
-        //   !1
-        // ),
-        (this.linePickerPreview = window_e.document.createElement("p")),
-        size_control.appendChild(h),
-        size_control.appendChild(this.linePickerPreview),
-        // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value)),
-        (this.selectedAlphaOption = this.alphaPicker.value),
-        (this.ctx.lineWidth = h.value),
-        (this.alphaPickerPreview.innerHTML =
-          Math.round(100 * this.selectedAlphaOption) + "%"),
-        (this.linePickerPreview.innerHTML =
-          Math.round((this.ctx.lineWidth / 20) * 100) + "%");
+      this.colorPicker = window_e.document.createElement("input");
+      this.colorPicker.setAttribute("type", "color");
+      this.colorPicker.value = this.config.color || "#000000";
+      this.colorPicker.setAttribute("title", "Select a color");
+      this.colorPicker.addEventListener("change", function (event) {
+        var color = event.currentTarget.value;
+        // 헥사값을 rgb로 변경
+        e_group.red = parseInt(color[1] + color[2], 16);
+        e_group.green = parseInt(color[3] + color[4], 16);
+        e_group.blue = parseInt(color[5] + color[6], 16);
+        e_group.strokeStyle =
+          "rgb(" + e_group.red + "," + e_group.green + "," + e_group.blue + ")";
+        e_group.setCtxProp();
+      });
+      color.appendChild(this.colorPicker);
+      this.alphaPicker = window_e.document.createElement("input");
+      this.alphaPicker.setAttribute("type", "range");
+      this.alphaPicker.setAttribute("min", "0");
+      this.alphaPicker.setAttribute("max", "1");
+      this.alphaPicker.setAttribute("step", "0.01");
+      this.alphaPicker.value =
+        null !== this.config.alpha && void 0 !== this.config.alpha
+          ? this.config.alpha
+          : 1;
+      this.alphaPicker.setAttribute("title", "Select transparency");
+      this.alphaPicker.addEventListener("change", function (event) {
+        e_group.globalAlpha = event.currentTarget.value;
+        e_group.setCtxProp();
+      });
+      this.alphaPicker.addEventListener("input", function (event) {
+        console.log("inject.js e 내부 onAlphaUpdate");
+        if (e_group.alphaPickerPreview) {
+          e_group.alphaPickerPreview.innerHTML =
+            Math.round(100 * event.currentTarget.value) + "%";
+        }
+      });
+      this.alphaPickerPreview = window_e.document.createElement("p");
+      transparency.appendChild(this.alphaPicker);
+      transparency.appendChild(this.alphaPickerPreview);
+      var linePicker = window_e.document.createElement("input");
+      linePicker.setAttribute("type", "range");
+      linePicker.setAttribute("min", "1");
+      linePicker.setAttribute("max", "20");
+      linePicker.setAttribute("step", "1");
+      linePicker.value = this.config.thickness || 1;
+      linePicker.setAttribute("title", "Select line width");
+      linePicker.addEventListener("change", function (event) {
+        e_group.lineWidth = event.currentTarget.value;
+        e_group.setCtxProp();
+      });
+      linePicker.addEventListener("input", function (event) {
+        console.log("inject.js e 내부 onLineUpdate");
+        if (e_group.linePickerPreview) {
+          e_group.linePickerPreview.innerHTML =
+            Math.round((event.currentTarget.value / 20) * 100) + "%";
+        }
+      });
+      this.linePickerPreview = window_e.document.createElement("p");
+      size_control.appendChild(linePicker);
+      size_control.appendChild(this.linePickerPreview);
+      // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value));
+      this.selectedAlphaOption = this.alphaPicker.value;
+      this.ctx.lineWidth = linePicker.value;
+      this.alphaPickerPreview.innerHTML =
+        Math.round(100 * this.selectedAlphaOption) + "%";
+      this.linePickerPreview.innerHTML =
+        Math.round((this.ctx.lineWidth / 20) * 100) + "%";
       // this.updatePaintStyle();
       var c = window_e.document.createElement("div"),
         l = window_e.document.createElement("div"),
         d = window_e.document.createElement("div"),
         u = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
-      c.setAttribute("class", "bnoty_controls_control_option prtBtn"),
-        c.setAttribute(
-          "title",
-          "Take a screenshot of the current web page with your drawings"
-        ),
-        l.setAttribute("class", "bnoty_controls_control_option exitBtn"),
-        l.setAttribute("title", "Quit"),
-        this.backBtn.setAttribute(
-          "class",
-          "bnoty_controls_control_option backBtn"
-        ),
-        this.backBtn.setAttribute("title", "Step backward"),
-        this.nextBtn.setAttribute(
-          "class",
-          "bnoty_controls_control_option nextBtn"
-        ),
-        this.nextBtn.setAttribute("title", "Step forward"),
-        d.setAttribute("class", "bnoty_controls_control_option eraseAllBtn"),
-        d.setAttribute("title", "Erase all"),
-        u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn"),
-        u.setAttribute(
-          "title",
-          "Close control panel (Click the extension icon to re-open)"
-        ),
-        p.setAttribute("class", "settingsBtn"),
-        p.setAttribute("title", "Settings"),
-        // c.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.onPrintButtonClick, this)
-        // ),
-        l.addEventListener(
-          "click",
-          Function.prototype.bind.call(this.exit, this)
-        ),
-        // this.backBtn.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.handleBackButtonClick, this)
-        // ),
-        // this.nextBtn.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.handleForwardButtonClick, this)
-        // ),
-        // d.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.eraseAll, this)
-        // ),
-        // u.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.hideControlPanel, this)
-        // ),
-        // p.addEventListener("click", function () {
-        //   global.runtime.sendMessage({
-        //     method: "open_options",
-        //   });
-        // }),
-        controls.appendChild(this.backBtn),
-        controls.appendChild(this.nextBtn),
-        controls.appendChild(d),
-        controls.appendChild(c),
-        controls.appendChild(u),
-        controls.appendChild(l),
-        controls.appendChild(p),
-        // this.checkHistoryButtonStatus(),
-        this.CSSAnimationManager.supported
-          ? this.panel.addEventListener(
-              this.CSSAnimationManager.end,
-              Function.prototype.bind.call(this.handlePanelAppearing, this),
-              !1
-            )
-          : (this.panel.style.opacity = 1);
+      c.setAttribute("class", "bnoty_controls_control_option prtBtn");
+      c.setAttribute(
+        "title",
+        "Take a screenshot of the current web page with your drawings"
+      );
+      l.setAttribute("class", "bnoty_controls_control_option exitBtn");
+      l.setAttribute("title", "Quit");
+      this.backBtn.setAttribute(
+        "class",
+        "bnoty_controls_control_option backBtn"
+      );
+      this.backBtn.setAttribute("title", "Step backward");
+      this.nextBtn.setAttribute(
+        "class",
+        "bnoty_controls_control_option nextBtn"
+      );
+      this.nextBtn.setAttribute("title", "Step forward");
+      d.setAttribute("class", "bnoty_controls_control_option eraseAllBtn");
+      d.setAttribute("title", "Erase all");
+      u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn");
+      u.setAttribute(
+        "title",
+        "Close control panel (Click the extension icon to re-open)"
+      );
+      p.setAttribute("class", "settingsBtn");
+      p.setAttribute("title", "Settings");
+      // c.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.onPrintButtonClick, this)
+      // );
+      l.addEventListener(
+        "click",
+        Function.prototype.bind.call(this.exit, this)
+      );
+      // this.backBtn.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.handleBackButtonClick, this)
+      // );
+      // this.nextBtn.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.handleForwardButtonClick, this)
+      // );
+      // d.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.eraseAll, this)
+      // );
+      // u.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.hideControlPanel, this)
+      // );
+      // p.addEventListener("click", function () {
+      //   global.runtime.sendMessage({
+      //     method: "open_options",
+      //   });
+      // });
+      controls.appendChild(this.backBtn);
+      controls.appendChild(this.nextBtn);
+      controls.appendChild(d);
+      controls.appendChild(c);
+      controls.appendChild(u);
+      controls.appendChild(l);
+      controls.appendChild(p);
+      // this.checkHistoryButtonStatus();
+      this.CSSAnimationManager.supported
+        ? this.panel.addEventListener(
+            this.CSSAnimationManager.end,
+            Function.prototype.bind.call(this.handlePanelAppearing, this),
+            !1
+          )
+        : (this.panel.style.opacity = 1);
     },
     addClass: function (t, e) {
       0 <= t.className.indexOf(e) || (t.className = t.className + " " + e);
