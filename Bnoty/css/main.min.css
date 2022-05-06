@@ -6,8 +6,8 @@
   top: 2px;
   right: 110px;
   z-index: 2147483647;
-  background-color: #f1f1f1;
-  border: 1px solid #eee;
+  background-color: transparent;
+  border: 1px solid transparent;
   -webkit-border-top-right-radius: 8px;
   -webkit-border-bottom-right-radius: 8px;
   -webkit-border-bottom-left-radius: 8px;
@@ -43,7 +43,52 @@
   animation: controlFadingIn 0.3s;
   animation-fill-mode: forwards;
 }
-.top_box .test_for_me {
+.pen_box {
+  display: table;
+  width: auto;
+  font-family: arial, helvetica, sans-serif;
+  position: fixed;
+  top: 2px;
+  right: 110px;
+  z-index: 2147483647;
+  background-color: #b8dff8;
+  border: 1px solid #eeeeee;
+  -webkit-border-top-right-radius: 8px;
+  -webkit-border-bottom-right-radius: 8px;
+  -webkit-border-bottom-left-radius: 8px;
+  -webkit-border-top-left-radius: 8px;
+  -moz-border-radius-topright: 8px;
+  -moz-border-radius-bottomright: 8px;
+  -moz-border-radius-bottomleft: 8px;
+  -moz-border-radius-topleft: 8px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-top-left-radius: 8px;
+  -moz-background-clip: padding-box;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  -webkit-box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+  padding: 3px;
+  margin: 0;
+  font-size: initial;
+  vertical-align: baseline;
+  -ms-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  line-height: normal;
+  color: #777;
+  cursor: move;
+  opacity: 0;
+  -webkit-animation: controlFadingIn 0.3s;
+  -webkit-animation-fill-mode: forwards;
+  animation: controlFadingIn 0.3s;
+  animation-fill-mode: forwards;
+}
+.pen_box .linePen {
   position: relative;
   width: 24px;
   height: 24px;
@@ -55,7 +100,21 @@
   cursor: pointer;
   background-repeat: no-repeat;
   margin: 2px;
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAA/UlEQVR42q2VPwrCMBhHvw4KguDYzQO4ibMODqJ4CF29gTfwCN7AK4h/FwUHQTdnB3EVcRER9ReSQCitbZIv8IaE8l4IJQmIfxTAE3zFJGAUl8AEtMEV9MGKK5ADIZiBilq7gDJHQOx8DsZgCtYq8gFF34CWH8GA5LmHKnIGXZ9AnFz4emAJHuDuGkiSi2Oqgjp4Ebn9RWnylti5/tg2YCW3DVjLbQJO8qwBZ3mWgJc8LeAt/xdgkScF2ORxAVZ5NMAuNwN5sOGWm4EmyceiAXZccjMwAkMl6pC8cr3lZmAPamr+BgcOuQ6I87+BE8mHYgG2pO5zjgCpCIswOn5C/GkjK7gzqwAAAABJRU5ErkJggg==);
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930747797659709/2153ae7bc9647e89.png);
+}
+.pen_box .highlighterPen {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  z-index: 2147483647;
+  /* right: 106px; */
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  display: inline-block;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  margin: 2px;
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930748108017664/57435d2eb9ab7d60.png);
 }
 #bnoty,
 #bnoty div,
@@ -300,7 +359,7 @@
   /* tools의 아이콘 관련 클래스 */
 }
 #bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.pen {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAA/UlEQVR42q2VPwrCMBhHvw4KguDYzQO4ibMODqJ4CF29gTfwCN7AK4h/FwUHQTdnB3EVcRER9ReSQCitbZIv8IaE8l4IJQmIfxTAE3zFJGAUl8AEtMEV9MGKK5ADIZiBilq7gDJHQOx8DsZgCtYq8gFF34CWH8GA5LmHKnIGXZ9AnFz4emAJHuDuGkiSi2Oqgjp4Ebn9RWnylti5/tg2YCW3DVjLbQJO8qwBZ3mWgJc8LeAt/xdgkScF2ORxAVZ5NMAuNwN5sOGWm4EmyceiAXZccjMwAkMl6pC8cr3lZmAPamr+BgcOuQ6I87+BE8mHYgG2pO5zjgCpCIswOn5C/GkjK7gzqwAAAABJRU5ErkJggg==);
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930747600519228/76c39c213bdaaba2.png);
 }
 #bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.line {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAg0lEQVR42tXVOxGAMBCEYaIATKAEE0jEBEowAQ7YhgLmktxjryAz2/7fXJUyJL/yR2DErixgwTZsxk428MRXbGdfIMZZQDXOAJrxKNCNRwBV3Auo4x7AFLcC5rgFcMW1gDuuAULxHhCOtwBKvAbQ4hJAjX+BCTuYcemC13eXAdBfOnADmoAmGcvKiL8AAAAASUVORK5CYII=);
