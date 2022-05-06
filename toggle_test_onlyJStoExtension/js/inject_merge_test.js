@@ -475,6 +475,7 @@
       input.style.opacity = "0.5";
       input.style.filter.opacity = "0.5";
       input.style.fontSize = e_group.size;
+      input.style.zIndex = "2147483647";
 
       input.onkeydown = this.handleENTER;
 
