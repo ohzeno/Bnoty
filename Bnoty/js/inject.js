@@ -585,7 +585,7 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            if(!window_e.document.getElementById("penBox")){
+            if (!window_e.document.getElementById("penBox")) {
               box.appendChild(penBox);
               var tmp_pen = window_e.document.createElement("div");
               var highlighterPen = window_e.document.createElement("div");
@@ -595,14 +595,17 @@ var getCSSAnimationManager = function () {
               highlighterPen.setAttribute("id", "pen2");
               penBox.appendChild(tmp_pen);
               penBox.appendChild(highlighterPen);
-              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("penBox").style.display = "none";
             }
-            if(window_e.document.getElementById("penBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'block';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
+            if (
+              window_e.document.getElementById("penBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display =
+                "block";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
             }
-            
           });
         }
         tools.appendChild(r);
@@ -724,10 +727,10 @@ var getCSSAnimationManager = function () {
         //   "click",
         //   Function.prototype.bind.call(this.onPrintButtonClick, this)
         // ),
-        // l.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.exit, this)
-        // ),
+        l.addEventListener(
+          "click",
+          Function.prototype.bind.call(this.exit, this)
+        ),
         // this.backBtn.addEventListener(
         //   "click",
         //   Function.prototype.bind.call(this.handleBackButtonClick, this)
@@ -900,6 +903,54 @@ var getCSSAnimationManager = function () {
           D(x2 + 1, y2) && !p && array_1.push([x2 + 1, y2]);
         }
       }
+    },
+    exit: function () {
+      console.log("inject.js e 내부 exit");
+      this.canvas.parentNode.removeChild(this.canvas),
+        this.panel.parentNode.parentNode.removeChild(this.panel.parentNode),
+        window_e.removeEventListener("resize", this.resizeBinded),
+        window_e.removeEventListener("scroll", this.resizeBinded),
+        (this.canvas = null),
+        (this.ctx = null),
+        (this.initialized = !1),
+        (this.painting = false),
+        (this.selectedAlphaOption = null),
+        (this.resizeTimeoutID = null),
+        (this.paragraph = null),
+        (this.panel = null),
+        (this.strokeStyle = "rgb(0, 0, 0)"),
+        (this.lineWidth = 3),
+        (this.globalAlpha = 1),
+        (this.paragraph = null),
+        (this.activate = "pen"),
+        (this.saveImage = null),
+        (this.saveLasso = null),
+        (this.histories = null),
+        (this.MAX_ITEMS = null),
+        (this.currentIndex = null),
+        (this.array = []),
+        (this.red = 0),
+        (this.green = 0),
+        (this.blue = 0),
+        (this.sX = null),
+        (this.sY = null),
+        (this.eX = null),
+        (this.eY = null),
+        (this.mX = null),
+        (this.mY = null),
+        (this.lassosX = null),
+        (this.lassosY = null),
+        (this.lassoeX = null),
+        (this.lassoeY = null),
+        (this.hasInput = false),
+        (this.size = "20px"),
+        (this.font = "sans-serif"),
+        (this.boldtext = ""),
+        (this.italictext = ""),
+        (this.textactive = false),
+        "undefined" != typeof unsafeWindow &&
+          null !== unsafeWindow &&
+          ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
     },
     render: function (t) {
       this.config = t || {};
