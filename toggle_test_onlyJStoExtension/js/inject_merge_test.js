@@ -88,12 +88,23 @@
         if (this.activate == "fill") {
           this.handleFill(event.clientX, event.clientY);
         }
-        if(this.activate == 'lasso' && this.saveLasso[0] == null){
+        if(this.activate == 'lasso' && this.saveLasso[0] == null){ // 올가미 활성화이면서 테두리없는 이미지가 저장되어있지않으면 범위를 시작범위 지정
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
           this.lassosubX = event.offsetX;
           this.lassosubY = event.offsetY;
         }
+        // if(this.activate == 'lasso' && this.saveLasso[0] != null && this.sX >= 0 && this.sX <= 100 && this.eY >=0 && this.eY <= 100){ // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
+        //   this.ctx.putImageData(this.saveLasso[0], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY))
+        //   this.saveLasso[0] = null,
+        //   this.saveLasso[1] = null,
+        //   this.lassosX = null,
+        //   this.lassosY= null,
+        //   this.lassoeX = null,
+        //   this.lassoeY = null,
+        //   this.lassosubX = null,
+        //   this.lassosubY = null
+        // }
       }
     },
     stopPainting: function (event) {
@@ -109,26 +120,19 @@
         this.mX = null;
         this.mY = null;
       }else if (this.activate == 'lasso'){
-        if(this.saveLasso[1] == null){
+        if(this.saveLasso[1] == null && this.lassosX != null){
           this.saveLasso[1] = this.ctx.getImageData(
           this.lassosX,
           this.lassosY,
           this.lassoeX - this.lassosX,
           this.lassoeY - this.lassosY
           );
-        }else {
-          this.ctx.putImageData(this.saveLasso[0], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY)),
-          this.saveLasso[0] = null,
-        this.saveLasso[1] = null,
-        this.lassosX = null,
-        this.lassosY= null,
-        this.lassoeX = null,
-        this.lassoeY = null,
-        this.lassosubX = null,
-        this.lassosubY = null
+        }else if(this.saveLasso[1] != null) {
+          this.ctx.putImageData(this.saveLasso[1], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY))
         }
       }
       if(this.activate != "lasso"){
+        
         this.saveLasso[0] = null,
         this.saveLasso[1] = null,
         this.lassosX = null,
@@ -173,8 +177,13 @@
       // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
       this.eX = event.offsetX;
       this.eY = event.offsetY;
-
-
+      if (this.activate == "lasso"){
+        if(this.lassosX <= this.eX && this.lassoeX >= this.eX && this.lassosY <= this.eY && this.lassoeY >= this.eY ){
+          this.canvas.style.cursor = "move";
+        }else{
+          this.canvas.style.cursor = "crosshair";
+        }
+      }
       // console.log("좌표", x, y);
       if (!this.painting) {
         // console.log("begin들어옴");
@@ -302,21 +311,25 @@
           this.ctx.lineCap = "butt"; // 끝을 원래로
         }
         else if (this.activate == 'lasso'){ // 올가미
-          if(this.saveLasso[1] != null){  // 여기 수정해야함 올가미 바뀌는거에 따라서 마우스커서도 같이 바뀔수있도록!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if(this.lassosX <= this.eX && this.lassoeX >= this.eX && this.lassosY <= this.eY && this.lassoeY >= this.eY ){
-              this.canvas.style.cursor = "move";
-            }else{
-              this.canvas.style.cursor = "crosshair";
-            }
+          if(this.saveLasso[1] != null){ 
+            var lassosumX = this.lassoeX - this.lassosX
+            var lassosumY = this.lassoeY - this.lassosY 
             this.ctx.clearRect(
               this.lassosX,
               this.lassosY,
-              this.lassoeX - this.lassosX,
-              this.lassoeY - this.lassosY
+              lassosumX,
+              lassosumY
             );
             this.ctx.putImageData(this.saveLasso[1], this.eX-(this.sX-this.lassosubX), this.eY-(this.sY-this.lassosubY));
+
+            this.lassosX = this.eX-(this.sX-this.lassosubX),
+            this.lassosY = this.eY-(this.sY-this.lassosubY),
+            this.lassoeX = this.eX-(this.sX-this.lassosubX) + lassosumX,
+            this.lassoeY = this.eY-(this.sY-this.lassosubY) + lassosumY
             return;
           }
+          this.lassoeX = event.offsetX;
+          this.lassoeY = event.offsetY;
           if(this.eX != this.lassosX && this.eY != this.lassosY){
             this.saveLasso[0] = this.ctx.getImageData(
               this.lassosX,
@@ -325,14 +338,11 @@
               this.eY - this.lassosY
             );
           }
-
-          this.lassoeX = event.offsetX;
-          this.lassoeY = event.offsetY;
           this.ctx.save();
-          this.ctx.strokeStyle = 'rgba(46,112,245)';
+          this.ctx.strokeStyle = 'rgba(46,112,245)'; // 파란색
           this.ctx.lineWidth = 1;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
-          this.ctx.setLineDash([5]); // 간격이 20인 점선 설정
+          this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
           this.ctx.strokeRect(
             this.sX,
             this.sY,
