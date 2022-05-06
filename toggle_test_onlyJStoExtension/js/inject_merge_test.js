@@ -88,23 +88,25 @@
         if (this.activate == "fill") {
           this.handleFill(event.clientX, event.clientY);
         }
+
         if(this.activate == 'lasso' && this.saveLasso[0] == null){ // 올가미 활성화이면서 테두리없는 이미지가 저장되어있지않으면 범위를 시작범위 지정
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
           this.lassosubX = event.offsetX;
-          this.lassosubY = event.offsetY;
+          this.lassosubY = event.offsetY; 
         }
-        // if(this.activate == 'lasso' && this.saveLasso[0] != null && this.sX >= 0 && this.sX <= 100 && this.eY >=0 && this.eY <= 100){ // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
-        //   this.ctx.putImageData(this.saveLasso[0], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY))
-        //   this.saveLasso[0] = null,
-        //   this.saveLasso[1] = null,
-        //   this.lassosX = null,
-        //   this.lassosY= null,
-        //   this.lassoeX = null,
-        //   this.lassoeY = null,
-        //   this.lassosubX = null,
-        //   this.lassosubY = null
-        // }
+        
+        if(this.activate == 'lasso' && this.saveLasso[0] != null &&  (this.sX < this.lassosX || this.sX > this.lassoeX || this.eY < this.lassosY || this.eY > this.lassoeY) ){ // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
+          this.ctx.putImageData(this.saveLasso[0], this.lassosX, this.lassosY)
+          this.saveLasso[0] = null,
+          this.saveLasso[1] = null,
+          this.lassosX = null,
+          this.lassosY= null,
+          this.lassoeX = null,
+          this.lassoeY = null,
+          this.lassosubX = null,
+          this.lassosubY = null
+        }
       }
     },
     stopPainting: function (event) {
@@ -120,7 +122,7 @@
         this.mX = null;
         this.mY = null;
       }else if (this.activate == 'lasso'){
-        if(this.saveLasso[1] == null && this.lassosX != null){
+        if(this.saveLasso[1] == null && this.saveLasso[0] != null){
           this.saveLasso[1] = this.ctx.getImageData(
           this.lassosX,
           this.lassosY,
@@ -128,7 +130,11 @@
           this.lassoeY - this.lassosY
           );
         }else if(this.saveLasso[1] != null) {
-          this.ctx.putImageData(this.saveLasso[1], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY))
+          this.lassosX = this.eX-(this.sX-this.lassosX)
+          this.lassosY =  this.eY-(this.sY-this.lassosY)
+          this.lassoeX = this.lassosX + this.saveLasso[1].width,
+          this.lassoeY = this.lassosY + this.saveLasso[1].height
+          this.ctx.putImageData(this.saveLasso[1], this.lassosX, this.lassosY)
         }
       }
       if(this.activate != "lasso"){
@@ -143,7 +149,7 @@
         this.lassosubY = null
       }
       this.painting = false;
-      if (this.activate != "text" && this.saveLasso[0] == null) {
+      if (this.activate != "text" && this.saveLasso[1] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -210,7 +216,7 @@
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        if (this.currentIndex != 0) {
+        if (this.currentIndex != 0 ) {
           // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
           this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
         }
@@ -312,20 +318,13 @@
         }
         else if (this.activate == 'lasso'){ // 올가미
           if(this.saveLasso[1] != null){ 
-            var lassosumX = this.lassoeX - this.lassosX
-            var lassosumY = this.lassoeY - this.lassosY 
             this.ctx.clearRect(
-              this.lassosX,
-              this.lassosY,
-              lassosumX,
-              lassosumY
+              this.lassosubX,
+              this.lassosubY,
+              this.saveLasso[1].width,
+              this.saveLasso[1].height
             );
-            this.ctx.putImageData(this.saveLasso[1], this.eX-(this.sX-this.lassosubX), this.eY-(this.sY-this.lassosubY));
-
-            this.lassosX = this.eX-(this.sX-this.lassosubX),
-            this.lassosY = this.eY-(this.sY-this.lassosubY),
-            this.lassoeX = this.eX-(this.sX-this.lassosubX) + lassosumX,
-            this.lassoeY = this.eY-(this.sY-this.lassosubY) + lassosumY
+            this.ctx.putImageData(this.saveLasso[1], this.eX-(this.sX-this.lassosX), this.eY-(this.sY-this.lassosY));
             return;
           }
           this.lassoeX = event.offsetX;
