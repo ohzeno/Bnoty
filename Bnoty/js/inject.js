@@ -641,7 +641,7 @@ var getCSSAnimationManager = function () {
       figureBox.setAttribute("id", "figureBox");
       var eraserBox = window_e.document.createElement("div"); // eraser
       eraserBox.setAttribute("class", "pen_box");
-      eraserBox.setAttribute("class", "eraserBox");
+      eraserBox.setAttribute("id", "eraserBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -737,6 +737,28 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("figureBox").style.display = "none";
         }
 
+        if (!window_e.document.getElementById("eraserBox")) {
+          box.appendChild(eraserBox);
+          var eraser = window_e.document.createElement("div");
+          var all_eraser = window_e.document.createElement("div");
+          eraser.setAttribute("class", "nomal_eraser");
+          eraser.setAttribute("id", "nomal_eraser");
+          eraser.setAttribute("title", "nomal_eraser");
+          all_eraser.setAttribute("class", "all_eraser");
+          all_eraser.setAttribute("id", "all_eraser");
+          all_eraser.setAttribute("title", "all_eraser");
+          eraser.addEventListener("click", function () {
+            e_group.activate = "eraser";
+          });
+          all_eraser.addEventListener("click", function () {
+            e_group.activate = "all_eraser";
+          });
+          eraserBox.appendChild(eraser);
+          eraserBox.appendChild(all_eraser);
+          window_e.document.getElementById("eraserBox").style.display = "none";
+        }
+
+
         if (a.type == "fill") {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
@@ -744,60 +766,58 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            if (
-              window_e.document.getElementById("penBox").style.display ===
-              "none"
-            ) {
-              window_e.document.getElementById("penBox").style.display =
-                "block";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
-            } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
+            if(window_e.document.getElementById("penBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'block';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
             }
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
-            if (
-              window_e.document.getElementById("textBox").style.display ===
-              "none"
-            ) {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "block";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
-            } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
+            if(window_e.document.getElementById("textBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'block';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
             }
           });
         } else if (a.type == "line") {
           r.addEventListener("click", function () {
-            if (
-              window_e.document.getElementById("figureBox").style.display ===
-              "none"
-            ) {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "block";
-            } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
+            if(window_e.document.getElementById("figureBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'block';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
+            }
+          });
+        } else if (a.type == "eraser") {
+          r.addEventListener("click", function () {
+            if(window_e.document.getElementById("eraserBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'block';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
             }
           });
         }
