@@ -629,15 +629,22 @@ var getCSSAnimationManager = function () {
           "bnoty_controls_range alpha_control"
         ),
         size_control.setAttribute("class", "bnoty_controls_range size_control");
-      var box = window_e.document.createElement("div");
+      
+        var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
       window_e.document.body.appendChild(box);
-      var penBox = window_e.document.createElement("div");
+      var penBox = window_e.document.createElement("div"); // pen
       penBox.setAttribute("class", "pen_box");
       penBox.setAttribute("id", "penBox");
-      var textBox = window_e.document.createElement("div");
+      var textBox = window_e.document.createElement("div"); // text
       textBox.setAttribute("class", "pen_box");
       textBox.setAttribute("id", "textBox");
+      var figureBox = window_e.document.createElement("div"); // figure
+      figureBox.setAttribute("class", "pen_box");
+      figureBox.setAttribute("id", "figureBox");
+      var eraserBox = window_e.document.createElement("div"); // eraser
+      eraserBox.setAttribute("class", "pen_box");
+      eraserBox.setAttribute("class", "eraserBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -694,6 +701,37 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("textBox").style.display = "none";
         }
 
+        if(!window_e.document.getElementById("figureBox")){
+          box.appendChild(figureBox);
+          var square = window_e.document.createElement("div");
+          var triangle = window_e.document.createElement("div");
+          var circle = window_e.document.createElement("div");
+          var line = window_e.document.createElement("div");
+          var curve = window_e.document.createElement("div");
+          var arrow = window_e.document.createElement("div");
+
+          square.setAttribute("class", "square");
+          square.setAttribute("id", "square");
+          triangle.setAttribute("class", "triangle");
+          triangle.setAttribute("id", "triangle");
+          circle.setAttribute("class", "circle");
+          circle.setAttribute("id", "circle");
+          line.setAttribute("class", "line");
+          line.setAttribute("id", "line");
+          curve.setAttribute("class", "curve");
+          curve.setAttribute("id", "curve");
+          arrow.setAttribute("class", "arrow");
+          arrow.setAttribute("id", "arrow");
+          figureBox.appendChild(square);
+          figureBox.appendChild(triangle);
+          figureBox.appendChild(circle);
+          figureBox.appendChild(line);
+          figureBox.appendChild(curve);
+          figureBox.appendChild(arrow);
+          window_e.document.getElementById("figureBox").style.display = 'none';
+        }
+
+
         if (a.type == "fill") {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
@@ -701,33 +739,38 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            if (
-              window_e.document.getElementById("penBox").style.display ===
-              "none"
-            ) {
-              window_e.document.getElementById("penBox").style.display =
-                "block";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-            } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
+            if(window_e.document.getElementById("penBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'block';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
             }
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
-            if (
-              window_e.document.getElementById("textBox").style.display ===
-              "none"
-            ) {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "block";
-            } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
+            if(window_e.document.getElementById("textBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'block';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+            }
+          });
+        } else if (a.type == "line") {
+          r.addEventListener("click", function () {
+            if(window_e.document.getElementById("figureBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'block';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
             }
           });
         }
