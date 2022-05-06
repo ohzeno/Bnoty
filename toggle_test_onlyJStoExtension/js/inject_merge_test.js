@@ -469,9 +469,11 @@
       input.style.left = x + "px";
       input.style.top = y + "px";
       input.style.width = "500px";
-      input.style.outline = "none";
-      input.style.border = "none";
-      input.style.backgroundColor = "transparent";
+      // input.style.outline = "none";
+      // input.style.border = "none";
+      // input.style.backgroundColor = "transparent";
+      input.style.opacity = "0.5";
+      input.style.filter.opacity = "0.5";
       input.style.fontSize = e_group.size;
 
       input.onkeydown = this.handleENTER;
@@ -519,7 +521,6 @@
           parseInt(inputs.style.left, 10),
           parseInt(inputs.style.top, 10)
         );
-        document.body.removeChild(inputs);
         e_group.saveImage = e_group.ctx.getImageData(
           0,
           0,
@@ -528,7 +529,9 @@
         ); // 지금까지 그린 정보를 저장
         e_group.addHistory();
       }
+      document.body.removeChild(inputs);
       e_group.hasInput = false;
+      e_group.textactive = false;
     },
     // 캔버스에 글자 그리는 함수
     drawText: function (txt, x, y) {
