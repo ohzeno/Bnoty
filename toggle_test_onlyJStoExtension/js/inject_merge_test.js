@@ -64,6 +64,7 @@
     boldtext: "", // 볼드
     italictext: "", // 기울이기
     textactive: false, // 텍스트 입력중인지 체크
+    img: null,
 
     startPainting: function (event) {
       // 마우스 클릭버튼 누름
@@ -254,11 +255,22 @@
           this.ctx.lineCap = "round"; // 끝을 둥글게
           this.ctx.stroke();
           this.ctx.lineCap = "butt"; // 끝을 원래로
+        } else if (this.activate == "image") {
+          // e_group.ctx.save();
+          e_group.ctx.drawImage(
+            e_group.img,
+            this.sX,
+            this.sY,
+            this.eX - this.sX,
+            this.eY - this.sY
+          );
+          // e_group.ctx.restore();
         }
       }
     },
     onMouseClick: function (event) {
       if (this.activate == "text") {
+        console.log(this.textactive + " 상태 ");
         if (this.textactive) {
           this.handleMouseClick();
         }
@@ -276,7 +288,7 @@
       input.style.position = "fixed";
       input.style.left = x + "px";
       input.style.top = y + "px";
-      input.style.width = "1000px";
+      input.style.width = "500px";
       input.style.outline = "none";
       input.style.border = "none";
       input.style.backgroundColor = "transparent";
@@ -312,15 +324,16 @@
           ); // 지금까지 그린 정보를 저장
           e_group.addHistory();
         }
+        e_group.hasInput = false;
+        e_group.textactive = false;
       }
-      e_group.hasInput = false;
-      e_group.textactive = false;
     },
     handleMouseClick: function () {
       var inputs = document.getElementById("textbox");
+      var blank_pattern = /^\s+|\s+$/g;
 
-      if (this.value != null) {
-        console.log("value : " + this.value);
+      if (inputs.value.replace(blank_pattern, "") != "") {
+        console.log("value : " + inputs.value);
         e_group.drawText(
           inputs.value,
           parseInt(inputs.style.left, 10),
@@ -516,7 +529,7 @@
       opt.appendChild(optText);
       select.appendChild(opt);
       window.document.body.appendChild(select);
-      select.style = `position: absolute; top: 30px; left: 600px; z-index: 2147483647;`;
+      select.style = `position: absolute; top: 60px; left: 600px; z-index: 2147483647;`;
 
       var button = window_e.document.createElement("button");
       var buttonText = window_e.document.createTextNode("형광펜");
@@ -524,6 +537,35 @@
       button.setAttribute("id", "highlighter");
       window_e.document.body.appendChild(button);
       button.style = `position: absolute; top: 30px; left: 300px; z-index: 2147483647;`;
+
+      var fileChange = window.document.createElement("input");
+      var fileText = window.document.createTextNode("파일");
+      fileChange.appendChild(fileText);
+      fileChange.setAttribute("id", "fileloader");
+      fileChange.setAttribute("type", "file");
+      window.document.body.appendChild(fileChange);
+      fileChange.style = `position: absolute; top: 90px; left: 30px; z-index: 2147483647;`;
+
+      document
+        .getElementById("fileloader")
+        .addEventListener("change", function (event) {
+          e_group.activate = "image";
+          let reader = new FileReader();
+          reader.onload = function (e) {
+            e_group.img = new Image();
+            e_group.img.src = e.target.result;
+            e_group.img.onload = function () {
+              e_group.saveImage = e_group.ctx.getImageData(
+                0,
+                0,
+                e_group.canvas.width,
+                e_group.canvas.height
+              ); // 지금까지 그린 정보를 저장
+              e_group.addHistory();
+            };
+          };
+          reader.readAsDataURL(event.target.files[0]);
+        });
 
       document
         .getElementById("highlighter")
