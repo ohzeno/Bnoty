@@ -149,21 +149,9 @@ var getCSSAnimationManager = function () {
         title: "Paint Bucket - fill an area",
       },
       {
-        type: "injection_link",
-        title: "LINK INJECTION~~~~~~~ ",
+        type: "linkinjection",
+        title: "링크를 추가합니다.",
       },
-      {
-        type: "IU",
-        title: "IU의 얼굴입니다.",
-      },
-      {
-        type: "subIU1",
-        title: "서브아이유",
-      },
-      {
-        type: "subIU2",
-        title: "서브아이유2",
-      }
     ],
     selectedAlphaOption: null,
     resizeTimeoutID: null,
@@ -201,6 +189,7 @@ var getCSSAnimationManager = function () {
     //링크용함수
     linkX : null,
     linkY : null,
+    linkcount : 0, // 이건 저장해야함
 
     startPainting: function (event) {
       console.log("여긴 왔는데");
@@ -225,17 +214,8 @@ var getCSSAnimationManager = function () {
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
         }
-        // 링크삽입
-        if ( this.activate == "injection_link"){
-          // alert("링크삽입");
-          this.injectionLink( event.offsetX, event.offsetY);
-
-        }
-        if ( this.activate == "injection_end"){
-          console.log("링크삽입 종료");
-        }
-        if ( this.activate == "IU"){
-          // this.IUfunction();
+        // real link injection
+        if ( this.activate == "linkinjection"){
           this.LinkInputField( event.offsetX, event.offsetY);
         }
 
@@ -618,29 +598,17 @@ var getCSSAnimationManager = function () {
         // ),
         if (a.type == "fill") {
           r.addEventListener("click", function () {
-            // e_group.activate = "fill";
+            e_group.activate = "fill";
             e_group.activate = "injection_link";
             // e_group.canvas.style.cursor = "pointer";
           });
         }
-        // 아이유관련
-        if ( a.type == "IU" ){
+        // linkinjection 
+        if ( a.type == "linkinjection" ){
           r.addEventListener("click", function () {
-            e_group.activate = "IU";
-            // 여기에다가 추가하는 함수를 그리면 될듯.
-            e_group.addsubIUbutton();
-            // 아니면 여기다가 바로
-
-
+            e_group.activate = "linkinjection";
           });
         }
-        if ( a.type == "subIU1" || a.type  == "subIU2") {
-          console.log("아이유페이스에 아이디 추가");
-          r.id = "IUface";
-          // r.style.display = "none";
-
-        }
-
 
         tools.appendChild(r);
         if (
@@ -989,77 +957,9 @@ var getCSSAnimationManager = function () {
           null !== unsafeWindow &&
           (unsafeWindow.bnoty_INIT = !0);
     },
-    // 링크 삽입함수
-    injectionLink: function (x, y) {
-      console.log("injection link START~~~");
-      console.log(x + " , " + y);
-
-      // var x = window_e.document.createElement("img");
-      // // var x = document.createElement("IMG");
-      // x.setAttribute("src", "https://1.bp.blogspot.com/-x5UnU81HjR8/YPbIDsXjVvI/AAAAAAAJXNM/eZgJX2vCxyc_lAW8DioFRMpu8D5uxaEWwCLcBGAsYHQ/s1600/8.png");
-      // x.setAttribute("width", "100");
-      // x.setAttribute("height", "100");
-      // x.setAttribute("alt", "IU");  
-      // // x.setAttribute("z-index", 2147483647);  
-      // // x.setAttribute("position", "fixed" );
-      // // x.setAttribute("top", 500 );
-      // // x.setAttribute("left", 500 );
-      // x.setAttribute( 'href', "https://cdn.discordapp.com/attachments/971933189545263135/971937623096578048/KakaoTalk_20220421_075022958.jpg" );
-
-      // x.style.position = 'absolute';
-      // x.style.left = 500 + 'px';
-      // x.style.top = 500 + 'px';
-      // x.style.zIndex = 2147483647;
-      
-      // // 추가 
-      // // var bnotycan = document.getElementById("bnoty");//
-      // // bnotycan.appendChild(x);
-      // document.body.appendChild(x);
-
-      // inputfield 추가
-
-      //확인 버튼 클릭시
-
-      //
-
-      // a태그
-      var atag = window_e.document.createElement("a");
-      atag.setAttribute( 'target', "”_blank”" );
-      atag.setAttribute( 'href', "https://cdn.discordapp.com/attachments/971933189545263135/971937623096578048/KakaoTalk_20220421_075022958.jpg" );
-       atag.style.position = 'absolute';
-      atag.style.width = 100 + 'px';
-      atag.style.height = 100 + 'px';
-      atag.style.left = x + 'px';
-      atag.style.top = y + 'px';
-      e_group.x
-      atag.style.zIndex = 2147483647;
-
-      var imgtag = window_e.document.createElement("img");
-      imgtag.setAttribute("src", "https://1.bp.blogspot.com/-x5UnU81HjR8/YPbIDsXjVvI/AAAAAAAJXNM/eZgJX2vCxyc_lAW8DioFRMpu8D5uxaEWwCLcBGAsYHQ/s1600/8.png");
-      imgtag.setAttribute("alt", "IU");  
-      imgtag.setAttribute("width", "100");
-      imgtag.setAttribute("height", "100");
-      // 추가
-      atag.appendChild(imgtag);
-      document.body.appendChild(atag);
-
-
-      e_group.activate = "injection_end";
-
-
-    },
-    IUfunction:function(){
-      alert("아이유를 누른 상태입니다.");
-      document.getElementById("IUface").style.display = "none";
-    },
-    addsubIUbutton:function(){
-      alert("아이유를 눌렀습니다.");
-      document.getElementById("IUface").style.display = "";
-    },
     // 링크 넣는 창 입력하기 
     LinkInputField: function (x, y) {
-      alert("링크입력");
-
+      // alert("링크입력");
       // a태그
       var atag = window_e.document.createElement("div");
       atag.setAttribute("id", "linkdiv");
@@ -1079,26 +979,20 @@ var getCSSAnimationManager = function () {
       input2.setAttribute("type", "button");
       input2.setAttribute("value", "확인");
       input2.addEventListener("click", this.linkclickfuntion);
+      
 
       // 추가
       atag.appendChild(input1);
       atag.appendChild(input2);
       document.body.appendChild(atag);
 
-      //<div style="background-color: black; width: 280px;" ;>
-      //   <input type="text" value="" placeholder="이메일 주소입력">
-      //   <input type="button" value="Link Injection">
-      //   <button type="button"> Link Injection </button>
-      // </div>
-      // this.canvas.addEventListener("click", startPainting);
-
       // 바꿔주기
-      e_group.activate = "injection_end";
+      e_group.activate = "nothing";
 
 
     },
     linkclickfuntion:function(){
-      alert("클릭");
+      // alert("클릭");
       
       // 링크 가져오기
       var goto = document.getElementById("linkinput").value;
@@ -1109,18 +1003,21 @@ var getCSSAnimationManager = function () {
       var atag = window_e.document.createElement("a");
       atag.setAttribute( 'target', "”_blank”" );
       atag.setAttribute( 'href', goto );
-       atag.style.position = 'absolute';
-      atag.style.width = 100 + 'px';
-      atag.style.height = 100 + 'px';
+      atag.addEventListener('contextmenu', function() {
+        this.remove();
+      });
+      atag.style.position = 'absolute';
+      atag.style.width = 24 + 'px';
+      atag.style.height = 24 + 'px';
       atag.style.left = e_group.linkX + 'px';
       atag.style.top = e_group.linkY + 'px';
       atag.style.zIndex = 2147483647;
 
       var imgtag = window_e.document.createElement("img");
-      imgtag.setAttribute("src", "https://1.bp.blogspot.com/-x5UnU81HjR8/YPbIDsXjVvI/AAAAAAAJXNM/eZgJX2vCxyc_lAW8DioFRMpu8D5uxaEWwCLcBGAsYHQ/s1600/8.png");
+      imgtag.setAttribute("src", "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png");
       imgtag.setAttribute("alt", "IU");  
-      imgtag.setAttribute("width", "100");
-      imgtag.setAttribute("height", "100");
+      imgtag.setAttribute("width", "24");
+      imgtag.setAttribute("height", "24");
 
       // 추가
       atag.appendChild(imgtag);

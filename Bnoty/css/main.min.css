@@ -606,23 +606,9 @@
   }
 }
 
-#bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.IU {
+#bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.linkinjection {
   background-image: url(
-    https://media.discordapp.net/attachments/971933189545263135/971933229382782996/IU.PNG
-    );
-
-}
-
-#bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.subIU1 {
-  background-image: url(
-    https://cdn.discordapp.com/attachments/971933189545263135/971933229596696576/subIU1.PNG
-    );
-
-}
-
-#bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.subIU2 {
-  background-image: url(
-    https://media.discordapp.net/attachments/971933189545263135/971933229907083304/subIU2.PNG
+    https://media.discordapp.net/attachments/962708703277096990/971929982257475664/link.png
     );
 
 }
