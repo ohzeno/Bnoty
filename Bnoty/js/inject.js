@@ -561,6 +561,9 @@ var getCSSAnimationManager = function () {
       var penBox = window_e.document.createElement("div");
       penBox.setAttribute("class", "pen_box");
       penBox.setAttribute("id", "penBox");
+      var textBox = window_e.document.createElement("div");
+      textBox.setAttribute("class", "pen_box");
+      textBox.setAttribute("id", "textBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -578,6 +581,38 @@ var getCSSAnimationManager = function () {
         //   "click",
         //   Function.prototype.bind.call(this.onControlPanelClick, this, o)
         // ),
+
+        if(!window_e.document.getElementById("penBox")){
+          box.appendChild(penBox);
+          var tmp_pen = window_e.document.createElement("div");
+          var highlighterPen = window_e.document.createElement("div");
+          tmp_pen.setAttribute("class", "linePen");
+          tmp_pen.setAttribute("id", "pen1");
+          highlighterPen.setAttribute("class", "highlighterPen");
+          highlighterPen.setAttribute("id", "pen2");
+          penBox.appendChild(tmp_pen);
+          penBox.appendChild(highlighterPen);
+          window_e.document.getElementById("penBox").style.display = 'none';
+        }
+
+        if(!window_e.document.getElementById("textBox")){
+          box.appendChild(textBox);
+          var text = window_e.document.createElement("div"),
+          boldText = window_e.document.createElement("div"),
+          italicText = window_e.document.createElement("div");
+          text.setAttribute("class", "text");
+          text.setAttribute("id", "text");
+          boldText.setAttribute("class", "boldText");
+          boldText.setAttribute("id", "boldText");
+          italicText.setAttribute("class", "italicText");
+          italicText.setAttribute("id", "italicText");
+          textBox.appendChild(text);
+          textBox.appendChild(boldText);
+          textBox.appendChild(italicText);
+          window_e.document.getElementById("textBox").style.display = 'none';
+        }
+
+
         if (a.type == "fill") {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
@@ -585,26 +620,22 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            if (!window_e.document.getElementById("penBox")) {
-              box.appendChild(penBox);
-              var tmp_pen = window_e.document.createElement("div");
-              var highlighterPen = window_e.document.createElement("div");
-              tmp_pen.setAttribute("class", "linePen");
-              tmp_pen.setAttribute("id", "pen1");
-              highlighterPen.setAttribute("class", "highlighterPen");
-              highlighterPen.setAttribute("id", "pen2");
-              penBox.appendChild(tmp_pen);
-              penBox.appendChild(highlighterPen);
-              window_e.document.getElementById("penBox").style.display = "none";
+            if(window_e.document.getElementById("penBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'block';
+              window_e.document.getElementById("textBox").style.display = 'none';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
             }
-            if (
-              window_e.document.getElementById("penBox").style.display ===
-              "none"
-            ) {
-              window_e.document.getElementById("penBox").style.display =
-                "block";
-            } else {
-              window_e.document.getElementById("penBox").style.display = "none";
+          });
+        } else if (a.type == "text") {
+          r.addEventListener("click", function () {
+            if(window_e.document.getElementById("textBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'block';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
             }
           });
         }
