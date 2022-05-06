@@ -440,6 +440,7 @@ var getCSSAnimationManager = function () {
       window_e.addEventListener("resize", this.resizeBinded);
       window_e.addEventListener("scroll", this.resizeBinded);
       this.setCtxProp();
+      this.Histories();
       this.initCanvas();
     },
     initCanvas: function (t) {
@@ -477,6 +478,61 @@ var getCSSAnimationManager = function () {
       // window_e.document.addEventListener("keydown", this.keydownBinded);
       // window_e.document.addEventListener("keypress", this.keypressBinded);
     },
+    // 작업마다 저장한거 관리하는 부분 시작 -----------------------------
+    Histories: function () {
+      // 최초 변수 초기화
+      function historySave() {
+        e_group.MAX_ITEMS = 50;
+        e_group.currentIndex = 0;
+        e_group.array = [];
+      }
+
+      this.histories = new historySave(); // 객체 할당
+      // 프로토 타입 객체 생성. 다른 객체도 사용 가능
+      historySave.prototype.add = function (t) {
+        // 작업 저장하는 프로토타입
+        if (
+          (e_group.currentIndex < e_group.array.length - 1
+            ? ((e_group.array[++e_group.currentIndex] = t),
+              (e_group.array = e_group.array.slice(
+                0,
+                e_group.currentIndex + 1
+              )))
+            : (e_group.array.push(t),
+              (e_group.currentIndex = e_group.array.length - 1)),
+          e_group.array.length > e_group.MAX_ITEMS)
+        ) {
+          var e_h = e_group.array.length - e_group.MAX_ITEMS;
+          (e_group.array = e_group.array.splice(-e_group.MAX_ITEMS)),
+            (e_group.currentIndex = e_group.currentIndex - e_h);
+        }
+      };
+      historySave.prototype.previous = function () {
+        // 이전 작업 가져오는거
+        return 0 === e_group.currentIndex
+          ? null
+          : e_group.array[--e_group.currentIndex];
+      };
+      historySave.prototype.next = function () {
+        // 다음 작업 가져오는거
+        return e_group.currentIndex === e_group.array.length - 1
+          ? null
+          : e_group.array[++e_group.currentIndex];
+      };
+      historySave.prototype.hasPrevious = function () {
+        //이전 저장값 있는지
+        return 0 < e_group.currentIndex;
+      };
+      historySave.prototype.hasNext = function () {
+        // 다음 저장값 있는지
+        return e_group.currentIndex < e_group.array.length - 1;
+      };
+    },
+    // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
+    addHistory: function () {
+      this.histories.add(this.saveImage);
+      // 여기서 버튼 디스에이블하는것도 해줘야함
+    },
     setCtxProp: function () {
       console.log("inject.js e 내부 setCtxProp");
       this.ctx.strokeStyle = this.strokeStyle; // 선 색
@@ -489,6 +545,10 @@ var getCSSAnimationManager = function () {
       t.target.style.opacity = 1;
     },
     handleResize: function (t) {
+      // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
+      // store, restore는 아직 없어서 주석해둠.
+      // paragraph는 아직 해석못함.
+      // console.log("resize");
       var e = !1,
         i = window_e.pageYOffset || document.documentElement.scrollTop,
         n =
@@ -531,11 +591,25 @@ var getCSSAnimationManager = function () {
       } else {
         // storeCanvas(t);
       }
-      this.canvas.width = s;
-      this.canvas.height = a;
-      e;
-      // this.updatePaintStyle();
+      this.canvas.width = s; // 여기서 ctx 속성 처음 초기화됨.
+      this.canvas.style.width = s + "px";
+      this.canvas.height = a; // 여기서 ctx 속성 두번째 초기화됨. 없애면 마우스랑 그려지는 위치 어긋남. 그러니 ctx 속성 설정해주는 함수 따로 만듦.
+      this.setCtxProp();
+      this.canvas.style.height = a + "px";
+      // if (!e) {
+      //   restoreCanvas();
+      // }
+      // updatePaintStyle();
       this.ctx.lineWidth = n;
+      if (this.array.length == 0) {
+        // 저장된 정보가 없으면 현재 정보 초기값을 추가해줌
+        this.histories.add(
+          this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
+        );
+      } else {
+        // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
+        this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+      }
     },
     createControlPanel: function () {
       (this.panel = window_e.document.createElement("div")),
@@ -582,24 +656,32 @@ var getCSSAnimationManager = function () {
         //   Function.prototype.bind.call(this.onControlPanelClick, this, o)
         // ),
 
-        if(!window_e.document.getElementById("penBox")){
+        if (!window_e.document.getElementById("penBox")) {
           box.appendChild(penBox);
           var tmp_pen = window_e.document.createElement("div");
           var highlighterPen = window_e.document.createElement("div");
           tmp_pen.setAttribute("class", "linePen");
           tmp_pen.setAttribute("id", "pen1");
+          tmp_pen.setAttribute("title", "normal_pen");
           highlighterPen.setAttribute("class", "highlighterPen");
           highlighterPen.setAttribute("id", "pen2");
+          highlighterPen.setAttribute("title", "highlighter");
+          tmp_pen.addEventListener("click", function () {
+            e_group.activate = "pen";
+          });
+          highlighterPen.addEventListener("click", function () {
+            e_group.activate = "highlighter";
+          });
           penBox.appendChild(tmp_pen);
           penBox.appendChild(highlighterPen);
-          window_e.document.getElementById("penBox").style.display = 'none';
+          window_e.document.getElementById("penBox").style.display = "none";
         }
 
-        if(!window_e.document.getElementById("textBox")){
+        if (!window_e.document.getElementById("textBox")) {
           box.appendChild(textBox);
           var text = window_e.document.createElement("div"),
-          boldText = window_e.document.createElement("div"),
-          italicText = window_e.document.createElement("div");
+            boldText = window_e.document.createElement("div"),
+            italicText = window_e.document.createElement("div");
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           boldText.setAttribute("class", "boldText");
@@ -609,9 +691,8 @@ var getCSSAnimationManager = function () {
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
-          window_e.document.getElementById("textBox").style.display = 'none';
+          window_e.document.getElementById("textBox").style.display = "none";
         }
-
 
         if (a.type == "fill") {
           r.addEventListener("click", function () {
@@ -620,22 +701,33 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("penBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'block';
-              window_e.document.getElementById("textBox").style.display = 'none';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
+            if (
+              window_e.document.getElementById("penBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display =
+                "block";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
             }
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("textBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'block';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
+            if (
+              window_e.document.getElementById("textBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "block";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
             }
           });
         }
