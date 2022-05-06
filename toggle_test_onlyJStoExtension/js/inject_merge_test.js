@@ -94,9 +94,8 @@
           this.lassosY = event.offsetY;
           this.lassosubX = event.offsetX;
           this.lassosubY = event.offsetY; 
-        }
-        
-        if(this.activate == 'lasso' && this.saveLasso[0] != null &&  (this.sX < this.lassosX || this.sX > this.lassoeX || this.eY < this.lassosY || this.eY > this.lassoeY) ){ // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
+        }else if(this.activate == 'lasso' && this.saveLasso[0] != null &&  (this.sX < this.lassosX || this.sX > this.lassoeX || this.sY < this.lassosY || this.sY > this.lassoeY) ){ // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
+          console.log("이거는 말이지 그거라구 버튼 O" ,this.lassosX, this.lassosY)
           this.ctx.putImageData(this.saveLasso[0], this.lassosX, this.lassosY)
           this.saveLasso[0] = null,
           this.saveLasso[1] = null,
@@ -107,6 +106,7 @@
           this.lassosubX = null,
           this.lassosubY = null
         }
+        console.log(this.sX , this.sY, this.lassosX , this.lassosY) // 여기 수정해야함
       }
     },
     stopPainting: function (event) {
@@ -135,10 +135,10 @@
           this.lassoeX = this.lassosX + this.saveLasso[1].width,
           this.lassoeY = this.lassosY + this.saveLasso[1].height
           this.ctx.putImageData(this.saveLasso[1], this.lassosX, this.lassosY)
+          console.log("이거는 말이지 그거라구 버튼 x" ,this.lassosX, this.lassosY)
         }
       }
       if(this.activate != "lasso"){
-        
         this.saveLasso[0] = null,
         this.saveLasso[1] = null,
         this.lassosX = null,
@@ -149,7 +149,7 @@
         this.lassosubY = null
       }
       this.painting = false;
-      if (this.activate != "text" && this.saveLasso[1] == null) {
+      if (this.activate != "text" && this.saveLasso[0] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -861,7 +861,7 @@
         });
 
         document
-        .getElementById("lassoBut")
+          .getElementById("lassoBut")
         .addEventListener("click", function () {
           e_group.activate = "lasso";
           e_group.canvas.style.cursor = "pointer";
@@ -1046,6 +1046,7 @@
     addHistory: function () {
       this.histories.add(this.saveImage);
       // 여기서 버튼 디스에이블하는것도 해줘야함
+      console.log(e_group.currentIndex)
     },
     setCtxProp: function () {
       console.log("inject.js e 내부 setCtxProp");
