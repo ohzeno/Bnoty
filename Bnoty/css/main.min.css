@@ -4,7 +4,7 @@
   font-family: arial, helvetica, sans-serif;
   position: fixed;
   top: 2px;
-  right: 5px;
+  right: 110px;
   z-index: 2147483647;
   background-color: #f1f1f1;
   border: 1px solid #eee;
@@ -48,7 +48,7 @@
   width: 24px;
   height: 24px;
   z-index: 2147483647;
-  right: 106px;
+  /* right: 106px; */
   border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;

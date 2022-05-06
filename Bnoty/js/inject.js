@@ -558,6 +558,9 @@ var getCSSAnimationManager = function () {
       var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
       window_e.document.body.appendChild(box);
+      var penBox = window_e.document.createElement("div");
+      penBox.setAttribute("class", "top_box");
+      penBox.setAttribute("id", "penBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -582,10 +585,23 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            console.log("this.panel", e_group.panel);
-            var tmp_pen = window_e.document.createElement("div");
-            tmp_pen.setAttribute("class", "test_for_me");
-            box.appendChild(tmp_pen);
+            if (!window_e.document.getElementById("penBox")) {
+              box.appendChild(penBox);
+              var tmp_pen = window_e.document.createElement("div");
+              tmp_pen.setAttribute("class", "test_for_me");
+              tmp_pen.setAttribute("id", "pen1");
+              penBox.appendChild(tmp_pen);
+              window_e.document.getElementById("penBox").style.display = "none";
+            }
+            if (
+              window_e.document.getElementById("penBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display =
+                "block";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+            }
           });
         }
         tools.appendChild(r);
@@ -603,11 +619,22 @@ var getCSSAnimationManager = function () {
         this.colorPicker.setAttribute("type", "color"),
         (this.colorPicker.value = this.config.color || "#000000"),
         this.colorPicker.setAttribute("title", "Select a color"),
-        // this.colorPicker.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onColorPanelClick, this),
-        //   !1
-        // ),
+        this.colorPicker.addEventListener("change", function (event) {
+          var color = event.currentTarget.value;
+          // 헥사값을 rgb로 변경
+          e_group.red = parseInt(color[1] + color[2], 16);
+          e_group.green = parseInt(color[3] + color[4], 16);
+          e_group.blue = parseInt(color[5] + color[6], 16);
+          e_group.strokeStyle =
+            "rgb(" +
+            e_group.red +
+            "," +
+            e_group.green +
+            "," +
+            e_group.blue +
+            ")";
+          e_group.setCtxProp();
+        }),
         color.appendChild(this.colorPicker),
         (this.alphaPicker = window_e.document.createElement("input")),
         this.alphaPicker.setAttribute("type", "range"),
@@ -619,16 +646,17 @@ var getCSSAnimationManager = function () {
             ? this.config.alpha
             : 1),
         this.alphaPicker.setAttribute("title", "Select transparency"),
-        // this.alphaPicker.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onAlphaChange, this),
-        //   !1
-        // ),
-        // this.alphaPicker.addEventListener(
-        //   "input",
-        //   Function.prototype.bind.call(this.onAlphaUpdate, this),
-        //   !1
-        // ),
+        this.alphaPicker.addEventListener("change", function (event) {
+          e_group.globalAlpha = event.currentTarget.value;
+          e_group.setCtxProp();
+        }),
+        this.alphaPicker.addEventListener("input", function (event) {
+          console.log("inject.js e 내부 onAlphaUpdate");
+          if (e_group.alphaPickerPreview) {
+            e_group.alphaPickerPreview.innerHTML =
+              Math.round(100 * event.currentTarget.value) + "%";
+          }
+        }),
         (this.alphaPickerPreview = window_e.document.createElement("p")),
         transparency.appendChild(this.alphaPicker),
         transparency.appendChild(this.alphaPickerPreview);
