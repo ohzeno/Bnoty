@@ -184,6 +184,7 @@ var getCSSAnimationManager = function () {
     textactive: false, // 텍스트 입력중인지 체크
 
     startPainting: function (event) {
+      event.preventDefault();
       // 마우스 클릭버튼 누름
       if (event.which === 1) {
         //좌클릭 일 때만 그리기
@@ -421,6 +422,7 @@ var getCSSAnimationManager = function () {
       }
     },
     onMouseClick: function (event) {
+      event.preventDefault();
       if (this.activate == "text") {
         if (this.textactive) {
           this.handleMouseClick();
@@ -689,6 +691,7 @@ var getCSSAnimationManager = function () {
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
+          text.addEventListener("click", function () {});
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
           boldText.setAttribute("title", "Bold Text");
@@ -922,6 +925,16 @@ var getCSSAnimationManager = function () {
         "bnoty_controls_control_option nextBtn"
       );
       this.nextBtn.setAttribute("title", "Step forward");
+      this.backBtn.addEventListener("click", function () {
+        if (e_group.histories.hasPrevious()) {
+          e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
+        }
+      });
+      this.nextBtn.addEventListener("click", function () {
+        if (e_group.histories.hasNext()) {
+          e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
+        }
+      });
       d.setAttribute("class", "bnoty_controls_control_option eraseAllBtn");
       d.setAttribute("title", "Erase all");
       u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn");
