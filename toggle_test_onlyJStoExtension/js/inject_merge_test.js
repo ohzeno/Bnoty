@@ -103,15 +103,28 @@
             this.sY > this.lassoeY)
         ) {
           // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
-          this.ctx.putImageData(this.saveLasso[0], this.lassosX, this.lassosY);
-          (this.saveLasso[0] = null),
-            (this.saveLasso[1] = null),
-            (this.lassosX = null),
-            (this.lassosY = null),
-            (this.lassoeX = null),
-            (this.lassoeY = null),
-            (this.lassosubX = null),
-            (this.lassosubY = null);
+          if(this.lassosX == this.lassosubX && this.lassosY == this.lassosubY){
+            this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+            this.currentIndex--;
+            this.saveLasso[0] = null,
+            this.saveLasso[1] = null,
+            this.lassosX = null,
+            this.lassosY= null,
+            this.lassoeX = null,
+            this.lassoeY = null,
+            this.lassosubX = null,
+            this.lassosubY = null
+          }else{
+            this.ctx.putImageData(this.saveLasso[0], this.lassosX, this.lassosY)
+            this.saveLasso[0] = null,
+            this.saveLasso[1] = null,
+            this.lassosX = null,
+            this.lassosY= null,
+            this.lassoeX = null,
+            this.lassoeY = null,
+            this.lassosubX = null,
+            this.lassosubY = null
+          }
         }
       }
     },
@@ -369,7 +382,7 @@
           }
           this.ctx.save();
           this.ctx.strokeStyle = "rgba(46,112,245)"; // 파란색
-          this.ctx.lineWidth = 0.5;
+          this.ctx.lineWidth = 1;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
           this.ctx.strokeRect(
