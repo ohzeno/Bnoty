@@ -645,6 +645,10 @@ var getCSSAnimationManager = function () {
       var eraserBox = window_e.document.createElement("div"); // eraser
       eraserBox.setAttribute("class", "pen_box");
       eraserBox.setAttribute("class", "eraserBox");
+      var captureBox = window_e.document.createElement("div"); // capture
+      captureBox.setAttribute("class", "pen_box");
+      captureBox.setAttribute("id", "captureBox");
+
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -731,6 +735,26 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("figureBox").style.display = 'none';
         }
 
+        // capture box
+        if (!window_e.document.getElementById("captureBox")) {
+          // capture 
+          box.appendChild(captureBox);
+          var screen_capture_btn = window_e.document.createElement("div");
+          var full_capture_btn = window_e.document.createElement("div");
+          screen_capture_btn.addEventListener( "click", this.ScreencaptureStart );
+          full_capture_btn.addEventListener("click",  this.FullcaptureStart );
+
+          screen_capture_btn.setAttribute("class", "screen_capture_btn");
+          screen_capture_btn.setAttribute("id", "screen_capture_btn");
+
+          full_capture_btn.setAttribute("class", "full_capture_btn");
+          full_capture_btn.setAttribute("id", "full_capture_btn");
+
+          captureBox.appendChild(screen_capture_btn);
+          captureBox.appendChild(full_capture_btn);
+          window_e.document.getElementById("captureBox").style.display = "none";
+        }
+
 
         if (a.type == "fill") {
           r.addEventListener("click", function () {
@@ -773,7 +797,7 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("figureBox").style.display = 'none';
             }
           });
-        }
+        } 
         tools.appendChild(r);
         if (
           !(
@@ -889,10 +913,11 @@ var getCSSAnimationManager = function () {
         ),
         p.setAttribute("class", "settingsBtn"),
         p.setAttribute("title", "Settings"),
-        // c.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.onPrintButtonClick, this)
-        // ),
+        // print click function
+        c.addEventListener(
+          "click",
+          Function.prototype.bind.call(this.onPrintButtonClick, this)
+        ),
         l.addEventListener(
           "click",
           Function.prototype.bind.call(this.exit, this)
@@ -1181,6 +1206,49 @@ var getCSSAnimationManager = function () {
           null !== unsafeWindow &&
           (unsafeWindow.bnoty_INIT = !0);
     },
+    onPrintButtonClick:function(){
+      // alert("프린터클릭");
+      if(window_e.document.getElementById("captureBox").style.display === 'none'){
+        window_e.document.getElementById("captureBox").style.display = 'block';
+        window_e.document.getElementById("penBox").style.display = 'none';
+        window_e.document.getElementById("figureBox").style.display = 'none';
+        window_e.document.getElementById("textBox").style.display = 'none';
+      }else {
+        window_e.document.getElementById("penBox").style.display = 'none';
+        window_e.document.getElementById("textBox").style.display = 'none';
+        window_e.document.getElementById("figureBox").style.display = 'none';
+        window_e.document.getElementById("captureBox").style.display = 'none';
+      }
+    }, 
+    // 현재 화면 캡처
+    ScreencaptureStart:function(){
+      console.log("현재화면 캡처");
+      chrome.runtime.sendMessage( { method : 'ShowCapture'}, (response) => {
+        console.log(response.farewell);
+      });
+    },
+    // 전체 화면 캡처 
+    FullcaptureStart:function(){
+      console.log("전체화면 캡처");
+      
+    },
+    // 창 전환
+    updateScreenshot: function(t, n) {
+      var a = arguments[2];
+      if ( a == null ){
+          (a = 0);
+      }
+      if ( 10 >= a ){
+          global.runtime.sendMessage({
+              method: "update_url",
+              url: t
+          }, function(e) {
+              e && e.success || window.setTimeout(Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, t, n, ++a), 300);
+          });
+      }
+    },
+
+
   };
   return e_group;
 });
