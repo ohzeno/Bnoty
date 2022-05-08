@@ -102,8 +102,8 @@ var getCSSAnimationManager = function () {
         title: "Text - insert text",
       },
       {
-        type: "line",
-        title: "Line - draw a straight line",
+        type: "figure",
+        title: "Figure - draw a figure",
       },
       // {
       //   type: "quadratic_curve",
@@ -184,6 +184,7 @@ var getCSSAnimationManager = function () {
     textactive: false, // 텍스트 입력중인지 체크
 
     startPainting: function (event) {
+      event.preventDefault();
       // 마우스 클릭버튼 누름
       if (event.which === 1) {
         //좌클릭 일 때만 그리기
@@ -421,6 +422,7 @@ var getCSSAnimationManager = function () {
       }
     },
     onMouseClick: function (event) {
+      event.preventDefault();
       if (this.activate == "text") {
         if (this.textactive) {
           this.handleMouseClick();
@@ -436,6 +438,7 @@ var getCSSAnimationManager = function () {
       this.canvas = window_e.document.createElement("Canvas");
       this.ctx = this.canvas.getContext("2d");
       this.canvas.setAttribute("id", "bnoty");
+      this.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
       window_e.document.body.appendChild(this.canvas);
       window_e.addEventListener("resize", this.resizeBinded);
       window_e.addEventListener("scroll", this.resizeBinded);
@@ -612,25 +615,22 @@ var getCSSAnimationManager = function () {
       }
     },
     createControlPanel: function () {
-      (this.panel = window_e.document.createElement("div")),
-        (this.backBtn = window_e.document.createElement("div")),
-        (this.nextBtn = window_e.document.createElement("div"));
+      this.panel = window_e.document.createElement("div");
+      this.backBtn = window_e.document.createElement("div");
+      this.nextBtn = window_e.document.createElement("div");
       var tools = window_e.document.createElement("div"),
         color = window_e.document.createElement("div"),
         controls = window_e.document.createElement("div"),
         transparency = window_e.document.createElement("div"),
         size_control = window_e.document.createElement("div");
-      this.panel.setAttribute("id", "bnoty_controls"),
-        tools.setAttribute("class", "bnoty_controls_draw"),
-        color.setAttribute("class", "bnoty_controls_color"),
-        controls.setAttribute("class", "bnoty_controls_control"),
-        transparency.setAttribute(
-          "class",
-          "bnoty_controls_range alpha_control"
-        ),
-        size_control.setAttribute("class", "bnoty_controls_range size_control");
-      
-        var box = window_e.document.createElement("div");
+      this.panel.setAttribute("id", "bnoty_controls");
+      tools.setAttribute("class", "bnoty_controls_draw");
+      color.setAttribute("class", "bnoty_controls_color");
+      controls.setAttribute("class", "bnoty_controls_control");
+      transparency.setAttribute("class", "bnoty_controls_range alpha_control");
+      size_control.setAttribute("class", "bnoty_controls_range size_control");
+
+      var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
       window_e.document.body.appendChild(box);
       var penBox = window_e.document.createElement("div"); // pen
@@ -678,6 +678,7 @@ var getCSSAnimationManager = function () {
           highlighterPen.setAttribute("title", "highlighter");
           tmp_pen.addEventListener("click", function () {
             e_group.activate = "pen";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
           });
           highlighterPen.addEventListener("click", function () {
             e_group.activate = "highlighter";
@@ -695,6 +696,7 @@ var getCSSAnimationManager = function () {
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
+          text.addEventListener("click", function () {});
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
           boldText.setAttribute("title", "Bold Text");
@@ -707,7 +709,7 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("textBox").style.display = "none";
         }
 
-        if(!window_e.document.getElementById("figureBox")){
+        if (!window_e.document.getElementById("figureBox")) {
           box.appendChild(figureBox);
           var square = window_e.document.createElement("div");
           var triangle = window_e.document.createElement("div");
@@ -719,28 +721,52 @@ var getCSSAnimationManager = function () {
           square.setAttribute("class", "square");
           square.setAttribute("id", "square");
           square.setAttribute("title", "Square");
+          square.addEventListener("click", function () {
+            e_group.activate = "rectangle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           triangle.setAttribute("class", "triangle");
           triangle.setAttribute("id", "triangle");
           triangle.setAttribute("title", "Triangle");
+          triangle.addEventListener("click", function () {
+            e_group.activate = "triangle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           circle.setAttribute("class", "circle");
           circle.setAttribute("id", "circle");
           circle.setAttribute("title", "Circle");
+          circle.addEventListener("click", function () {
+            e_group.activate = "circle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           line.setAttribute("class", "line");
           line.setAttribute("id", "line");
           line.setAttribute("title", "Line");
+          line.addEventListener("click", function () {
+            e_group.activate = "line";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           curve.setAttribute("class", "curve");
           curve.setAttribute("id", "curve");
           curve.setAttribute("title", "Curve");
+          curve.addEventListener("click", function () {
+            e_group.activate = "curve";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           arrow.setAttribute("class", "arrow");
           arrow.setAttribute("id", "arrow");
           arrow.setAttribute("title", "Arrow");
+          arrow.addEventListener("click", function () {
+            e_group.activate = "arrow";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           figureBox.appendChild(square);
           figureBox.appendChild(triangle);
           figureBox.appendChild(circle);
           figureBox.appendChild(line);
           figureBox.appendChild(curve);
           figureBox.appendChild(arrow);
-          window_e.document.getElementById("figureBox").style.display = 'none';
+          window_e.document.getElementById("figureBox").style.display = "none";
         }
 
         if (!window_e.document.getElementById("eraserBox")) {
@@ -755,9 +781,22 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("title", "all_eraser");
           eraser.addEventListener("click", function () {
             e_group.activate = "eraser";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/901731363844132894/970567643847356457/2e2938dfcaaf1173.png") 8 8, auto`;
           });
           all_eraser.addEventListener("click", function () {
-            e_group.activate = "all_eraser";
+            e_group.ctx.clearRect(
+              0,
+              0,
+              e_group.canvas.width,
+              e_group.canvas.height
+            ); //clear canvas
+            e_group.saveImage = e_group.ctx.getImageData(
+              0,
+              0,
+              e_group.canvas.width,
+              e_group.canvas.height
+            );
+            e_group.addHistory();
           });
           eraserBox.appendChild(eraser);
           eraserBox.appendChild(all_eraser);
@@ -827,7 +866,7 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display = 'none';
             }
           });
-        } else if (a.type == "line") {
+        } else if (a.type == "figure") {
           r.addEventListener("click", function () {
             if(window_e.document.getElementById("figureBox").style.display === 'none'){
               window_e.document.getElementById("penBox").style.display = 'none';
@@ -897,154 +936,159 @@ var getCSSAnimationManager = function () {
           // this.triggerClick(r);
         }
       }
-      (this.colorPicker = window_e.document.createElement("input")),
-        this.colorPicker.setAttribute("type", "color"),
-        (this.colorPicker.value = this.config.color || "#000000"),
-        this.colorPicker.setAttribute("title", "Select a color"),
-        this.colorPicker.addEventListener("change", function (event) {
-          var color = event.currentTarget.value;
-          // 헥사값을 rgb로 변경
-          e_group.red = parseInt(color[1] + color[2], 16);
-          e_group.green = parseInt(color[3] + color[4], 16);
-          e_group.blue = parseInt(color[5] + color[6], 16);
-          e_group.strokeStyle =
-            "rgb(" +
-            e_group.red +
-            "," +
-            e_group.green +
-            "," +
-            e_group.blue +
-            ")";
-          e_group.setCtxProp();
-        }),
-        color.appendChild(this.colorPicker),
-        (this.alphaPicker = window_e.document.createElement("input")),
-        this.alphaPicker.setAttribute("type", "range"),
-        this.alphaPicker.setAttribute("min", "0"),
-        this.alphaPicker.setAttribute("max", "1"),
-        this.alphaPicker.setAttribute("step", "0.01"),
-        (this.alphaPicker.value =
-          null !== this.config.alpha && void 0 !== this.config.alpha
-            ? this.config.alpha
-            : 1),
-        this.alphaPicker.setAttribute("title", "Select transparency"),
-        this.alphaPicker.addEventListener("change", function (event) {
-          e_group.globalAlpha = event.currentTarget.value;
-          e_group.setCtxProp();
-        }),
-        this.alphaPicker.addEventListener("input", function (event) {
-          console.log("inject.js e 내부 onAlphaUpdate");
-          if (e_group.alphaPickerPreview) {
-            e_group.alphaPickerPreview.innerHTML =
-              Math.round(100 * event.currentTarget.value) + "%";
-          }
-        }),
-        (this.alphaPickerPreview = window_e.document.createElement("p")),
-        transparency.appendChild(this.alphaPicker),
-        transparency.appendChild(this.alphaPickerPreview);
-      var h = window_e.document.createElement("input");
-      h.setAttribute("type", "range"),
-        h.setAttribute("min", "1"),
-        h.setAttribute("max", "20"),
-        h.setAttribute("step", "1"),
-        (h.value = this.config.thickness || 1),
-        h.setAttribute("title", "Select line width"),
-        // h.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onLineChange, this),
-        //   !1
-        // ),
-        // h.addEventListener(
-        //   "input",
-        //   Function.prototype.bind.call(this.onLineUpdate, this),
-        //   !1
-        // ),
-        (this.linePickerPreview = window_e.document.createElement("p")),
-        size_control.appendChild(h),
-        size_control.appendChild(this.linePickerPreview),
-        // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value)),
-        (this.selectedAlphaOption = this.alphaPicker.value),
-        (this.ctx.lineWidth = h.value),
-        (this.alphaPickerPreview.innerHTML =
-          Math.round(100 * this.selectedAlphaOption) + "%"),
-        (this.linePickerPreview.innerHTML =
-          Math.round((this.ctx.lineWidth / 20) * 100) + "%");
+      this.colorPicker = window_e.document.createElement("input");
+      this.colorPicker.setAttribute("type", "color");
+      this.colorPicker.value = this.config.color || "#000000";
+      this.colorPicker.setAttribute("title", "Select a color");
+      this.colorPicker.addEventListener("change", function (event) {
+        var color = event.currentTarget.value;
+        // 헥사값을 rgb로 변경
+        e_group.red = parseInt(color[1] + color[2], 16);
+        e_group.green = parseInt(color[3] + color[4], 16);
+        e_group.blue = parseInt(color[5] + color[6], 16);
+        e_group.strokeStyle =
+          "rgb(" + e_group.red + "," + e_group.green + "," + e_group.blue + ")";
+        e_group.setCtxProp();
+      });
+      color.appendChild(this.colorPicker);
+      this.alphaPicker = window_e.document.createElement("input");
+      this.alphaPicker.setAttribute("type", "range");
+      this.alphaPicker.setAttribute("min", "0");
+      this.alphaPicker.setAttribute("max", "1");
+      this.alphaPicker.setAttribute("step", "0.01");
+      this.alphaPicker.value =
+        null !== this.config.alpha && void 0 !== this.config.alpha
+          ? this.config.alpha
+          : 1;
+      this.alphaPicker.setAttribute("title", "Select transparency");
+      this.alphaPicker.addEventListener("change", function (event) {
+        e_group.globalAlpha = event.currentTarget.value;
+        e_group.setCtxProp();
+      });
+      this.alphaPicker.addEventListener("input", function (event) {
+        console.log("inject.js e 내부 onAlphaUpdate");
+        if (e_group.alphaPickerPreview) {
+          e_group.alphaPickerPreview.innerHTML =
+            Math.round(100 * event.currentTarget.value) + "%";
+        }
+      });
+      this.alphaPickerPreview = window_e.document.createElement("p");
+      transparency.appendChild(this.alphaPicker);
+      transparency.appendChild(this.alphaPickerPreview);
+      var linePicker = window_e.document.createElement("input");
+      linePicker.setAttribute("type", "range");
+      linePicker.setAttribute("min", "1");
+      linePicker.setAttribute("max", "20");
+      linePicker.setAttribute("step", "1");
+      linePicker.value = this.config.thickness || 1;
+      linePicker.setAttribute("title", "Select line width");
+      linePicker.addEventListener("change", function (event) {
+        e_group.lineWidth = event.currentTarget.value;
+        e_group.setCtxProp();
+      });
+      linePicker.addEventListener("input", function (event) {
+        console.log("inject.js e 내부 onLineUpdate");
+        if (e_group.linePickerPreview) {
+          e_group.linePickerPreview.innerHTML =
+            Math.round((event.currentTarget.value / 20) * 100) + "%";
+        }
+      });
+      this.linePickerPreview = window_e.document.createElement("p");
+      size_control.appendChild(linePicker);
+      size_control.appendChild(this.linePickerPreview);
+      // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value));
+      this.selectedAlphaOption = this.alphaPicker.value;
+      this.ctx.lineWidth = linePicker.value;
+      this.alphaPickerPreview.innerHTML =
+        Math.round(100 * this.selectedAlphaOption) + "%";
+      this.linePickerPreview.innerHTML =
+        Math.round((this.ctx.lineWidth / 20) * 100) + "%";
       // this.updatePaintStyle();
       var c = window_e.document.createElement("div"),
         l = window_e.document.createElement("div"),
         d = window_e.document.createElement("div"),
         u = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
-      c.setAttribute("class", "bnoty_controls_control_option prtBtn"),
-        c.setAttribute(
-          "title",
-          "Take a screenshot of the current web page with your drawings"
-        ),
-        l.setAttribute("class", "bnoty_controls_control_option exitBtn"),
-        l.setAttribute("title", "Quit"),
-        this.backBtn.setAttribute(
-          "class",
-          "bnoty_controls_control_option backBtn"
-        ),
-        this.backBtn.setAttribute("title", "Step backward"),
-        this.nextBtn.setAttribute(
-          "class",
-          "bnoty_controls_control_option nextBtn"
-        ),
-        this.nextBtn.setAttribute("title", "Step forward"),
-        d.setAttribute("class", "bnoty_controls_control_option eraseAllBtn"),
-        d.setAttribute("title", "Erase all"),
-        u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn"),
-        u.setAttribute(
-          "title",
-          "Close control panel (Click the extension icon to re-open)"
-        ),
-        p.setAttribute("class", "settingsBtn"),
-        p.setAttribute("title", "Settings"),
-        // c.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.onPrintButtonClick, this)
-        // ),
-        l.addEventListener(
-          "click",
-          Function.prototype.bind.call(this.exit, this)
-        ),
-        // this.backBtn.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.handleBackButtonClick, this)
-        // ),
-        // this.nextBtn.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.handleForwardButtonClick, this)
-        // ),
-        // d.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.eraseAll, this)
-        // ),
-        // u.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.hideControlPanel, this)
-        // ),
-        // p.addEventListener("click", function () {
-        //   global.runtime.sendMessage({
-        //     method: "open_options",
-        //   });
-        // }),
-        controls.appendChild(this.backBtn),
-        controls.appendChild(this.nextBtn),
-        controls.appendChild(d),
-        controls.appendChild(c),
-        controls.appendChild(u),
-        controls.appendChild(l),
-        controls.appendChild(p),
-        // this.checkHistoryButtonStatus(),
-        this.CSSAnimationManager.supported
-          ? this.panel.addEventListener(
-              this.CSSAnimationManager.end,
-              Function.prototype.bind.call(this.handlePanelAppearing, this),
-              !1
-            )
-          : (this.panel.style.opacity = 1);
+      c.setAttribute("class", "bnoty_controls_control_option prtBtn");
+      c.setAttribute(
+        "title",
+        "Take a screenshot of the current web page with your drawings"
+      );
+      l.setAttribute("class", "bnoty_controls_control_option exitBtn");
+      l.setAttribute("title", "Quit");
+      this.backBtn.setAttribute(
+        "class",
+        "bnoty_controls_control_option backBtn"
+      );
+      this.backBtn.setAttribute("title", "Step backward");
+      this.nextBtn.setAttribute(
+        "class",
+        "bnoty_controls_control_option nextBtn"
+      );
+      this.nextBtn.setAttribute("title", "Step forward");
+      this.backBtn.addEventListener("click", function () {
+        if (e_group.histories.hasPrevious()) {
+          e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
+        }
+      });
+      this.nextBtn.addEventListener("click", function () {
+        if (e_group.histories.hasNext()) {
+          e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
+        }
+      });
+      d.setAttribute("class", "bnoty_controls_control_option eraseAllBtn");
+      d.setAttribute("title", "Erase all");
+      u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn");
+      u.setAttribute(
+        "title",
+        "Close control panel (Click the extension icon to re-open)"
+      );
+      p.setAttribute("class", "settingsBtn");
+      p.setAttribute("title", "Settings");
+      // c.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.onPrintButtonClick, this)
+      // );
+      l.addEventListener(
+        "click",
+        Function.prototype.bind.call(this.exit, this)
+      );
+      // this.backBtn.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.handleBackButtonClick, this)
+      // );
+      // this.nextBtn.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.handleForwardButtonClick, this)
+      // );
+      // d.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.eraseAll, this)
+      // );
+      // u.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.hideControlPanel, this)
+      // );
+      // p.addEventListener("click", function () {
+      //   global.runtime.sendMessage({
+      //     method: "open_options",
+      //   });
+      // });
+      controls.appendChild(this.backBtn);
+      controls.appendChild(this.nextBtn);
+      controls.appendChild(d);
+      controls.appendChild(c);
+      controls.appendChild(u);
+      controls.appendChild(l);
+      controls.appendChild(p);
+      // this.checkHistoryButtonStatus();
+      this.CSSAnimationManager.supported
+        ? this.panel.addEventListener(
+            this.CSSAnimationManager.end,
+            Function.prototype.bind.call(this.handlePanelAppearing, this),
+            !1
+          )
+        : (this.panel.style.opacity = 1);
     },
     addClass: function (t, e) {
       0 <= t.className.indexOf(e) || (t.className = t.className + " " + e);
