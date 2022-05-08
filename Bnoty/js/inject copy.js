@@ -438,6 +438,7 @@ var getCSSAnimationManager = function () {
       this.canvas = window_e.document.createElement("Canvas");
       this.ctx = this.canvas.getContext("2d");
       this.canvas.setAttribute("id", "bnoty");
+      this.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
       window_e.document.body.appendChild(this.canvas);
       window_e.addEventListener("resize", this.resizeBinded);
       window_e.addEventListener("scroll", this.resizeBinded);
@@ -674,6 +675,7 @@ var getCSSAnimationManager = function () {
           highlighterPen.setAttribute("title", "highlighter");
           tmp_pen.addEventListener("click", function () {
             e_group.activate = "pen";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
           });
           highlighterPen.addEventListener("click", function () {
             e_group.activate = "highlighter";
@@ -776,9 +778,22 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("title", "all_eraser");
           eraser.addEventListener("click", function () {
             e_group.activate = "eraser";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/901731363844132894/970567643847356457/2e2938dfcaaf1173.png") 8 8, auto`;
           });
           all_eraser.addEventListener("click", function () {
-            e_group.activate = "all_eraser";
+            e_group.ctx.clearRect(
+              0,
+              0,
+              e_group.canvas.width,
+              e_group.canvas.height
+            ); //clear canvas
+            e_group.saveImage = e_group.ctx.getImageData(
+              0,
+              0,
+              e_group.canvas.width,
+              e_group.canvas.height
+            );
+            e_group.addHistory();
           });
           eraserBox.appendChild(eraser);
           eraserBox.appendChild(all_eraser);
