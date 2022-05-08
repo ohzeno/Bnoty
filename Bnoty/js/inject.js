@@ -90,9 +90,9 @@ var getCSSAnimationManager = function () {
         title: "Pencil - draw a custom line",
       },
       {
-        type: "eyedropper",
+        type: "lasso",
         title:
-          "Color picker - pick a color from the web page or your drawings and use it for drawing",
+          "Area lasso - Lasso a area",
       },
       {
         type: "text",
@@ -105,34 +105,34 @@ var getCSSAnimationManager = function () {
         type: "line",
         title: "Line - draw a straight line",
       },
+      // {
+      //   type: "quadratic_curve",
+      //   title: "Quadratic curve - draw a quadratic curve",
+      //   iteration: 0,
+      //   initLoc: null,
+      //   lastLoc: null,
+      // },
+      // {
+      //   type: "bezier_curve",
+      //   title: "Bezier curve - draw a bezier curve",
+      //   iteration: 0,
+      //   initLoc: null,
+      //   firstPoint: null,
+      //   lastPoint: null,
+      // },
+      // {
+      //   type: "polygon",
+      //   title: "Polygon - draw a polygon",
+      //   initLoc: null,
+      //   lastLoc: null,
+      // },
+      // {
+      //   type: "circle",
+      //   title: "Ellipse - draw an ellipse or a circle",
+      // },
       {
-        type: "quadratic_curve",
-        title: "Quadratic curve - draw a quadratic curve",
-        iteration: 0,
-        initLoc: null,
-        lastLoc: null,
-      },
-      {
-        type: "bezier_curve",
-        title: "Bezier curve - draw a bezier curve",
-        iteration: 0,
-        initLoc: null,
-        firstPoint: null,
-        lastPoint: null,
-      },
-      {
-        type: "polygon",
-        title: "Polygon - draw a polygon",
-        initLoc: null,
-        lastLoc: null,
-      },
-      {
-        type: "circle",
-        title: "Ellipse - draw an ellipse or a circle",
-      },
-      {
-        type: "rectangle",
-        title: "Rectangle - draw a rectangle or a square",
+        type: "image",
+        title: "Image - Insert Image",
       },
       {
         type: "cursor",
@@ -645,6 +645,9 @@ var getCSSAnimationManager = function () {
       var eraserBox = window_e.document.createElement("div"); // eraser
       eraserBox.setAttribute("class", "pen_box");
       eraserBox.setAttribute("id", "eraserBox");
+      var imageBox = window_e.document.createElement("div"); // image
+      imageBox.setAttribute("class", "pen_box");
+      imageBox.setAttribute("id", "imageBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -761,11 +764,36 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("eraserBox").style.display = "none";
         }
 
+        if (!window_e.document.getElementById("imageBox")) {
+          box.appendChild(imageBox);
+          var insert_image = window_e.document.createElement("div");
+          var insert_link = window_e.document.createElement("div");
+          insert_image.setAttribute("class", "insert_image");
+          insert_image.setAttribute("id", "insert_image");
+          insert_image.setAttribute("title", "insert image");
+          insert_link.setAttribute("class", "insert_link");
+          insert_link.setAttribute("id", "insert_link");
+          insert_link.setAttribute("title", "insert_link");
+          eraser.addEventListener("click", function () {
+            e_group.activate = "insert_image";
+          });
+          all_eraser.addEventListener("click", function () {
+            e_group.activate = "insert_link";
+          });
+          imageBox.appendChild(insert_image);
+          imageBox.appendChild(insert_link);
+          window_e.document.getElementById("imageBox").style.display = "none";
+        }
 
         if (a.type == "fill") {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
             e_group.canvas.style.cursor = "pointer";
+            window_e.document.getElementById("penBox").style.display = 'none';
+            window_e.document.getElementById("textBox").style.display = 'none';
+            window_e.document.getElementById("figureBox").style.display = 'none';
+            window_e.document.getElementById("eraserBox").style.display = 'none';
+            window_e.document.getElementById("imageBox").style.display = 'none';
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
@@ -774,11 +802,13 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("textBox").style.display = 'none';
               window_e.document.getElementById("figureBox").style.display = 'none';
               window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'none';
             }else {
               window_e.document.getElementById("penBox").style.display = 'none';
               window_e.document.getElementById("textBox").style.display = 'none';
               window_e.document.getElementById("figureBox").style.display = 'none';
               window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'none';
             }
           });
         } else if (a.type == "text") {
@@ -788,11 +818,13 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("textBox").style.display = 'block';
               window_e.document.getElementById("figureBox").style.display = 'none';
               window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'none';
             }else {
               window_e.document.getElementById("penBox").style.display = 'none';
               window_e.document.getElementById("textBox").style.display = 'none';
               window_e.document.getElementById("figureBox").style.display = 'none';
               window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'none';
             }
           });
         } else if (a.type == "line") {
@@ -802,11 +834,13 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("textBox").style.display = 'none';
               window_e.document.getElementById("figureBox").style.display = 'block';
               window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'none';
             }else {
               window_e.document.getElementById("penBox").style.display = 'none';
               window_e.document.getElementById("textBox").style.display = 'none';
               window_e.document.getElementById("figureBox").style.display = 'none';
               window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'none';
             }
           });
         } else if (a.type == "eraser") {
@@ -816,11 +850,39 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("textBox").style.display = 'none';
               window_e.document.getElementById("figureBox").style.display = 'none';
               window_e.document.getElementById("eraserBox").style.display = 'block';
+              window_e.document.getElementById("imageBox").style.display = 'none';
             }else {
               window_e.document.getElementById("penBox").style.display = 'none';
               window_e.document.getElementById("textBox").style.display = 'none';
               window_e.document.getElementById("figureBox").style.display = 'none';
               window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'none';
+            }
+          });
+        } else if (a.type == "lasso"){
+          r.addEventListener("click", function () {
+            e_group.activate = "lasso";
+            e_group.canvas.style.cursor = "pointer";
+            window_e.document.getElementById("penBox").style.display = 'none';
+            window_e.document.getElementById("textBox").style.display = 'none';
+            window_e.document.getElementById("figureBox").style.display = 'none';
+            window_e.document.getElementById("eraserBox").style.display = 'none';
+            window_e.document.getElementById("imageBox").style.display = 'none';
+          });
+        } else if (a.type == "image"){
+          r.addEventListener("click", function () {
+            if(window_e.document.getElementById("eraserBox").style.display === 'none'){
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'block';
+            }else {
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = 'none';
+              window_e.document.getElementById("imageBox").style.display = 'none';
             }
           });
         }
