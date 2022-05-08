@@ -102,8 +102,8 @@ var getCSSAnimationManager = function () {
         title: "Text - insert text",
       },
       {
-        type: "line",
-        title: "Line - draw a straight line",
+        type: "figure",
+        title: "Figure - draw a figure",
       },
       {
         type: "quadratic_curve",
@@ -716,21 +716,45 @@ var getCSSAnimationManager = function () {
           square.setAttribute("class", "square");
           square.setAttribute("id", "square");
           square.setAttribute("title", "Square");
+          square.addEventListener("click", function () {
+            e_group.activate = "rectangle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           triangle.setAttribute("class", "triangle");
           triangle.setAttribute("id", "triangle");
           triangle.setAttribute("title", "Triangle");
+          triangle.addEventListener("click", function () {
+            e_group.activate = "triangle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           circle.setAttribute("class", "circle");
           circle.setAttribute("id", "circle");
           circle.setAttribute("title", "Circle");
+          circle.addEventListener("click", function () {
+            e_group.activate = "circle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           line.setAttribute("class", "line");
           line.setAttribute("id", "line");
           line.setAttribute("title", "Line");
+          line.addEventListener("click", function () {
+            e_group.activate = "line";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           curve.setAttribute("class", "curve");
           curve.setAttribute("id", "curve");
           curve.setAttribute("title", "Curve");
+          curve.addEventListener("click", function () {
+            e_group.activate = "curve";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           arrow.setAttribute("class", "arrow");
           arrow.setAttribute("id", "arrow");
           arrow.setAttribute("title", "Arrow");
+          arrow.addEventListener("click", function () {
+            e_group.activate = "arrow";
+            e_group.canvas.style.cursor = "crosshair";
+          });
           figureBox.appendChild(square);
           figureBox.appendChild(triangle);
           figureBox.appendChild(circle);
@@ -761,7 +785,6 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("eraserBox").style.display = "none";
         }
 
-
         if (a.type == "fill") {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
@@ -769,58 +792,95 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("penBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'block';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
+            if (
+              window_e.document.getElementById("penBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display =
+                "block";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
             }
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("textBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'block';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
+            if (
+              window_e.document.getElementById("textBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "block";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
             }
           });
-        } else if (a.type == "line") {
+        } else if (a.type == "figure") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("figureBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'block';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
+            if (
+              window_e.document.getElementById("figureBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "block";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
             }
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("eraserBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'block';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
+            if (
+              window_e.document.getElementById("eraserBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "block";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
             }
           });
         }
