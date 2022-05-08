@@ -386,10 +386,10 @@
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
           this.ctx.strokeRect(
-            this.sX + 0.5,
-            this.sY + 0.5,
-            this.eX - this.sX - 0.5,
-            this.eY - this.sY - 0.5
+            this.sX,
+            this.sY,
+            this.eX - this.sX,
+            this.eY - this.sY
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
