@@ -103,27 +103,34 @@
             this.sY > this.lassoeY)
         ) {
           // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
-          if(this.lassosX == this.lassosubX && this.lassosY == this.lassosubY){
+          if (
+            this.lassosX == this.lassosubX &&
+            this.lassosY == this.lassosubY
+          ) {
             this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
             this.currentIndex--;
-            this.saveLasso[0] = null,
-            this.saveLasso[1] = null,
-            this.lassosX = null,
-            this.lassosY= null,
-            this.lassoeX = null,
-            this.lassoeY = null,
-            this.lassosubX = null,
-            this.lassosubY = null
-          }else{
-            this.ctx.putImageData(this.saveLasso[0], this.lassosX, this.lassosY)
-            this.saveLasso[0] = null,
-            this.saveLasso[1] = null,
-            this.lassosX = null,
-            this.lassosY= null,
-            this.lassoeX = null,
-            this.lassoeY = null,
-            this.lassosubX = null,
-            this.lassosubY = null
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          } else {
+            this.ctx.putImageData(
+              this.saveLasso[0],
+              this.lassosX,
+              this.lassosY
+            );
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
           }
         }
       }
@@ -621,6 +628,44 @@
         e_group.font;
       this.ctx.fillText(txt, x, y);
     },
+    clearLasso: function () {
+      if (
+        e_group.lassosX == e_group.lassosubX &&
+        e_group.lassosY == e_group.lassosubY
+      ) {
+        e_group.ctx.putImageData(e_group.array[e_group.currentIndex], 0, 0);
+        e_group.currentIndex--;
+        (e_group.saveLasso[0] = null),
+          (e_group.saveLasso[1] = null),
+          (e_group.lassosX = null),
+          (e_group.lassosY = null),
+          (e_group.lassoeX = null),
+          (e_group.lassoeY = null),
+          (e_group.lassosubX = null),
+          (e_group.lassosubY = null);
+      } else {
+        e_group.ctx.putImageData(
+          e_group.saveLasso[0],
+          e_group.lassosX,
+          e_group.lassosY
+        );
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        e_group.addHistory();
+        (e_group.saveLasso[0] = null),
+          (e_group.saveLasso[1] = null),
+          (e_group.lassosX = null),
+          (e_group.lassosY = null),
+          (e_group.lassoeX = null),
+          (e_group.lassoeY = null),
+          (e_group.lassosubX = null),
+          (e_group.lassosubY = null);
+      }
+    },
     createCanvas: function () {
       console.log("inject.js e 내부 createCanvas");
       this.canvas = window_e.document.createElement("Canvas");
@@ -819,22 +864,26 @@
         .getElementById("highlighterBtn")
         .addEventListener("click", function () {
           e_group.activate = "highlighter";
+          e_group.clearLasso();
           e_group.canvas.style.cursor = "pointer";
         });
 
       document.getElementById("fillBtn").addEventListener("click", function () {
         e_group.activate = "fill";
+        e_group.clearLasso();
+
         e_group.canvas.style.cursor = "pointer";
       });
 
-      document
-        .getElementById("exitBtn")
-        .addEventListener(
-          "click",
-          Function.prototype.bind.call(this.exit, this)
-        );
+      document.getElementById("exitBtn").addEventListener("click", function () {
+        e_group.clearLasso();
+
+        Function.prototype.bind.call(this.exit, this);
+      });
 
       document.getElementById("delBut").addEventListener("click", function () {
+        e_group.clearLasso();
+
         e_group.ctx.clearRect(
           0,
           0,
@@ -853,12 +902,16 @@
       document
         .getElementById("delPartBut")
         .addEventListener("click", function () {
+          e_group.clearLasso();
+
           e_group.activate = "eraser";
           e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/901731363844132894/970567643847356457/2e2938dfcaaf1173.png") 8 8, auto`;
           // e.canvas.style.cursor = url(images/image38.png), 2,2, auto;
         });
 
       document.getElementById("penBut").addEventListener("click", function () {
+        e_group.clearLasso();
+
         e_group.activate = "pen";
         e_group.canvas.style.cursor = "pointer";
       });
@@ -866,6 +919,8 @@
       document
         .getElementById("rectangleBut")
         .addEventListener("click", function () {
+          e_group.clearLasso();
+
           e_group.activate = "rectangle";
           e_group.canvas.style.cursor = "crosshair";
         });
@@ -873,6 +928,8 @@
       document
         .getElementById("triangleBut")
         .addEventListener("click", function () {
+          e_group.clearLasso();
+
           e_group.activate = "triangle";
           e_group.canvas.style.cursor = "crosshair";
         });
@@ -880,11 +937,15 @@
       document
         .getElementById("circleBut")
         .addEventListener("click", function () {
+          e_group.clearLasso();
+
           e_group.activate = "circle";
           e_group.canvas.style.cursor = "crosshair";
         });
 
       document.getElementById("lineBut").addEventListener("click", function () {
+        e_group.clearLasso();
+
         e_group.activate = "line";
         e_group.canvas.style.cursor = "crosshair";
       });
@@ -892,6 +953,8 @@
       document
         .getElementById("curveBut")
         .addEventListener("click", function () {
+          e_group.clearLasso();
+
           e_group.activate = "curve";
           e_group.canvas.style.cursor = "crosshair";
         });
@@ -899,6 +962,8 @@
       document
         .getElementById("arrowBut")
         .addEventListener("click", function () {
+          e_group.clearLasso();
+
           e_group.activate = "arrow";
           e_group.canvas.style.cursor = "crosshair";
         });
@@ -959,12 +1024,16 @@
         });
 
       document.getElementById("textBut").addEventListener("click", function () {
+        e_group.clearLasso();
+
         e_group.activate = "text";
       });
 
       document
         .getElementById("textboldBut")
         .addEventListener("click", function () {
+          e_group.clearLasso();
+
           if (e_group.boldtext == "bold") {
             e_group.boldtext = "";
             this.innerText = "진하게";
@@ -977,6 +1046,8 @@
       document
         .getElementById("textitalicBut")
         .addEventListener("click", function () {
+          e_group.clearLasso();
+
           if (e_group.italictext == "italic") {
             e_group.italictext = "";
             this.innerText = "기울이기";
