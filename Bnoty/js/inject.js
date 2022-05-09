@@ -185,6 +185,10 @@ var getCSSAnimationManager = function () {
     italictext: "", // 기울이기
     textactive: false, // 텍스트 입력중인지 체크
     img: null,
+    //링크용함수
+    linkX: null,
+    linkY: null,
+    linkcount: 0, // 이건 저장해야함
 
     startPainting: function (event) {
       event.preventDefault();
@@ -248,6 +252,10 @@ var getCSSAnimationManager = function () {
               (this.lassosubY = null);
           }
         }
+        // real link injection
+        if (this.activate == "insert_link") {
+          this.LinkInputField(event.offsetX, event.offsetY);
+        }
       }
     },
     stopPainting: function (event) {
@@ -301,18 +309,7 @@ var getCSSAnimationManager = function () {
           (this.lassosubY = null);
       }
       this.painting = false;
-      if (
-        this.activate != "text" &&
-        this.saveLasso[0] == null &&
-        this.lassoeX == null
-      ) {
-        if (
-          this.activate != "lasso" &&
-          this.activate != "fill" &&
-          this.sX == this.eX &&
-          this.sY == this.eY
-        )
-          return;
+      if (this.activate != "text" && this.saveLasso[0] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -534,7 +531,8 @@ var getCSSAnimationManager = function () {
             );
           }
           this.ctx.save();
-          this.ctx.strokeStyle = "rgba(46,112,245)"; // 파란색
+          this.ctx.strokeStyle = "rgb(255,85,160)"; // 핑크색
+          this.ctx.globalAlpha = 1;
           this.ctx.lineWidth = 1;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
@@ -542,7 +540,7 @@ var getCSSAnimationManager = function () {
             this.sX,
             this.sY,
             this.eX - this.sX,
-            this.eY - this.sY
+            this.eY - this.sY - 0.5
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
@@ -798,7 +796,7 @@ var getCSSAnimationManager = function () {
     addHistory: function () {
       this.histories.add(this.saveImage);
       this.checkHistoryButtonStatus();
-      console.log(this.currentIndex);
+      // console.log(this.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
@@ -807,6 +805,11 @@ var getCSSAnimationManager = function () {
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
       this.ctx.lineWidth = this.lineWidth; // 선 굵기
+      if (this.linePicker) {
+        this.linePicker.value = this.lineWidth;
+        this.linePickerPreview.innerHTML =
+          Math.round((this.linePicker.value / 20) * 100) + "%";
+      }
     },
     handlePanelAppearing: function (t) {
       console.log("inject.js e 내부 handlePanelAppearing");
@@ -1102,6 +1105,10 @@ var getCSSAnimationManager = function () {
             e_group.clearLasso();
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
           all_eraser.addEventListener("click", function () {
             e_group.handleMouseClick();
@@ -1212,6 +1219,9 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "pen";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
+            e_group.setCtxProp();
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
@@ -1266,6 +1276,9 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "rectangle";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.setCtxProp();
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
@@ -1293,6 +1306,12 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "eraser";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
         } else if (a.type == "lasso") {
           r.addEventListener("click", function () {
@@ -1335,6 +1354,7 @@ var getCSSAnimationManager = function () {
             }
           });
         }
+
         tools.appendChild(r);
         if (
           !(
@@ -1385,18 +1405,19 @@ var getCSSAnimationManager = function () {
       this.alphaPickerPreview = window_e.document.createElement("p");
       transparency.appendChild(this.alphaPicker);
       transparency.appendChild(this.alphaPickerPreview);
-      var linePicker = window_e.document.createElement("input");
-      linePicker.setAttribute("type", "range");
-      linePicker.setAttribute("min", "1");
-      linePicker.setAttribute("max", "20");
-      linePicker.setAttribute("step", "1");
-      linePicker.value = this.config.thickness || 1;
-      linePicker.setAttribute("title", "Select line width");
-      linePicker.addEventListener("change", function (event) {
+      this.linePicker = window_e.document.createElement("input");
+      this.linePicker.setAttribute("type", "range");
+      this.linePicker.setAttribute("min", "1");
+      this.linePicker.setAttribute("max", "20");
+      this.linePicker.setAttribute("step", "1");
+      this.linePicker.value = this.config.thickness || 1;
+      this.linePicker.setAttribute("title", "Select line width");
+      this.linePicker.addEventListener("change", function (event) {
         e_group.lineWidth = event.currentTarget.value;
         e_group.setCtxProp();
+        console.log("굵기", event.currentTarget.value);
       });
-      linePicker.addEventListener("input", function (event) {
+      this.linePicker.addEventListener("input", function (event) {
         console.log("inject.js e 내부 onLineUpdate");
         if (e_group.linePickerPreview) {
           e_group.linePickerPreview.innerHTML =
@@ -1404,11 +1425,11 @@ var getCSSAnimationManager = function () {
         }
       });
       this.linePickerPreview = window_e.document.createElement("p");
-      size_control.appendChild(linePicker);
+      size_control.appendChild(this.linePicker);
       size_control.appendChild(this.linePickerPreview);
       // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value));
       this.selectedAlphaOption = this.alphaPicker.value;
-      this.ctx.lineWidth = linePicker.value;
+      this.ctx.lineWidth = this.linePicker.value;
       this.alphaPickerPreview.innerHTML =
         Math.round(100 * this.selectedAlphaOption) + "%";
       this.linePickerPreview.innerHTML =
@@ -1518,6 +1539,7 @@ var getCSSAnimationManager = function () {
             !1
           )
         : (this.panel.style.opacity = 1);
+      e_group.setCtxProp();
     },
     checkHistoryButtonStatus: function () {
       // 이전 다음 버튼 활성화 비활성화 체크
@@ -1687,7 +1709,7 @@ var getCSSAnimationManager = function () {
         (this.paragraph = null),
         (this.activate = "pen"),
         (this.saveImage = null),
-        (this.saveLasso = null),
+        (this.saveLasso = [null, null]),
         (this.histories = null),
         (this.MAX_ITEMS = null),
         (this.currentIndex = null),
@@ -1705,6 +1727,8 @@ var getCSSAnimationManager = function () {
         (this.lassosY = null),
         (this.lassoeX = null),
         (this.lassoeY = null),
+        (this.lassosubX = null),
+        (this.lassosubY = null),
         (this.hasInput = false),
         (this.size = "20px"),
         (this.font = "sans-serif"),
@@ -1777,6 +1801,78 @@ var getCSSAnimationManager = function () {
         "undefined" != typeof unsafeWindow &&
           null !== unsafeWindow &&
           (unsafeWindow.bnoty_INIT = !0);
+    },
+    // 링크 넣는 창 입력하기
+    LinkInputField: function (x, y) {
+      // alert("링크입력");
+      // a태그
+      var atag = window_e.document.createElement("div");
+      atag.setAttribute("id", "linkdiv");
+      atag.style.position = "absolute";
+      atag.style.width = 280 + "px";
+      atag.style.left = x + "px";
+      atag.style.top = y + "px";
+      atag.style.zIndex = 2147483647;
+      e_group.linkX = x;
+      e_group.linkY = y;
+      var input1 = window_e.document.createElement("input");
+      input1.setAttribute("id", "linkinput");
+      input1.setAttribute("type", "text");
+      input1.setAttribute("placeholder", "링크입력");
+
+      var input2 = window_e.document.createElement("input");
+      input2.setAttribute("type", "button");
+      input2.setAttribute("value", "확인");
+      input2.addEventListener("click", this.linkclickfuntion);
+
+      // 추가
+      atag.appendChild(input1);
+      atag.appendChild(input2);
+      document.body.appendChild(atag);
+
+      // 바꿔주기
+      e_group.activate = "nothing";
+    },
+    linkclickfuntion: function () {
+      // alert("클릭");
+
+      // 링크 가져오기
+      var goto = document.getElementById("linkinput").value;
+      // console.log(document.getElementById("linkinput").value);
+      console.log(goto);
+
+      // 이미지 생성
+      var atag = window_e.document.createElement("a");
+      atag.setAttribute("target", "”_blank”");
+      atag.setAttribute("href", goto);
+      atag.addEventListener("contextmenu", function () {
+        this.remove();
+      });
+      atag.style.position = "absolute";
+      atag.style.width = 24 + "px";
+      atag.style.height = 24 + "px";
+      atag.style.left = e_group.linkX + "px";
+      atag.style.top = e_group.linkY + "px";
+      atag.style.zIndex = 2147483647;
+
+      var imgtag = window_e.document.createElement("img");
+      imgtag.setAttribute(
+        "src",
+        "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png"
+      );
+      imgtag.setAttribute("alt", "IU");
+      imgtag.setAttribute("width", "24");
+      imgtag.setAttribute("height", "24");
+
+      // 추가
+      atag.appendChild(imgtag);
+      document.body.appendChild(atag);
+
+      // 지워주기
+      let target = document.getElementById("linkdiv");
+      target.remove();
+
+      // 이미지 생성
     },
   };
   return e_group;
