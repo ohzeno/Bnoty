@@ -533,7 +533,8 @@ var getCSSAnimationManager = function () {
             );
           }
           this.ctx.save();
-          this.ctx.strokeStyle = "rgba(46,112,245)"; // 파란색
+          this.ctx.strokeStyle = "rgb(255,85,160)"; // 핑크색
+          this.ctx.globalAlpha = 1;
           this.ctx.lineWidth = 1;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
