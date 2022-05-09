@@ -265,7 +265,6 @@ var getCSSAnimationManager = function () {
       // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
       this.eX = event.offsetX;
       this.eY = event.offsetY;
-
       // console.log("좌표", x, y);
       if (!this.painting) {
         // console.log("begin들어옴");
@@ -278,17 +277,12 @@ var getCSSAnimationManager = function () {
         if (this.activate == "eraser") {
           // 부분 지우기
           // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
-          this.ctx.save();
-          this.lineWidth = 4;
-          this.setCtxProp();
           this.ctx.clearRect(
             this.eX - this.ctx.lineWidth * 1.5,
             this.eY - this.ctx.lineWidth * 1.5,
             this.ctx.lineWidth * 3,
             this.ctx.lineWidth * 3
           ); // 해당 범위만큼 지운다.
-          this.ctx.restore();
-          this.lineWidth = this.ctx.lineWidth;
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -797,7 +791,7 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("title", "all_eraser");
           eraser.addEventListener("click", function () {
             e_group.activate = "eraser";
-            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/901731363844132894/970567643847356457/2e2938dfcaaf1173.png") 8 8, auto`;
+            e_group.canvas.style.cursor = "crosshair";
           });
           all_eraser.addEventListener("click", function () {
             e_group.ctx.clearRect(
@@ -829,10 +823,10 @@ var getCSSAnimationManager = function () {
           insert_link.setAttribute("class", "insert_link");
           insert_link.setAttribute("id", "insert_link");
           insert_link.setAttribute("title", "insert_link");
-          eraser.addEventListener("click", function () {
+          insert_image.addEventListener("click", function () {
             e_group.activate = "insert_image";
           });
-          all_eraser.addEventListener("click", function () {
+          insert_link.addEventListener("click", function () {
             e_group.activate = "insert_link";
           });
           imageBox.appendChild(insert_image);
