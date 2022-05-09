@@ -40,6 +40,11 @@
   animation: controlFadingIn 0.3s;
   animation-fill-mode: forwards;
 }
+
+.top_box.hide {
+  display: none;
+}
+
 .pen_box {
   display: table;
   width: auto;

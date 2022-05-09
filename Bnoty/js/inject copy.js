@@ -158,7 +158,7 @@ var getCSSAnimationManager = function () {
     globalAlpha: 1, //투명도
     activate: "pen", // 지금 활성화된 도구 기본은 펜!
     saveImage: null, // 지금 까지 그린 이미지를 저장
-    saveLasso: null, // 올가미로 선택한 영역을 이미지로 저장
+    saveLasso: [null, null], // 올가미로 선택한 영역을 이미지로 저장 (테투리 x , 테두리 o)
     histories: null, // 여기에 이제 그 작업한거 저장함
     MAX_ITEMS: null, // 최대 저장 아이템
     currentIndex: null, // 지금 인덱스 위치
@@ -176,6 +176,8 @@ var getCSSAnimationManager = function () {
     lassosY: null,
     lassoeX: null,
     lassoeY: null,
+    lassosubX: null,
+    lassosubY: null,
     hasInput: false, // 텍스트 입력 여부
     size: "20px", // 텍스트 사이즈
     font: "sans-serif", // 텍스트 폰트
@@ -200,9 +202,43 @@ var getCSSAnimationManager = function () {
         if (this.activate == "fill") {
           this.handleFill(event.clientX, event.clientY);
         }
-        if (this.activate == "lasso" && this.saveLasso == null) {
+        if (this.activate == "lasso" && this.saveLasso[0] == null) {
+          // 올가미 활성화이면서 테두리없는 이미지가 저장되어있지않으면 범위를 시작범위 지정
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
+          this.lassosubX = event.offsetX;
+          this.lassosubY = event.offsetY;
+        } else if (
+          this.activate == "lasso" &&
+          this.saveLasso[0] != null &&
+          (this.sX < this.lassosX ||
+            this.sX > this.lassoeX ||
+            this.sY < this.lassosY ||
+            this.sY > this.lassoeY)
+        ) {
+          // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
+          if(this.lassosX == this.lassosubX && this.lassosY == this.lassosubY){
+            this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+            this.currentIndex--;
+            this.saveLasso[0] = null,
+            this.saveLasso[1] = null,
+            this.lassosX = null,
+            this.lassosY= null,
+            this.lassoeX = null,
+            this.lassoeY = null,
+            this.lassosubX = null,
+            this.lassosubY = null
+          }else{
+            this.ctx.putImageData(this.saveLasso[0], this.lassosX, this.lassosY)
+            this.saveLasso[0] = null,
+            this.saveLasso[1] = null,
+            this.lassosX = null,
+            this.lassosY= null,
+            this.lassoeX = null,
+            this.lassoeY = null,
+            this.lassosubX = null,
+            this.lassosubY = null
+          }
         }
       }
     },
@@ -219,19 +255,45 @@ var getCSSAnimationManager = function () {
         this.mX = null;
         this.mY = null;
       } else if (this.activate == "lasso") {
-        if (this.saveLasso == null) {
-          this.saveLasso = this.ctx.getImageData(
+        if (this.lassosX > this.lassoeX) {
+          var tmp = this.lassosX;
+          this.lassosX = this.lassoeX;
+          this.lassoeX = tmp;
+          this.lassosubX = this.lassosX;
+        }
+        if (this.lassosY > this.lassoeY) {
+          var tmp = this.lassosY;
+          this.lassosY = this.lassoeY;
+          this.lassoeY = tmp;
+          this.lassosubY = this.lassosY;
+        }
+        if (this.saveLasso[1] == null && this.saveLasso[0] != null) {
+          this.saveLasso[1] = this.ctx.getImageData(
             this.lassosX,
             this.lassosY,
             this.lassoeX - this.lassosX,
             this.lassoeY - this.lassosY
           );
-        } else {
-          this.saveLasso = null;
+        } else if (this.saveLasso[1] != null) {
+          this.lassosX = this.eX - (this.sX - this.lassosX);
+          this.lassosY = this.eY - (this.sY - this.lassosY);
+          (this.lassoeX = this.lassosX + this.saveLasso[1].width),
+            (this.lassoeY = this.lassosY + this.saveLasso[1].height);
+          this.ctx.putImageData(this.saveLasso[1], this.lassosX, this.lassosY);
         }
       }
+      if (this.activate != "lasso") {
+        (this.saveLasso[0] = null),
+          (this.saveLasso[1] = null),
+          (this.lassosX = null),
+          (this.lassosY = null),
+          (this.lassoeX = null),
+          (this.lassoeY = null),
+          (this.lassosubX = null),
+          (this.lassosubY = null);
+      }
       this.painting = false;
-      if (this.activate != "text" && this.activate != "lasso") {
+      if (this.activate != "text" && this.saveLasso[0] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -244,8 +306,34 @@ var getCSSAnimationManager = function () {
     leaveStopPainting: function () {
       // 마우스 범위 밖으로 나감
       if (this.painting) {
+        if (this.activate == "lasso") {
+          if (this.lassosX > this.lassoeX) {
+            var tmp = this.lassosX;
+            this.lassosX = this.lassoeX;
+            this.lassoeX = tmp;
+            this.lassosubX = this.lassosX;
+          }
+          if (this.lassosY > this.lassoeY) {
+            var tmp = this.lassosY;
+            this.lassosY = this.lassoeY;
+            this.lassoeY = tmp;
+            this.lassosubY = this.lassosY;
+          }
+          if (this.saveLasso[1] != null || this.saveLasso[0] != null) {
+            this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+            this.currentIndex--;
+            this.saveLasso[0] = null,
+            this.saveLasso[1] = null,
+            this.lassosX = null,
+            this.lassosY= null,
+            this.lassoeX = null,
+            this.lassoeY = null,
+            this.lassosubX = null,
+            this.lassosubY = null
+          }
+        }
         this.painting = false;
-        if (this.activate != "text") {
+        if (this.activate != "text"  && this.saveLasso[0] == null ) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -265,7 +353,21 @@ var getCSSAnimationManager = function () {
       // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
       this.eX = event.offsetX;
       this.eY = event.offsetY;
-
+      if (this.activate == "lasso") {
+        if (
+          this.lassosX <= this.eX &&
+          this.lassoeX >= this.eX &&
+          this.lassosY <= this.eY &&
+          this.lassoeY >= this.eY
+        ) {
+          this.canvas.style.cursor = "move";
+        } else {
+          this.canvas.style.cursor = "crosshair";
+        }
+      }
+      if (this.activate == "lasso" && this.lassosX == null) {
+        return;
+      }
       // console.log("좌표", x, y);
       if (!this.painting) {
         // console.log("begin들어옴");
@@ -278,17 +380,12 @@ var getCSSAnimationManager = function () {
         if (this.activate == "eraser") {
           // 부분 지우기
           // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
-          this.ctx.save();
-          this.lineWidth = 4;
-          this.setCtxProp();
           this.ctx.clearRect(
             this.eX - this.ctx.lineWidth * 1.5,
             this.eY - this.ctx.lineWidth * 1.5,
             this.ctx.lineWidth * 3,
             this.ctx.lineWidth * 3
           ); // 해당 범위만큼 지운다.
-          this.ctx.restore();
-          this.lineWidth = this.ctx.lineWidth;
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -393,28 +490,40 @@ var getCSSAnimationManager = function () {
           this.ctx.lineCap = "butt"; // 끝을 원래로
         } else if (this.activate == "lasso") {
           // 올가미
-          if (this.saveLasso != null) {
+          if (this.saveLasso[1] != null) {
             this.ctx.clearRect(
-              this.lassosX,
-              this.lassosY,
-              this.lassoeX - this.lassosX,
-              this.lassoeY - this.lassosY
+              this.lassosubX,
+              this.lassosubY,
+              this.saveLasso[1].width,
+              this.saveLasso[1].height
             );
-            this.ctx.putImageData(this.saveLasso, this.eX, this.eY);
+            this.ctx.putImageData(
+              this.saveLasso[1],
+              this.eX - (this.sX - this.lassosX),
+              this.eY - (this.sY - this.lassosY)
+            );
             return;
           }
           this.lassoeX = event.offsetX;
           this.lassoeY = event.offsetY;
+          if (this.eX != this.lassosX && this.eY != this.lassosY) {
+            this.saveLasso[0] = this.ctx.getImageData(
+              this.lassosX,
+              this.lassosY,
+              this.eX - this.lassosX,
+              this.eY - this.lassosY
+            );
+          }
           this.ctx.save();
-          this.ctx.strokeStyle = "rgba(46,112,245)";
+          this.ctx.strokeStyle = "rgba(46,112,245)"; // 파란색
           this.ctx.lineWidth = 1;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
-          this.ctx.setLineDash([5]); // 간격이 20인 점선 설정
+          this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
           this.ctx.strokeRect(
             this.sX,
             this.sY,
             this.eX - this.sX,
-            this.eY - this.sY
+            this.eY - this.sY - 0.5
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
@@ -548,16 +657,16 @@ var getCSSAnimationManager = function () {
       t.target.style.opacity = 1;
     },
     hideControlPanel: function () {
-      console.log("inject.js e 내부 hideControlPanel");
-      this.addClass(this.panel, "hide");
+      console.log("inject.js e 내부 hideControlPanel", this.panel.parentNode);
+      this.addClass(this.panel.parentNode, "hide");
       this.controlPanelHidden = !0;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
         (unsafeWindow.CTRL_HIDDEN = !0);
     },
     showControlPanel: function () {
-      console.log("inject.js e 내부 showControlPanel");
-      this.removeClass(this.panel, "hide");
+      console.log("inject.js e 내부 showControlPanel", this.panel.parentNode);
+      this.removeClass(this.panel.parentNode, "hide");
       this.controlPanelHidden = !1;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
@@ -797,7 +906,7 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("title", "all_eraser");
           eraser.addEventListener("click", function () {
             e_group.activate = "eraser";
-            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/901731363844132894/970567643847356457/2e2938dfcaaf1173.png") 8 8, auto`;
+            e_group.canvas.style.cursor = "crosshair";
           });
           all_eraser.addEventListener("click", function () {
             e_group.ctx.clearRect(
@@ -829,10 +938,10 @@ var getCSSAnimationManager = function () {
           insert_link.setAttribute("class", "insert_link");
           insert_link.setAttribute("id", "insert_link");
           insert_link.setAttribute("title", "insert_link");
-          eraser.addEventListener("click", function () {
+          insert_image.addEventListener("click", function () {
             e_group.activate = "insert_image";
           });
-          all_eraser.addEventListener("click", function () {
+          insert_link.addEventListener("click", function () {
             e_group.activate = "insert_link";
           });
           imageBox.appendChild(insert_image);

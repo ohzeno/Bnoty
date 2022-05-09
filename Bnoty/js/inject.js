@@ -657,16 +657,16 @@ var getCSSAnimationManager = function () {
       t.target.style.opacity = 1;
     },
     hideControlPanel: function () {
-      console.log("inject.js e 내부 hideControlPanel");
-      this.addClass(this.panel, "hide");
+      console.log("inject.js e 내부 hideControlPanel", this.panel.parentNode);
+      this.addClass(this.panel.parentNode, "hide");
       this.controlPanelHidden = !0;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
         (unsafeWindow.CTRL_HIDDEN = !0);
     },
     showControlPanel: function () {
-      console.log("inject.js e 내부 showControlPanel");
-      this.removeClass(this.panel, "hide");
+      console.log("inject.js e 내부 showControlPanel", this.panel.parentNode);
+      this.removeClass(this.panel.parentNode, "hide");
       this.controlPanelHidden = !1;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
