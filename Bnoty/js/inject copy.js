@@ -46,7 +46,7 @@ var getCSSAnimationManager = function () {
   // t는 window, e는 function(window_e)
   if ("undefined" != typeof unsafeWindow && null !== unsafeWindow) {
     if (unsafeWindow.CTRL_HIDDEN) {
-      // t.bnoty.showControlPanel();
+      window_t.bnoty.showControlPanel();
     } else {
       if (!unsafeWindow.bnoty_INIT) {
         window_t.bnoty = func_e(window_t);
@@ -58,7 +58,7 @@ var getCSSAnimationManager = function () {
       window_t.bnoty = func_e(window_t);
     }
     if (window_t.bnoty.controlPanelHidden) {
-      // t.bnoty.showControlPanel();
+      window_t.bnoty.showControlPanel();
     } else {
       if (!window_t.bnoty.initialized) {
         window_t.bnoty.init();
@@ -80,6 +80,7 @@ var getCSSAnimationManager = function () {
     canvas: null,
     ctx: null,
     initialized: !1,
+    controlPanelHidden: !1,
     INITIAL_COLOR: "red",
     painting: false,
     // controlPanelHidden: !1,
@@ -90,9 +91,8 @@ var getCSSAnimationManager = function () {
         title: "Pencil - draw a custom line",
       },
       {
-        type: "eyedropper",
-        title:
-          "Color picker - pick a color from the web page or your drawings and use it for drawing",
+        type: "lasso",
+        title: "Area lasso - Lasso a area",
       },
       {
         type: "text",
@@ -105,34 +105,34 @@ var getCSSAnimationManager = function () {
         type: "figure",
         title: "Figure - draw a figure",
       },
+      // {
+      //   type: "quadratic_curve",
+      //   title: "Quadratic curve - draw a quadratic curve",
+      //   iteration: 0,
+      //   initLoc: null,
+      //   lastLoc: null,
+      // },
+      // {
+      //   type: "bezier_curve",
+      //   title: "Bezier curve - draw a bezier curve",
+      //   iteration: 0,
+      //   initLoc: null,
+      //   firstPoint: null,
+      //   lastPoint: null,
+      // },
+      // {
+      //   type: "polygon",
+      //   title: "Polygon - draw a polygon",
+      //   initLoc: null,
+      //   lastLoc: null,
+      // },
+      // {
+      //   type: "circle",
+      //   title: "Ellipse - draw an ellipse or a circle",
+      // },
       {
-        type: "quadratic_curve",
-        title: "Quadratic curve - draw a quadratic curve",
-        iteration: 0,
-        initLoc: null,
-        lastLoc: null,
-      },
-      {
-        type: "bezier_curve",
-        title: "Bezier curve - draw a bezier curve",
-        iteration: 0,
-        initLoc: null,
-        firstPoint: null,
-        lastPoint: null,
-      },
-      {
-        type: "polygon",
-        title: "Polygon - draw a polygon",
-        initLoc: null,
-        lastLoc: null,
-      },
-      {
-        type: "circle",
-        title: "Ellipse - draw an ellipse or a circle",
-      },
-      {
-        type: "rectangle",
-        title: "Rectangle - draw a rectangle or a square",
+        type: "image",
+        title: "Image - Insert Image",
       },
       {
         type: "cursor",
@@ -547,6 +547,22 @@ var getCSSAnimationManager = function () {
       console.log("inject.js e 내부 handlePanelAppearing");
       t.target.style.opacity = 1;
     },
+    hideControlPanel: function () {
+      console.log("inject.js e 내부 hideControlPanel");
+      this.addClass(this.panel, "hide");
+      this.controlPanelHidden = !0;
+      "undefined" != typeof unsafeWindow &&
+        null !== unsafeWindow &&
+        (unsafeWindow.CTRL_HIDDEN = !0);
+    },
+    showControlPanel: function () {
+      console.log("inject.js e 내부 showControlPanel");
+      this.removeClass(this.panel, "hide");
+      this.controlPanelHidden = !1;
+      "undefined" != typeof unsafeWindow &&
+        null !== unsafeWindow &&
+        (unsafeWindow.CTRL_HIDDEN = !1);
+    },
     handleResize: function (t) {
       // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
       // store, restore는 아직 없어서 주석해둠.
@@ -645,6 +661,9 @@ var getCSSAnimationManager = function () {
       var eraserBox = window_e.document.createElement("div"); // eraser
       eraserBox.setAttribute("class", "pen_box");
       eraserBox.setAttribute("id", "eraserBox");
+      var imageBox = window_e.document.createElement("div"); // image
+      imageBox.setAttribute("class", "pen_box");
+      imageBox.setAttribute("id", "imageBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -800,10 +819,38 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("eraserBox").style.display = "none";
         }
 
+        if (!window_e.document.getElementById("imageBox")) {
+          box.appendChild(imageBox);
+          var insert_image = window_e.document.createElement("div");
+          var insert_link = window_e.document.createElement("div");
+          insert_image.setAttribute("class", "insert_image");
+          insert_image.setAttribute("id", "insert_image");
+          insert_image.setAttribute("title", "insert image");
+          insert_link.setAttribute("class", "insert_link");
+          insert_link.setAttribute("id", "insert_link");
+          insert_link.setAttribute("title", "insert_link");
+          eraser.addEventListener("click", function () {
+            e_group.activate = "insert_image";
+          });
+          all_eraser.addEventListener("click", function () {
+            e_group.activate = "insert_link";
+          });
+          imageBox.appendChild(insert_image);
+          imageBox.appendChild(insert_link);
+          window_e.document.getElementById("imageBox").style.display = "none";
+        }
+
         if (a.type == "fill") {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
             e_group.canvas.style.cursor = "pointer";
+            window_e.document.getElementById("penBox").style.display = "none";
+            window_e.document.getElementById("textBox").style.display = "none";
+            window_e.document.getElementById("figureBox").style.display =
+              "none";
+            window_e.document.getElementById("eraserBox").style.display =
+              "none";
+            window_e.document.getElementById("imageBox").style.display = "none";
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
@@ -819,6 +866,8 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("eraserBox").style.display =
                 "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -826,6 +875,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("figureBox").style.display =
                 "none";
               window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
           });
@@ -842,6 +893,8 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("eraserBox").style.display =
                 "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -849,6 +902,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("figureBox").style.display =
                 "none";
               window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
           });
@@ -865,6 +920,8 @@ var getCSSAnimationManager = function () {
                 "block";
               window_e.document.getElementById("eraserBox").style.display =
                 "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -872,6 +929,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("figureBox").style.display =
                 "none";
               window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
           });
@@ -888,6 +947,8 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("eraserBox").style.display =
                 "block";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -895,6 +956,47 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("figureBox").style.display =
                 "none";
               window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            }
+          });
+        } else if (a.type == "lasso") {
+          r.addEventListener("click", function () {
+            e_group.activate = "lasso";
+            e_group.canvas.style.cursor = "pointer";
+            window_e.document.getElementById("penBox").style.display = "none";
+            window_e.document.getElementById("textBox").style.display = "none";
+            window_e.document.getElementById("figureBox").style.display =
+              "none";
+            window_e.document.getElementById("eraserBox").style.display =
+              "none";
+            window_e.document.getElementById("imageBox").style.display = "none";
+          });
+        } else if (a.type == "image") {
+          r.addEventListener("click", function () {
+            if (
+              window_e.document.getElementById("eraserBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "block";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
           });
@@ -980,8 +1082,8 @@ var getCSSAnimationManager = function () {
       // this.updatePaintStyle();
       var c = window_e.document.createElement("div"),
         l = window_e.document.createElement("div"),
-        d = window_e.document.createElement("div"),
-        u = window_e.document.createElement("div"),
+        control_erase = window_e.document.createElement("div"),
+        control_hide = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
       c.setAttribute("class", "bnoty_controls_control_option prtBtn");
       c.setAttribute(
@@ -1010,10 +1112,31 @@ var getCSSAnimationManager = function () {
           e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
         }
       });
-      d.setAttribute("class", "bnoty_controls_control_option eraseAllBtn");
-      d.setAttribute("title", "Erase all");
-      u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn");
-      u.setAttribute(
+      control_erase.setAttribute(
+        "class",
+        "bnoty_controls_control_option eraseAllBtn"
+      );
+      control_erase.setAttribute("title", "Erase all");
+      control_erase.addEventListener("click", function () {
+        e_group.ctx.clearRect(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); //clear canvas
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        );
+        e_group.addHistory();
+      });
+      control_hide.setAttribute(
+        "class",
+        "bnoty_controls_control_option hideCtrlBtn"
+      );
+      control_hide.setAttribute(
         "title",
         "Close control panel (Click the extension icon to re-open)"
       );
@@ -1035,14 +1158,10 @@ var getCSSAnimationManager = function () {
       //   "click",
       //   Function.prototype.bind.call(this.handleForwardButtonClick, this)
       // );
-      // d.addEventListener(
-      //   "click",
-      //   Function.prototype.bind.call(this.eraseAll, this)
-      // );
-      // u.addEventListener(
-      //   "click",
-      //   Function.prototype.bind.call(this.hideControlPanel, this)
-      // );
+      control_hide.addEventListener(
+        "click",
+        Function.prototype.bind.call(this.hideControlPanel, this)
+      );
       // p.addEventListener("click", function () {
       //   global.runtime.sendMessage({
       //     method: "open_options",
@@ -1050,9 +1169,9 @@ var getCSSAnimationManager = function () {
       // });
       controls.appendChild(this.backBtn);
       controls.appendChild(this.nextBtn);
-      controls.appendChild(d);
+      controls.appendChild(control_erase);
       controls.appendChild(c);
-      controls.appendChild(u);
+      controls.appendChild(control_hide);
       controls.appendChild(l);
       controls.appendChild(p);
       // this.checkHistoryButtonStatus();
@@ -1209,6 +1328,7 @@ var getCSSAnimationManager = function () {
         (this.canvas = null),
         (this.ctx = null),
         (this.initialized = !1),
+        (this.controlPanelHidden = !1),
         (this.painting = false),
         (this.selectedAlphaOption = null),
         (this.resizeTimeoutID = null),
