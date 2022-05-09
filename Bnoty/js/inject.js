@@ -300,18 +300,7 @@ var getCSSAnimationManager = function () {
           (this.lassosubY = null);
       }
       this.painting = false;
-      if (
-        this.activate != "text" &&
-        this.saveLasso[0] == null &&
-        this.lassoeX == null
-      ) {
-        if (
-          this.activate != "lasso" &&
-          this.activate != "fill" &&
-          this.sX == this.eX &&
-          this.sY == this.eY
-        )
-          return;
+      if (this.activate != "text" && this.saveLasso[0] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -542,7 +531,7 @@ var getCSSAnimationManager = function () {
             this.sX,
             this.sY,
             this.eX - this.sX,
-            this.eY - this.sY
+            this.eY - this.sY - 0.5
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
@@ -1009,6 +998,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "pen";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
@@ -1063,6 +1054,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "rectangle";
+            e_group.canvas.style.cursor = "crosshair";
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
@@ -1235,13 +1228,13 @@ var getCSSAnimationManager = function () {
       this.backBtn.addEventListener("click", function () {
         if (e_group.histories.hasPrevious()) {
           e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
-          e_group.checkHistoryButtonStatus() // 이전 다음 버튼 활성화 비활성화 체크
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       this.nextBtn.addEventListener("click", function () {
         if (e_group.histories.hasNext()) {
           e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
-          e_group.checkHistoryButtonStatus() // 이전 다음 버튼 활성화 비활성화 체크
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       control_erase.setAttribute(
@@ -1315,16 +1308,15 @@ var getCSSAnimationManager = function () {
           )
         : (this.panel.style.opacity = 1);
     },
-    checkHistoryButtonStatus: function () { // 이전 다음 버튼 활성화 비활성화 체크
-      if(this.nextBtn && this.backBtn){
+    checkHistoryButtonStatus: function () {
+      // 이전 다음 버튼 활성화 비활성화 체크
+      if (this.nextBtn && this.backBtn) {
         if (this.histories.hasNext())
-          this.removeClass(this.nextBtn, "disabled")
-        else
-          this.addClass(this.nextBtn, "disabled")
+          this.removeClass(this.nextBtn, "disabled");
+        else this.addClass(this.nextBtn, "disabled");
         if (this.histories.hasPrevious())
-          this.removeClass(this.backBtn, "disabled")
-        else
-          this.addClass(this.backBtn, "disabled")
+          this.removeClass(this.backBtn, "disabled");
+        else this.addClass(this.backBtn, "disabled");
       }
     },
     addClass: function (t, e) {
@@ -1484,7 +1476,7 @@ var getCSSAnimationManager = function () {
         (this.paragraph = null),
         (this.activate = "pen"),
         (this.saveImage = null),
-        (this.saveLasso = null),
+        (this.saveLasso = [null, null]),
         (this.histories = null),
         (this.MAX_ITEMS = null),
         (this.currentIndex = null),
@@ -1502,6 +1494,8 @@ var getCSSAnimationManager = function () {
         (this.lassosY = null),
         (this.lassoeX = null),
         (this.lassoeY = null),
+        (this.lassosubX = null),
+        (this.lassosubY = null),
         (this.hasInput = false),
         (this.size = "20px"),
         (this.font = "sans-serif"),
