@@ -199,8 +199,34 @@
     leaveStopPainting: function () {
       // 마우스 범위 밖으로 나감
       if (this.painting) {
+        if (this.activate == "lasso") {
+        if (this.lassosX > this.lassoeX) {
+          var tmp = this.lassosX;
+          this.lassosX = this.lassoeX;
+          this.lassoeX = tmp;
+          this.lassosubX = this.lassosX;
+        }
+        if (this.lassosY > this.lassoeY) {
+          var tmp = this.lassosY;
+          this.lassosY = this.lassoeY;
+          this.lassoeY = tmp;
+          this.lassosubY = this.lassosY;
+        }
+        if (this.saveLasso[1] != null || this.saveLasso[0] != null) {
+          this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+          this.currentIndex--;
+          this.saveLasso[0] = null,
+          this.saveLasso[1] = null,
+          this.lassosX = null,
+          this.lassosY= null,
+          this.lassoeX = null,
+          this.lassoeY = null,
+          this.lassosubX = null,
+          this.lassosubY = null
+        }
+      }
         this.painting = false;
-        if (this.activate != "text") {
+        if (this.activate != "text"  && this.saveLasso[0] == null ) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -396,7 +422,7 @@
             this.sX,
             this.sY,
             this.eX - this.sX,
-            this.eY - this.sY
+            this.eY - this.sY - 0.5
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
