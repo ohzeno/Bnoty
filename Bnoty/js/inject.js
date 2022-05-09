@@ -148,10 +148,6 @@ var getCSSAnimationManager = function () {
         type: "fill",
         title: "Paint Bucket - fill an area",
       },
-      {
-        type: "linkinjection",
-        title: "링크를 추가합니다.",
-      },
     ],
     selectedAlphaOption: null,
     resizeTimeoutID: null,
@@ -256,7 +252,7 @@ var getCSSAnimationManager = function () {
           }
         }
         // real link injection
-        if ( this.activate == "linkinjection"){
+        if ( this.activate == "insert_link"){
           this.LinkInputField( event.offsetX, event.offsetY);
         }
 
@@ -1152,12 +1148,6 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
-          });
-        }
-        // linkinjection 
-        if ( a.type == "linkinjection" ){
-          r.addEventListener("click", function () {
-            e_group.activate = "linkinjection";
           });
         }
 
