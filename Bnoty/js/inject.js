@@ -293,7 +293,9 @@ var getCSSAnimationManager = function () {
           (this.lassosubY = null);
       }
       this.painting = false;
-      if (this.activate != "text" && this.saveLasso[0] == null) {
+      if (this.activate != "text" && this.saveLasso[0] == null && this.lassoeX == null) {
+        if(this.activate != "lasso" && this.activate != "fill" && this.sX == this.eX && this.sY == this.eY)
+          return;
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -643,6 +645,7 @@ var getCSSAnimationManager = function () {
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
       this.histories.add(this.saveImage);
+      console.log(this.currentIndex)
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
