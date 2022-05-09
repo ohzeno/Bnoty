@@ -184,6 +184,7 @@ var getCSSAnimationManager = function () {
     boldtext: "", // 볼드
     italictext: "", // 기울이기
     textactive: false, // 텍스트 입력중인지 체크
+    img: null,
 
     startPainting: function (event) {
       event.preventDefault();
@@ -545,6 +546,15 @@ var getCSSAnimationManager = function () {
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
+        } else if (this.activate == "insert_image") {
+          // e_group.ctx.save();
+          e_group.ctx.drawImage(
+            e_group.img,
+            this.sX,
+            this.sY,
+            this.eX - this.sX,
+            this.eY - this.sY
+          );
         }
       }
     },
@@ -647,6 +657,44 @@ var getCSSAnimationManager = function () {
         " " +
         e_group.font;
       this.ctx.fillText(txt, x, y);
+    },
+    clearLasso: function () {
+      if (
+        e_group.lassosX == e_group.lassosubX &&
+        e_group.lassosY == e_group.lassosubY
+      ) {
+        e_group.ctx.putImageData(e_group.array[e_group.currentIndex], 0, 0);
+        // e_group.currentIndex--;
+        (e_group.saveLasso[0] = null),
+          (e_group.saveLasso[1] = null),
+          (e_group.lassosX = null),
+          (e_group.lassosY = null),
+          (e_group.lassoeX = null),
+          (e_group.lassoeY = null),
+          (e_group.lassosubX = null),
+          (e_group.lassosubY = null);
+      } else {
+        e_group.ctx.putImageData(
+          e_group.saveLasso[0],
+          e_group.lassosX,
+          e_group.lassosY
+        );
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        e_group.addHistory();
+        (e_group.saveLasso[0] = null),
+          (e_group.saveLasso[1] = null),
+          (e_group.lassosX = null),
+          (e_group.lassosY = null),
+          (e_group.lassoeX = null),
+          (e_group.lassoeY = null),
+          (e_group.lassosubX = null),
+          (e_group.lassosubY = null);
+      }
     },
     createCanvas: function () {
       console.log("inject.js e 내부 createCanvas");
@@ -910,10 +958,14 @@ var getCSSAnimationManager = function () {
           highlighterPen.setAttribute("id", "pen2");
           highlighterPen.setAttribute("title", "highlighter");
           tmp_pen.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
           });
           highlighterPen.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "highlighter";
           });
           penBox.appendChild(tmp_pen);
@@ -929,13 +981,34 @@ var getCSSAnimationManager = function () {
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
-          text.addEventListener("click", function () {});
+          text.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.activate = "text";
+          });
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
           boldText.setAttribute("title", "Bold Text");
+          boldText.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.activate = "text";
+            if (e_group.boldtext == "bold") {
+              e_group.boldtext = "";
+            } else {
+              e_group.boldtext = "bold";
+            }
+          });
           italicText.setAttribute("class", "italicText");
           italicText.setAttribute("id", "italicText");
           italicText.setAttribute("title", "Italic Text");
+          italicText.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.activate = "text";
+            if (e_group.italictext == "italic") {
+              e_group.italictext = "";
+            } else {
+              e_group.italictext = "italic";
+            }
+          });
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
@@ -955,6 +1028,8 @@ var getCSSAnimationManager = function () {
           square.setAttribute("id", "square");
           square.setAttribute("title", "Square");
           square.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -962,6 +1037,8 @@ var getCSSAnimationManager = function () {
           triangle.setAttribute("id", "triangle");
           triangle.setAttribute("title", "Triangle");
           triangle.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "triangle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -969,6 +1046,8 @@ var getCSSAnimationManager = function () {
           circle.setAttribute("id", "circle");
           circle.setAttribute("title", "Circle");
           circle.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "circle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -976,6 +1055,8 @@ var getCSSAnimationManager = function () {
           line.setAttribute("id", "line");
           line.setAttribute("title", "Line");
           line.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "line";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -983,6 +1064,8 @@ var getCSSAnimationManager = function () {
           curve.setAttribute("id", "curve");
           curve.setAttribute("title", "Curve");
           curve.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "curve";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -990,6 +1073,8 @@ var getCSSAnimationManager = function () {
           arrow.setAttribute("id", "arrow");
           arrow.setAttribute("title", "Arrow");
           arrow.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "arrow";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -1013,10 +1098,14 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("id", "all_eraser");
           all_eraser.setAttribute("title", "all_eraser");
           eraser.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
           });
           all_eraser.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.ctx.clearRect(
               0,
               0,
@@ -1039,17 +1128,44 @@ var getCSSAnimationManager = function () {
         if (!window_e.document.getElementById("imageBox")) {
           box.appendChild(imageBox);
           var insert_image = window_e.document.createElement("div");
+          var fileChange = window.document.createElement("input");
           var insert_link = window_e.document.createElement("div");
           insert_image.setAttribute("class", "insert_image");
           insert_image.setAttribute("id", "insert_image");
           insert_image.setAttribute("title", "insert image");
+          fileChange.setAttribute("type", "file");
+          fileChange.setAttribute("id", "fileloader");
+          fileChange.style.visibility = "hidden";
+          insert_image.setAttribute("type", "file");
           insert_link.setAttribute("class", "insert_link");
           insert_link.setAttribute("id", "insert_link");
           insert_link.setAttribute("title", "insert_link");
           insert_image.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "insert_image";
+            fileChange.click();
+          });
+          fileChange.addEventListener("change", function (event) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+              e_group.img = new Image();
+              e_group.img.src = e.target.result;
+              e_group.img.onload = function () {
+                e_group.saveImage = e_group.ctx.getImageData(
+                  0,
+                  0,
+                  e_group.canvas.width,
+                  e_group.canvas.height
+                ); // 지금까지 그린 정보를 저장
+                e_group.addHistory();
+              };
+            };
+            reader.readAsDataURL(event.target.files[0]);
           });
           insert_link.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "insert_link";
           });
           imageBox.appendChild(insert_image);
@@ -1099,7 +1215,6 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
-            e_group.activate = "text";
             if (
               window_e.document.getElementById("textBox").style.display ===
               "none"
@@ -1181,6 +1296,7 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "lasso") {
           r.addEventListener("click", function () {
+            e_group.handleMouseClick();
             e_group.activate = "lasso";
             e_group.canvas.style.cursor = "pointer";
             window_e.document.getElementById("penBox").style.display = "none";
@@ -1323,13 +1439,13 @@ var getCSSAnimationManager = function () {
       this.backBtn.addEventListener("click", function () {
         if (e_group.histories.hasPrevious()) {
           e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
-          e_group.checkHistoryButtonStatus() // 이전 다음 버튼 활성화 비활성화 체크
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       this.nextBtn.addEventListener("click", function () {
         if (e_group.histories.hasNext()) {
           e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
-          e_group.checkHistoryButtonStatus() // 이전 다음 버튼 활성화 비활성화 체크
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       control_erase.setAttribute(
@@ -1403,16 +1519,15 @@ var getCSSAnimationManager = function () {
           )
         : (this.panel.style.opacity = 1);
     },
-    checkHistoryButtonStatus: function () { // 이전 다음 버튼 활성화 비활성화 체크
-      if(this.nextBtn && this.backBtn){
+    checkHistoryButtonStatus: function () {
+      // 이전 다음 버튼 활성화 비활성화 체크
+      if (this.nextBtn && this.backBtn) {
         if (this.histories.hasNext())
-          this.removeClass(this.nextBtn, "disabled")
-        else
-          this.addClass(this.nextBtn, "disabled")
+          this.removeClass(this.nextBtn, "disabled");
+        else this.addClass(this.nextBtn, "disabled");
         if (this.histories.hasPrevious())
-          this.removeClass(this.backBtn, "disabled")
-        else
-          this.addClass(this.backBtn, "disabled")
+          this.removeClass(this.backBtn, "disabled");
+        else this.addClass(this.backBtn, "disabled");
       }
     },
     addClass: function (t, e) {
