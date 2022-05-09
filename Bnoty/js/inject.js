@@ -217,27 +217,34 @@ var getCSSAnimationManager = function () {
             this.sY > this.lassoeY)
         ) {
           // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
-          if(this.lassosX == this.lassosubX && this.lassosY == this.lassosubY){
+          if (
+            this.lassosX == this.lassosubX &&
+            this.lassosY == this.lassosubY
+          ) {
             this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
             this.currentIndex--;
-            this.saveLasso[0] = null,
-            this.saveLasso[1] = null,
-            this.lassosX = null,
-            this.lassosY= null,
-            this.lassoeX = null,
-            this.lassoeY = null,
-            this.lassosubX = null,
-            this.lassosubY = null
-          }else{
-            this.ctx.putImageData(this.saveLasso[0], this.lassosX, this.lassosY)
-            this.saveLasso[0] = null,
-            this.saveLasso[1] = null,
-            this.lassosX = null,
-            this.lassosY= null,
-            this.lassoeX = null,
-            this.lassoeY = null,
-            this.lassosubX = null,
-            this.lassosubY = null
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          } else {
+            this.ctx.putImageData(
+              this.saveLasso[0],
+              this.lassosX,
+              this.lassosY
+            );
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
           }
         }
       }
@@ -293,8 +300,17 @@ var getCSSAnimationManager = function () {
           (this.lassosubY = null);
       }
       this.painting = false;
-      if (this.activate != "text" && this.saveLasso[0] == null && this.lassoeX == null) {
-        if(this.activate != "lasso" && this.activate != "fill" && this.sX == this.eX && this.sY == this.eY)
+      if (
+        this.activate != "text" &&
+        this.saveLasso[0] == null &&
+        this.lassoeX == null
+      ) {
+        if (
+          this.activate != "lasso" &&
+          this.activate != "fill" &&
+          this.sX == this.eX &&
+          this.sY == this.eY
+        )
           return;
         this.saveImage = this.ctx.getImageData(
           0,
@@ -324,18 +340,18 @@ var getCSSAnimationManager = function () {
           if (this.saveLasso[1] != null || this.saveLasso[0] != null) {
             this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
             this.currentIndex--;
-            this.saveLasso[0] = null,
-            this.saveLasso[1] = null,
-            this.lassosX = null,
-            this.lassosY= null,
-            this.lassoeX = null,
-            this.lassoeY = null,
-            this.lassosubX = null,
-            this.lassosubY = null
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
           }
         }
         this.painting = false;
-        if (this.activate != "text"  && this.saveLasso[0] == null ) {
+        if (this.activate != "text" && this.saveLasso[0] == null) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -525,7 +541,7 @@ var getCSSAnimationManager = function () {
             this.sX,
             this.sY,
             this.eX - this.sX,
-            this.eY - this.sY - 0.5
+            this.eY - this.sY
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
@@ -645,7 +661,7 @@ var getCSSAnimationManager = function () {
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
       this.histories.add(this.saveImage);
-      console.log(this.currentIndex)
+      console.log(this.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
