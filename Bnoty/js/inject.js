@@ -533,7 +533,7 @@ var getCSSAnimationManager = function () {
           this.ctx.save();
           this.ctx.strokeStyle = "rgb(255,85,160)"; // 핑크색
           this.ctx.globalAlpha = 1;
-          this.ctx.lineWidth = 1;
+          this.ctx.lineWidth = 2;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
           this.ctx.strokeRect(
@@ -798,7 +798,7 @@ var getCSSAnimationManager = function () {
     addHistory: function () {
       this.histories.add(this.saveImage);
       this.checkHistoryButtonStatus();
-      // console.log(this.currentIndex);
+      console.log(this.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
