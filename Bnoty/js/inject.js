@@ -46,7 +46,7 @@ var getCSSAnimationManager = function () {
   // t는 window, e는 function(window_e)
   if ("undefined" != typeof unsafeWindow && null !== unsafeWindow) {
     if (unsafeWindow.CTRL_HIDDEN) {
-      // t.bnoty.showControlPanel();
+      window_t.bnoty.showControlPanel();
     } else {
       if (!unsafeWindow.bnoty_INIT) {
         window_t.bnoty = func_e(window_t);
@@ -58,7 +58,7 @@ var getCSSAnimationManager = function () {
       window_t.bnoty = func_e(window_t);
     }
     if (window_t.bnoty.controlPanelHidden) {
-      // t.bnoty.showControlPanel();
+      window_t.bnoty.showControlPanel();
     } else {
       if (!window_t.bnoty.initialized) {
         window_t.bnoty.init();
@@ -80,6 +80,7 @@ var getCSSAnimationManager = function () {
     canvas: null,
     ctx: null,
     initialized: !1,
+    controlPanelHidden: !1,
     INITIAL_COLOR: "red",
     painting: false,
     // controlPanelHidden: !1,
@@ -90,9 +91,8 @@ var getCSSAnimationManager = function () {
         title: "Pencil - draw a custom line",
       },
       {
-        type: "eyedropper",
-        title:
-          "Color picker - pick a color from the web page or your drawings and use it for drawing",
+        type: "lasso",
+        title: "Area lasso - Lasso a area",
       },
       {
         type: "text",
@@ -102,37 +102,37 @@ var getCSSAnimationManager = function () {
         title: "Text - insert text",
       },
       {
-        type: "line",
-        title: "Line - draw a straight line",
+        type: "figure",
+        title: "Figure - draw a figure",
       },
+      // {
+      //   type: "quadratic_curve",
+      //   title: "Quadratic curve - draw a quadratic curve",
+      //   iteration: 0,
+      //   initLoc: null,
+      //   lastLoc: null,
+      // },
+      // {
+      //   type: "bezier_curve",
+      //   title: "Bezier curve - draw a bezier curve",
+      //   iteration: 0,
+      //   initLoc: null,
+      //   firstPoint: null,
+      //   lastPoint: null,
+      // },
+      // {
+      //   type: "polygon",
+      //   title: "Polygon - draw a polygon",
+      //   initLoc: null,
+      //   lastLoc: null,
+      // },
+      // {
+      //   type: "circle",
+      //   title: "Ellipse - draw an ellipse or a circle",
+      // },
       {
-        type: "quadratic_curve",
-        title: "Quadratic curve - draw a quadratic curve",
-        iteration: 0,
-        initLoc: null,
-        lastLoc: null,
-      },
-      {
-        type: "bezier_curve",
-        title: "Bezier curve - draw a bezier curve",
-        iteration: 0,
-        initLoc: null,
-        firstPoint: null,
-        lastPoint: null,
-      },
-      {
-        type: "polygon",
-        title: "Polygon - draw a polygon",
-        initLoc: null,
-        lastLoc: null,
-      },
-      {
-        type: "circle",
-        title: "Ellipse - draw an ellipse or a circle",
-      },
-      {
-        type: "rectangle",
-        title: "Rectangle - draw a rectangle or a square",
+        type: "image",
+        title: "Image - Insert Image",
       },
       {
         type: "cursor",
@@ -162,7 +162,7 @@ var getCSSAnimationManager = function () {
     globalAlpha: 1, //투명도
     activate: "pen", // 지금 활성화된 도구 기본은 펜!
     saveImage: null, // 지금 까지 그린 이미지를 저장
-    saveLasso: null, // 올가미로 선택한 영역을 이미지로 저장
+    saveLasso: [null, null], // 올가미로 선택한 영역을 이미지로 저장 (테투리 x , 테두리 o)
     histories: null, // 여기에 이제 그 작업한거 저장함
     MAX_ITEMS: null, // 최대 저장 아이템
     currentIndex: null, // 지금 인덱스 위치
@@ -180,6 +180,8 @@ var getCSSAnimationManager = function () {
     lassosY: null,
     lassoeX: null,
     lassoeY: null,
+    lassosubX: null,
+    lassosubY: null,
     hasInput: false, // 텍스트 입력 여부
     size: "20px", // 텍스트 사이즈
     font: "sans-serif", // 텍스트 폰트
@@ -192,10 +194,9 @@ var getCSSAnimationManager = function () {
     linkcount : 0, // 이건 저장해야함
 
     startPainting: function (event) {
-      console.log("여긴 왔는데");
+      event.preventDefault();
       // 마우스 클릭버튼 누름
       if (event.which === 1) {
-        console.log("여긴 왔는데");
         //좌클릭 일 때만 그리기
         if (this.painting) {
           // 이부분은 곡선그리는 부분떄문에 사용
@@ -207,12 +208,52 @@ var getCSSAnimationManager = function () {
         this.sX = event.offsetX;
         this.sY = event.offsetY;
         if (this.activate == "fill") {
-          console.log("여긴 왔는데");
           this.handleFill(event.clientX, event.clientY);
         }
-        if (this.activate == "lasso" && this.saveLasso == null) {
+        if (this.activate == "lasso" && this.saveLasso[0] == null) {
+          // 올가미 활성화이면서 테두리없는 이미지가 저장되어있지않으면 범위를 시작범위 지정
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
+          this.lassosubX = event.offsetX;
+          this.lassosubY = event.offsetY;
+        } else if (
+          this.activate == "lasso" &&
+          this.saveLasso[0] != null &&
+          (this.sX < this.lassosX ||
+            this.sX > this.lassoeX ||
+            this.sY < this.lassosY ||
+            this.sY > this.lassoeY)
+        ) {
+          // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
+          if (
+            this.lassosX == this.lassosubX &&
+            this.lassosY == this.lassosubY
+          ) {
+            this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+            this.currentIndex--;
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          } else {
+            this.ctx.putImageData(
+              this.saveLasso[0],
+              this.lassosX,
+              this.lassosY
+            );
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          }
         }
         // real link injection
         if ( this.activate == "linkinjection"){
@@ -234,19 +275,45 @@ var getCSSAnimationManager = function () {
         this.mX = null;
         this.mY = null;
       } else if (this.activate == "lasso") {
-        if (this.saveLasso == null) {
-          this.saveLasso = this.ctx.getImageData(
+        if (this.lassosX > this.lassoeX) {
+          var tmp = this.lassosX;
+          this.lassosX = this.lassoeX;
+          this.lassoeX = tmp;
+          this.lassosubX = this.lassosX;
+        }
+        if (this.lassosY > this.lassoeY) {
+          var tmp = this.lassosY;
+          this.lassosY = this.lassoeY;
+          this.lassoeY = tmp;
+          this.lassosubY = this.lassosY;
+        }
+        if (this.saveLasso[1] == null && this.saveLasso[0] != null) {
+          this.saveLasso[1] = this.ctx.getImageData(
             this.lassosX,
             this.lassosY,
             this.lassoeX - this.lassosX,
             this.lassoeY - this.lassosY
           );
-        } else {
-          this.saveLasso = null;
+        } else if (this.saveLasso[1] != null) {
+          this.lassosX = this.eX - (this.sX - this.lassosX);
+          this.lassosY = this.eY - (this.sY - this.lassosY);
+          (this.lassoeX = this.lassosX + this.saveLasso[1].width),
+            (this.lassoeY = this.lassosY + this.saveLasso[1].height);
+          this.ctx.putImageData(this.saveLasso[1], this.lassosX, this.lassosY);
         }
       }
+      if (this.activate != "lasso") {
+        (this.saveLasso[0] = null),
+          (this.saveLasso[1] = null),
+          (this.lassosX = null),
+          (this.lassosY = null),
+          (this.lassoeX = null),
+          (this.lassoeY = null),
+          (this.lassosubX = null),
+          (this.lassosubY = null);
+      }
       this.painting = false;
-      if (this.activate != "text" && this.activate != "lasso") {
+      if (this.activate != "text" && this.saveLasso[0] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -259,8 +326,34 @@ var getCSSAnimationManager = function () {
     leaveStopPainting: function () {
       // 마우스 범위 밖으로 나감
       if (this.painting) {
+        if (this.activate == "lasso") {
+          if (this.lassosX > this.lassoeX) {
+            var tmp = this.lassosX;
+            this.lassosX = this.lassoeX;
+            this.lassoeX = tmp;
+            this.lassosubX = this.lassosX;
+          }
+          if (this.lassosY > this.lassoeY) {
+            var tmp = this.lassosY;
+            this.lassosY = this.lassoeY;
+            this.lassoeY = tmp;
+            this.lassosubY = this.lassosY;
+          }
+          if (this.saveLasso[1] != null || this.saveLasso[0] != null) {
+            this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+            this.currentIndex--;
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          }
+        }
         this.painting = false;
-        if (this.activate != "text") {
+        if (this.activate != "text" && this.saveLasso[0] == null) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -280,7 +373,21 @@ var getCSSAnimationManager = function () {
       // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
       this.eX = event.offsetX;
       this.eY = event.offsetY;
-
+      if (this.activate == "lasso") {
+        if (
+          this.lassosX <= this.eX &&
+          this.lassoeX >= this.eX &&
+          this.lassosY <= this.eY &&
+          this.lassoeY >= this.eY
+        ) {
+          this.canvas.style.cursor = "move";
+        } else {
+          this.canvas.style.cursor = "crosshair";
+        }
+      }
+      if (this.activate == "lasso" && this.lassosX == null) {
+        return;
+      }
       // console.log("좌표", x, y);
       if (!this.painting) {
         // console.log("begin들어옴");
@@ -293,17 +400,12 @@ var getCSSAnimationManager = function () {
         if (this.activate == "eraser") {
           // 부분 지우기
           // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
-          this.ctx.save();
-          this.lineWidth = 4;
-          this.setCtxProp();
           this.ctx.clearRect(
             this.eX - this.ctx.lineWidth * 1.5,
             this.eY - this.ctx.lineWidth * 1.5,
             this.ctx.lineWidth * 3,
             this.ctx.lineWidth * 3
           ); // 해당 범위만큼 지운다.
-          this.ctx.restore();
-          this.lineWidth = this.ctx.lineWidth;
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -408,28 +510,41 @@ var getCSSAnimationManager = function () {
           this.ctx.lineCap = "butt"; // 끝을 원래로
         } else if (this.activate == "lasso") {
           // 올가미
-          if (this.saveLasso != null) {
+          if (this.saveLasso[1] != null) {
             this.ctx.clearRect(
-              this.lassosX,
-              this.lassosY,
-              this.lassoeX - this.lassosX,
-              this.lassoeY - this.lassosY
+              this.lassosubX,
+              this.lassosubY,
+              this.saveLasso[1].width,
+              this.saveLasso[1].height
             );
-            this.ctx.putImageData(this.saveLasso, this.eX, this.eY);
+            this.ctx.putImageData(
+              this.saveLasso[1],
+              this.eX - (this.sX - this.lassosX),
+              this.eY - (this.sY - this.lassosY)
+            );
             return;
           }
           this.lassoeX = event.offsetX;
           this.lassoeY = event.offsetY;
+          if (this.eX != this.lassosX && this.eY != this.lassosY) {
+            this.saveLasso[0] = this.ctx.getImageData(
+              this.lassosX,
+              this.lassosY,
+              this.eX - this.lassosX,
+              this.eY - this.lassosY
+            );
+          }
           this.ctx.save();
-          this.ctx.strokeStyle = "rgba(46,112,245)";
+          this.ctx.strokeStyle = "rgb(255,85,160)"; // 핑크색
+          this.ctx.globalAlpha = 1;
           this.ctx.lineWidth = 1;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
-          this.ctx.setLineDash([5]); // 간격이 20인 점선 설정
+          this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
           this.ctx.strokeRect(
             this.sX,
             this.sY,
             this.eX - this.sX,
-            this.eY - this.sY
+            this.eY - this.sY - 0.5
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
@@ -437,6 +552,7 @@ var getCSSAnimationManager = function () {
       }
     },
     onMouseClick: function (event) {
+      event.preventDefault();
       if (this.activate == "text") {
         if (this.textactive) {
           this.handleMouseClick();
@@ -452,10 +568,12 @@ var getCSSAnimationManager = function () {
       this.canvas = window_e.document.createElement("Canvas");
       this.ctx = this.canvas.getContext("2d");
       this.canvas.setAttribute("id", "bnoty");
+      this.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
       window_e.document.body.appendChild(this.canvas);
       window_e.addEventListener("resize", this.resizeBinded);
       window_e.addEventListener("scroll", this.resizeBinded);
       this.setCtxProp();
+      this.Histories();
       this.initCanvas();
     },
     initCanvas: function (t) {
@@ -493,18 +611,100 @@ var getCSSAnimationManager = function () {
       // window_e.document.addEventListener("keydown", this.keydownBinded);
       // window_e.document.addEventListener("keypress", this.keypressBinded);
     },
+    // 작업마다 저장한거 관리하는 부분 시작 -----------------------------
+    Histories: function () {
+      // 최초 변수 초기화
+      function historySave() {
+        e_group.MAX_ITEMS = 50;
+        e_group.currentIndex = 0;
+        e_group.array = [];
+      }
+
+      this.histories = new historySave(); // 객체 할당
+      // 프로토 타입 객체 생성. 다른 객체도 사용 가능
+      historySave.prototype.add = function (t) {
+        // 작업 저장하는 프로토타입
+        if (
+          (e_group.currentIndex < e_group.array.length - 1
+            ? ((e_group.array[++e_group.currentIndex] = t),
+              (e_group.array = e_group.array.slice(
+                0,
+                e_group.currentIndex + 1
+              )))
+            : (e_group.array.push(t),
+              (e_group.currentIndex = e_group.array.length - 1)),
+          e_group.array.length > e_group.MAX_ITEMS)
+        ) {
+          var e_h = e_group.array.length - e_group.MAX_ITEMS;
+          (e_group.array = e_group.array.splice(-e_group.MAX_ITEMS)),
+            (e_group.currentIndex = e_group.currentIndex - e_h);
+        }
+      };
+      historySave.prototype.previous = function () {
+        // 이전 작업 가져오는거
+        return 0 === e_group.currentIndex
+          ? null
+          : e_group.array[--e_group.currentIndex];
+      };
+      historySave.prototype.next = function () {
+        // 다음 작업 가져오는거
+        return e_group.currentIndex === e_group.array.length - 1
+          ? null
+          : e_group.array[++e_group.currentIndex];
+      };
+      historySave.prototype.hasPrevious = function () {
+        //이전 저장값 있는지
+        return 0 < e_group.currentIndex;
+      };
+      historySave.prototype.hasNext = function () {
+        // 다음 저장값 있는지
+        return e_group.currentIndex < e_group.array.length - 1;
+      };
+    },
+    // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
+    addHistory: function () {
+      this.histories.add(this.saveImage);
+      this.checkHistoryButtonStatus();
+      // console.log(this.currentIndex);
+      // 여기서 버튼 디스에이블하는것도 해줘야함
+    },
     setCtxProp: function () {
       console.log("inject.js e 내부 setCtxProp");
       this.ctx.strokeStyle = this.strokeStyle; // 선 색
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
       this.ctx.lineWidth = this.lineWidth; // 선 굵기
+      if (this.linePicker) {
+        this.linePicker.value = this.lineWidth;
+        this.linePickerPreview.innerHTML =
+          Math.round((this.linePicker.value / 20) * 100) + "%";
+      }
     },
     handlePanelAppearing: function (t) {
       console.log("inject.js e 내부 handlePanelAppearing");
       t.target.style.opacity = 1;
     },
+    hideControlPanel: function () {
+      console.log("inject.js e 내부 hideControlPanel", this.panel.parentNode);
+      this.addClass(this.panel.parentNode, "hide");
+      this.controlPanelHidden = !0;
+      "undefined" != typeof unsafeWindow &&
+        null !== unsafeWindow &&
+        (unsafeWindow.CTRL_HIDDEN = !0);
+    },
+    showControlPanel: function () {
+      console.log("inject.js e 내부 showControlPanel", this.panel.parentNode);
+      this.removeClass(this.panel.parentNode, "hide");
+      this.controlPanelHidden = !1;
+      "undefined" != typeof unsafeWindow &&
+        null !== unsafeWindow &&
+        (unsafeWindow.CTRL_HIDDEN = !1);
+    },
     handleResize: function (t) {
+      // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
+      // store, restore는 아직 없어서 주석해둠.
+      // paragraph는 아직 해석못함.
+      // console.log("resize");
       var e = !1,
         i = window_e.pageYOffset || document.documentElement.scrollTop,
         n =
@@ -547,45 +747,67 @@ var getCSSAnimationManager = function () {
       } else {
         // storeCanvas(t);
       }
-      this.canvas.width = s;
-      this.canvas.height = a;
-      e;
-      // this.updatePaintStyle();
+      this.canvas.width = s; // 여기서 ctx 속성 처음 초기화됨.
+      this.canvas.style.width = s + "px";
+      this.canvas.height = a; // 여기서 ctx 속성 두번째 초기화됨. 없애면 마우스랑 그려지는 위치 어긋남. 그러니 ctx 속성 설정해주는 함수 따로 만듦.
+      this.setCtxProp();
+      this.canvas.style.height = a + "px";
+      // if (!e) {
+      //   restoreCanvas();
+      // }
+      // updatePaintStyle();
       this.ctx.lineWidth = n;
+      if (this.array.length == 0) {
+        // 저장된 정보가 없으면 현재 정보 초기값을 추가해줌
+        this.histories.add(
+          this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
+        );
+      } else {
+        // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
+        this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+      }
     },
     createControlPanel: function () {
-      (this.panel = window_e.document.createElement("div")),
-        (this.backBtn = window_e.document.createElement("div")),
-        (this.nextBtn = window_e.document.createElement("div"));
+      this.panel = window_e.document.createElement("div");
+      this.backBtn = window_e.document.createElement("div");
+      this.nextBtn = window_e.document.createElement("div");
       var tools = window_e.document.createElement("div"),
         color = window_e.document.createElement("div"),
         controls = window_e.document.createElement("div"),
         transparency = window_e.document.createElement("div"),
         size_control = window_e.document.createElement("div");
       this.panel.setAttribute("id", "bnoty_controls");
-        
-      tools.setAttribute("class", "bnoty_controls_draw"),
-        color.setAttribute("class", "bnoty_controls_color"),
-        controls.setAttribute("class", "bnoty_controls_control"),
-        transparency.setAttribute(
-          "class",
-          "bnoty_controls_range alpha_control"
-        ),
-        size_control.setAttribute("class", "bnoty_controls_range size_control"),
-        window_e.document.body.appendChild(this.panel);
+      tools.setAttribute("class", "bnoty_controls_draw");
+      color.setAttribute("class", "bnoty_controls_color");
+      controls.setAttribute("class", "bnoty_controls_control");
+      transparency.setAttribute("class", "bnoty_controls_range alpha_control");
+      size_control.setAttribute("class", "bnoty_controls_range size_control");
 
-        // 추가 (서브)
-        var subtools = window_e.document.createElement("div");
-        subtools.id = "subtools";
-
-        this.panel.appendChild(tools),
-        this.panel.appendChild(color),
-        this.panel.appendChild(transparency),
-        this.panel.appendChild(size_control),
-        this.panel.appendChild(controls);
-
-        this.panel.appendChild(subtools);
-
+      var box = window_e.document.createElement("div");
+      box.setAttribute("class", "top_box");
+      window_e.document.body.appendChild(box);
+      var penBox = window_e.document.createElement("div"); // pen
+      penBox.setAttribute("class", "pen_box");
+      penBox.setAttribute("id", "penBox");
+      var textBox = window_e.document.createElement("div"); // text
+      textBox.setAttribute("class", "pen_box");
+      textBox.setAttribute("id", "textBox");
+      var figureBox = window_e.document.createElement("div"); // figure
+      figureBox.setAttribute("class", "pen_box");
+      figureBox.setAttribute("id", "figureBox");
+      var eraserBox = window_e.document.createElement("div"); // eraser
+      eraserBox.setAttribute("class", "pen_box");
+      eraserBox.setAttribute("id", "eraserBox");
+      var imageBox = window_e.document.createElement("div"); // image
+      imageBox.setAttribute("class", "pen_box");
+      imageBox.setAttribute("id", "imageBox");
+      box.appendChild(this.panel);
+      // window_e.document.body.appendChild(this.panel);
+      this.panel.appendChild(tools);
+      this.panel.appendChild(color);
+      this.panel.appendChild(transparency);
+      this.panel.appendChild(size_control);
+      this.panel.appendChild(controls);
       for (var o = 0; o < this.drawOptions.length; o++) {
         var a = this.drawOptions[o],
           r = window_e.document.createElement("div");
@@ -596,11 +818,340 @@ var getCSSAnimationManager = function () {
         //   "click",
         //   Function.prototype.bind.call(this.onControlPanelClick, this, o)
         // ),
+
+        if (!window_e.document.getElementById("penBox")) {
+          box.appendChild(penBox);
+          var tmp_pen = window_e.document.createElement("div");
+          var highlighterPen = window_e.document.createElement("div");
+          tmp_pen.setAttribute("class", "linePen");
+          tmp_pen.setAttribute("id", "pen1");
+          tmp_pen.setAttribute("title", "normal_pen");
+          highlighterPen.setAttribute("class", "highlighterPen");
+          highlighterPen.setAttribute("id", "pen2");
+          highlighterPen.setAttribute("title", "highlighter");
+          tmp_pen.addEventListener("click", function () {
+            e_group.activate = "pen";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
+          });
+          highlighterPen.addEventListener("click", function () {
+            e_group.activate = "highlighter";
+          });
+          penBox.appendChild(tmp_pen);
+          penBox.appendChild(highlighterPen);
+          window_e.document.getElementById("penBox").style.display = "none";
+        }
+
+        if (!window_e.document.getElementById("textBox")) {
+          box.appendChild(textBox);
+          var text = window_e.document.createElement("div"),
+            boldText = window_e.document.createElement("div"),
+            italicText = window_e.document.createElement("div");
+          text.setAttribute("class", "text");
+          text.setAttribute("id", "text");
+          text.setAttribute("title", "Input Text");
+          text.addEventListener("click", function () {});
+          boldText.setAttribute("class", "boldText");
+          boldText.setAttribute("id", "boldText");
+          boldText.setAttribute("title", "Bold Text");
+          italicText.setAttribute("class", "italicText");
+          italicText.setAttribute("id", "italicText");
+          italicText.setAttribute("title", "Italic Text");
+          textBox.appendChild(text);
+          textBox.appendChild(boldText);
+          textBox.appendChild(italicText);
+          window_e.document.getElementById("textBox").style.display = "none";
+        }
+
+        if (!window_e.document.getElementById("figureBox")) {
+          box.appendChild(figureBox);
+          var square = window_e.document.createElement("div");
+          var triangle = window_e.document.createElement("div");
+          var circle = window_e.document.createElement("div");
+          var line = window_e.document.createElement("div");
+          var curve = window_e.document.createElement("div");
+          var arrow = window_e.document.createElement("div");
+
+          square.setAttribute("class", "square");
+          square.setAttribute("id", "square");
+          square.setAttribute("title", "Square");
+          square.addEventListener("click", function () {
+            e_group.activate = "rectangle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
+          triangle.setAttribute("class", "triangle");
+          triangle.setAttribute("id", "triangle");
+          triangle.setAttribute("title", "Triangle");
+          triangle.addEventListener("click", function () {
+            e_group.activate = "triangle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
+          circle.setAttribute("class", "circle");
+          circle.setAttribute("id", "circle");
+          circle.setAttribute("title", "Circle");
+          circle.addEventListener("click", function () {
+            e_group.activate = "circle";
+            e_group.canvas.style.cursor = "crosshair";
+          });
+          line.setAttribute("class", "line");
+          line.setAttribute("id", "line");
+          line.setAttribute("title", "Line");
+          line.addEventListener("click", function () {
+            e_group.activate = "line";
+            e_group.canvas.style.cursor = "crosshair";
+          });
+          curve.setAttribute("class", "curve");
+          curve.setAttribute("id", "curve");
+          curve.setAttribute("title", "Curve");
+          curve.addEventListener("click", function () {
+            e_group.activate = "curve";
+            e_group.canvas.style.cursor = "crosshair";
+          });
+          arrow.setAttribute("class", "arrow");
+          arrow.setAttribute("id", "arrow");
+          arrow.setAttribute("title", "Arrow");
+          arrow.addEventListener("click", function () {
+            e_group.activate = "arrow";
+            e_group.canvas.style.cursor = "crosshair";
+          });
+          figureBox.appendChild(square);
+          figureBox.appendChild(triangle);
+          figureBox.appendChild(circle);
+          figureBox.appendChild(line);
+          figureBox.appendChild(curve);
+          figureBox.appendChild(arrow);
+          window_e.document.getElementById("figureBox").style.display = "none";
+        }
+
+        if (!window_e.document.getElementById("eraserBox")) {
+          box.appendChild(eraserBox);
+          var eraser = window_e.document.createElement("div");
+          var all_eraser = window_e.document.createElement("div");
+          eraser.setAttribute("class", "nomal_eraser");
+          eraser.setAttribute("id", "nomal_eraser");
+          eraser.setAttribute("title", "nomal_eraser");
+          all_eraser.setAttribute("class", "all_eraser");
+          all_eraser.setAttribute("id", "all_eraser");
+          all_eraser.setAttribute("title", "all_eraser");
+          eraser.addEventListener("click", function () {
+            e_group.activate = "eraser";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
+          });
+          all_eraser.addEventListener("click", function () {
+            e_group.ctx.clearRect(
+              0,
+              0,
+              e_group.canvas.width,
+              e_group.canvas.height
+            ); //clear canvas
+            e_group.saveImage = e_group.ctx.getImageData(
+              0,
+              0,
+              e_group.canvas.width,
+              e_group.canvas.height
+            );
+            e_group.addHistory();
+          });
+          eraserBox.appendChild(eraser);
+          eraserBox.appendChild(all_eraser);
+          window_e.document.getElementById("eraserBox").style.display = "none";
+        }
+
+        if (!window_e.document.getElementById("imageBox")) {
+          box.appendChild(imageBox);
+          var insert_image = window_e.document.createElement("div");
+          var insert_link = window_e.document.createElement("div");
+          insert_image.setAttribute("class", "insert_image");
+          insert_image.setAttribute("id", "insert_image");
+          insert_image.setAttribute("title", "insert image");
+          insert_link.setAttribute("class", "insert_link");
+          insert_link.setAttribute("id", "insert_link");
+          insert_link.setAttribute("title", "insert_link");
+          insert_image.addEventListener("click", function () {
+            e_group.activate = "insert_image";
+          });
+          insert_link.addEventListener("click", function () {
+            e_group.activate = "insert_link";
+          });
+          imageBox.appendChild(insert_image);
+          imageBox.appendChild(insert_link);
+          window_e.document.getElementById("imageBox").style.display = "none";
+        }
+
         if (a.type == "fill") {
           r.addEventListener("click", function () {
             e_group.activate = "fill";
-            e_group.activate = "injection_link";
-            // e_group.canvas.style.cursor = "pointer";
+            e_group.canvas.style.cursor = "pointer";
+            window_e.document.getElementById("penBox").style.display = "none";
+            window_e.document.getElementById("textBox").style.display = "none";
+            window_e.document.getElementById("figureBox").style.display =
+              "none";
+            window_e.document.getElementById("eraserBox").style.display =
+              "none";
+            window_e.document.getElementById("imageBox").style.display = "none";
+          });
+        } else if (a.type == "pen") {
+          r.addEventListener("click", function () {
+            if (
+              window_e.document.getElementById("penBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display =
+                "block";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            }
+            e_group.activate = "pen";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
+            e_group.setCtxProp();
+          });
+        } else if (a.type == "text") {
+          r.addEventListener("click", function () {
+            if (
+              window_e.document.getElementById("textBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "block";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            }
+          });
+        } else if (a.type == "figure") {
+          r.addEventListener("click", function () {
+            if (
+              window_e.document.getElementById("figureBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "block";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            }
+            e_group.activate = "rectangle";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.setCtxProp();
+          });
+        } else if (a.type == "eraser") {
+          r.addEventListener("click", function () {
+            if (
+              window_e.document.getElementById("eraserBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "block";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            }
+            e_group.activate = "eraser";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
+          });
+        } else if (a.type == "lasso") {
+          r.addEventListener("click", function () {
+            e_group.activate = "lasso";
+            e_group.canvas.style.cursor = "pointer";
+            window_e.document.getElementById("penBox").style.display = "none";
+            window_e.document.getElementById("textBox").style.display = "none";
+            window_e.document.getElementById("figureBox").style.display =
+              "none";
+            window_e.document.getElementById("eraserBox").style.display =
+              "none";
+            window_e.document.getElementById("imageBox").style.display = "none";
+          });
+        } else if (a.type == "image") {
+          r.addEventListener("click", function () {
+            if (
+              window_e.document.getElementById("eraserBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "block";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            }
           });
         }
         // linkinjection 
@@ -621,142 +1172,191 @@ var getCSSAnimationManager = function () {
           // this.triggerClick(r);
         }
       }
-      (this.colorPicker = window_e.document.createElement("input")),
-        this.colorPicker.setAttribute("type", "color"),
-        (this.colorPicker.value = this.config.color || "#000000"),
-        this.colorPicker.setAttribute("title", "Select a color"),
-        // this.colorPicker.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onColorPanelClick, this),
-        //   !1
-        // ),
-        color.appendChild(this.colorPicker),
-        (this.alphaPicker = window_e.document.createElement("input")),
-        this.alphaPicker.setAttribute("type", "range"),
-        this.alphaPicker.setAttribute("min", "0"),
-        this.alphaPicker.setAttribute("max", "1"),
-        this.alphaPicker.setAttribute("step", "0.01"),
-        (this.alphaPicker.value =
-          null !== this.config.alpha && void 0 !== this.config.alpha
-            ? this.config.alpha
-            : 1),
-        this.alphaPicker.setAttribute("title", "Select transparency"),
-        // this.alphaPicker.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onAlphaChange, this),
-        //   !1
-        // ),
-        // this.alphaPicker.addEventListener(
-        //   "input",
-        //   Function.prototype.bind.call(this.onAlphaUpdate, this),
-        //   !1
-        // ),
-        (this.alphaPickerPreview = window_e.document.createElement("p")),
-        transparency.appendChild(this.alphaPicker),
-        transparency.appendChild(this.alphaPickerPreview);
-      var h = window_e.document.createElement("input");
-      h.setAttribute("type", "range"),
-        h.setAttribute("min", "1"),
-        h.setAttribute("max", "20"),
-        h.setAttribute("step", "1"),
-        (h.value = this.config.thickness || 1),
-        h.setAttribute("title", "Select line width"),
-        // h.addEventListener(
-        //   "change",
-        //   Function.prototype.bind.call(this.onLineChange, this),
-        //   !1
-        // ),
-        // h.addEventListener(
-        //   "input",
-        //   Function.prototype.bind.call(this.onLineUpdate, this),
-        //   !1
-        // ),
-        (this.linePickerPreview = window_e.document.createElement("p")),
-        size_control.appendChild(h),
-        size_control.appendChild(this.linePickerPreview),
-        // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value)),
-        (this.selectedAlphaOption = this.alphaPicker.value),
-        (this.ctx.lineWidth = h.value),
-        (this.alphaPickerPreview.innerHTML =
-          Math.round(100 * this.selectedAlphaOption) + "%"),
-        (this.linePickerPreview.innerHTML =
-          Math.round((this.ctx.lineWidth / 20) * 100) + "%");
+      this.colorPicker = window_e.document.createElement("input");
+      this.colorPicker.setAttribute("type", "color");
+      this.colorPicker.value = this.config.color || "#000000";
+      this.colorPicker.setAttribute("title", "Select a color");
+      this.colorPicker.addEventListener("change", function (event) {
+        var color = event.currentTarget.value;
+        // 헥사값을 rgb로 변경
+        e_group.red = parseInt(color[1] + color[2], 16);
+        e_group.green = parseInt(color[3] + color[4], 16);
+        e_group.blue = parseInt(color[5] + color[6], 16);
+        e_group.strokeStyle =
+          "rgb(" + e_group.red + "," + e_group.green + "," + e_group.blue + ")";
+        e_group.setCtxProp();
+      });
+      color.appendChild(this.colorPicker);
+      this.alphaPicker = window_e.document.createElement("input");
+      this.alphaPicker.setAttribute("type", "range");
+      this.alphaPicker.setAttribute("min", "0");
+      this.alphaPicker.setAttribute("max", "1");
+      this.alphaPicker.setAttribute("step", "0.01");
+      this.alphaPicker.value =
+        null !== this.config.alpha && void 0 !== this.config.alpha
+          ? this.config.alpha
+          : 1;
+      this.alphaPicker.setAttribute("title", "Select transparency");
+      this.alphaPicker.addEventListener("change", function (event) {
+        e_group.globalAlpha = event.currentTarget.value;
+        e_group.setCtxProp();
+      });
+      this.alphaPicker.addEventListener("input", function (event) {
+        console.log("inject.js e 내부 onAlphaUpdate");
+        if (e_group.alphaPickerPreview) {
+          e_group.alphaPickerPreview.innerHTML =
+            Math.round(100 * event.currentTarget.value) + "%";
+        }
+      });
+      this.alphaPickerPreview = window_e.document.createElement("p");
+      transparency.appendChild(this.alphaPicker);
+      transparency.appendChild(this.alphaPickerPreview);
+      this.linePicker = window_e.document.createElement("input");
+      this.linePicker.setAttribute("type", "range");
+      this.linePicker.setAttribute("min", "1");
+      this.linePicker.setAttribute("max", "20");
+      this.linePicker.setAttribute("step", "1");
+      this.linePicker.value = this.config.thickness || 1;
+      this.linePicker.setAttribute("title", "Select line width");
+      this.linePicker.addEventListener("change", function (event) {
+        e_group.lineWidth = event.currentTarget.value;
+        e_group.setCtxProp();
+        console.log("굵기", event.currentTarget.value);
+      });
+      this.linePicker.addEventListener("input", function (event) {
+        console.log("inject.js e 내부 onLineUpdate");
+        if (e_group.linePickerPreview) {
+          e_group.linePickerPreview.innerHTML =
+            Math.round((event.currentTarget.value / 20) * 100) + "%";
+        }
+      });
+      this.linePickerPreview = window_e.document.createElement("p");
+      size_control.appendChild(this.linePicker);
+      size_control.appendChild(this.linePickerPreview);
+      // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value));
+      this.selectedAlphaOption = this.alphaPicker.value;
+      this.ctx.lineWidth = this.linePicker.value;
+      this.alphaPickerPreview.innerHTML =
+        Math.round(100 * this.selectedAlphaOption) + "%";
+      this.linePickerPreview.innerHTML =
+        Math.round((this.ctx.lineWidth / 20) * 100) + "%";
       // this.updatePaintStyle();
       var c = window_e.document.createElement("div"),
         l = window_e.document.createElement("div"),
-        d = window_e.document.createElement("div"),
-        u = window_e.document.createElement("div"),
+        control_erase = window_e.document.createElement("div"),
+        control_hide = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
-      c.setAttribute("class", "bnoty_controls_control_option prtBtn"),
-        c.setAttribute(
-          "title",
-          "Take a screenshot of the current web page with your drawings"
-        ),
-        l.setAttribute("class", "bnoty_controls_control_option exitBtn"),
-        l.setAttribute("title", "Quit"),
-        this.backBtn.setAttribute(
-          "class",
-          "bnoty_controls_control_option backBtn"
-        ),
-        this.backBtn.setAttribute("title", "Step backward"),
-        this.nextBtn.setAttribute(
-          "class",
-          "bnoty_controls_control_option nextBtn"
-        ),
-        this.nextBtn.setAttribute("title", "Step forward"),
-        d.setAttribute("class", "bnoty_controls_control_option eraseAllBtn"),
-        d.setAttribute("title", "Erase all"),
-        u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn"),
-        u.setAttribute(
-          "title",
-          "Close control panel (Click the extension icon to re-open)"
-        ),
-        p.setAttribute("class", "settingsBtn"),
-        p.setAttribute("title", "Settings"),
-        // c.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.onPrintButtonClick, this)
-        // ),
-        // l.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.exit, this)
-        // ),
-        // this.backBtn.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.handleBackButtonClick, this)
-        // ),
-        // this.nextBtn.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.handleForwardButtonClick, this)
-        // ),
-        // d.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.eraseAll, this)
-        // ),
-        // u.addEventListener(
-        //   "click",
-        //   Function.prototype.bind.call(this.hideControlPanel, this)
-        // ),
-        // p.addEventListener("click", function () {
-        //   global.runtime.sendMessage({
-        //     method: "open_options",
-        //   });
-        // }),
-        controls.appendChild(this.backBtn),
-        controls.appendChild(this.nextBtn),
-        controls.appendChild(d),
-        controls.appendChild(c),
-        controls.appendChild(u),
-        controls.appendChild(l),
-        controls.appendChild(p),
-        // this.checkHistoryButtonStatus(),
-        this.CSSAnimationManager.supported
-          ? this.panel.addEventListener(
-              this.CSSAnimationManager.end,
-              Function.prototype.bind.call(this.handlePanelAppearing, this),
-              !1
-            )
-          : (this.panel.style.opacity = 1);
+      c.setAttribute("class", "bnoty_controls_control_option prtBtn");
+      c.setAttribute(
+        "title",
+        "Take a screenshot of the current web page with your drawings"
+      );
+      l.setAttribute("class", "bnoty_controls_control_option exitBtn");
+      l.setAttribute("title", "Quit");
+      this.backBtn.setAttribute(
+        "class",
+        "bnoty_controls_control_option backBtn"
+      );
+      this.backBtn.setAttribute("title", "Step backward");
+      this.nextBtn.setAttribute(
+        "class",
+        "bnoty_controls_control_option nextBtn"
+      );
+      this.nextBtn.setAttribute("title", "Step forward");
+      this.backBtn.addEventListener("click", function () {
+        if (e_group.histories.hasPrevious()) {
+          e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
+        }
+      });
+      this.nextBtn.addEventListener("click", function () {
+        if (e_group.histories.hasNext()) {
+          e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
+        }
+      });
+      control_erase.setAttribute(
+        "class",
+        "bnoty_controls_control_option eraseAllBtn"
+      );
+      control_erase.setAttribute("title", "Erase all");
+      control_erase.addEventListener("click", function () {
+        e_group.ctx.clearRect(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); //clear canvas
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        );
+        e_group.addHistory();
+      });
+      control_hide.setAttribute(
+        "class",
+        "bnoty_controls_control_option hideCtrlBtn"
+      );
+      control_hide.setAttribute(
+        "title",
+        "Close control panel (Click the extension icon to re-open)"
+      );
+      p.setAttribute("class", "settingsBtn");
+      p.setAttribute("title", "Settings");
+      // c.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.onPrintButtonClick, this)
+      // );
+      l.addEventListener(
+        "click",
+        Function.prototype.bind.call(this.exit, this)
+      );
+      // this.backBtn.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.handleBackButtonClick, this)
+      // );
+      // this.nextBtn.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.handleForwardButtonClick, this)
+      // );
+      control_hide.addEventListener(
+        "click",
+        Function.prototype.bind.call(this.hideControlPanel, this)
+      );
+      // p.addEventListener("click", function () {
+      //   global.runtime.sendMessage({
+      //     method: "open_options",
+      //   });
+      // });
+      controls.appendChild(this.backBtn);
+      controls.appendChild(this.nextBtn);
+      controls.appendChild(control_erase);
+      controls.appendChild(c);
+      controls.appendChild(control_hide);
+      controls.appendChild(l);
+      controls.appendChild(p);
+      this.checkHistoryButtonStatus(); //이전 다음 버튼 활성화 비활성화 체크
+      this.CSSAnimationManager.supported
+        ? this.panel.addEventListener(
+            this.CSSAnimationManager.end,
+            Function.prototype.bind.call(this.handlePanelAppearing, this),
+            !1
+          )
+        : (this.panel.style.opacity = 1);
+      e_group.setCtxProp();
+    },
+    checkHistoryButtonStatus: function () {
+      // 이전 다음 버튼 활성화 비활성화 체크
+      if (this.nextBtn && this.backBtn) {
+        if (this.histories.hasNext())
+          this.removeClass(this.nextBtn, "disabled");
+        else this.addClass(this.nextBtn, "disabled");
+        if (this.histories.hasPrevious())
+          this.removeClass(this.backBtn, "disabled");
+        else this.addClass(this.backBtn, "disabled");
+      }
     },
     addClass: function (t, e) {
       0 <= t.className.indexOf(e) || (t.className = t.className + " " + e);
@@ -893,6 +1493,57 @@ var getCSSAnimationManager = function () {
           D(x2 + 1, y2) && !p && array_1.push([x2 + 1, y2]);
         }
       }
+    },
+    exit: function () {
+      console.log("inject.js e 내부 exit");
+      this.canvas.parentNode.removeChild(this.canvas),
+        this.panel.parentNode.parentNode.removeChild(this.panel.parentNode),
+        window_e.removeEventListener("resize", this.resizeBinded),
+        window_e.removeEventListener("scroll", this.resizeBinded),
+        (this.canvas = null),
+        (this.ctx = null),
+        (this.initialized = !1),
+        (this.controlPanelHidden = !1),
+        (this.painting = false),
+        (this.selectedAlphaOption = null),
+        (this.resizeTimeoutID = null),
+        (this.paragraph = null),
+        (this.panel = null),
+        (this.strokeStyle = "rgb(0, 0, 0)"),
+        (this.lineWidth = 3),
+        (this.globalAlpha = 1),
+        (this.paragraph = null),
+        (this.activate = "pen"),
+        (this.saveImage = null),
+        (this.saveLasso = [null, null]),
+        (this.histories = null),
+        (this.MAX_ITEMS = null),
+        (this.currentIndex = null),
+        (this.array = []),
+        (this.red = 0),
+        (this.green = 0),
+        (this.blue = 0),
+        (this.sX = null),
+        (this.sY = null),
+        (this.eX = null),
+        (this.eY = null),
+        (this.mX = null),
+        (this.mY = null),
+        (this.lassosX = null),
+        (this.lassosY = null),
+        (this.lassoeX = null),
+        (this.lassoeY = null),
+        (this.lassosubX = null),
+        (this.lassosubY = null),
+        (this.hasInput = false),
+        (this.size = "20px"),
+        (this.font = "sans-serif"),
+        (this.boldtext = ""),
+        (this.italictext = ""),
+        (this.textactive = false),
+        "undefined" != typeof unsafeWindow &&
+          null !== unsafeWindow &&
+          ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
     },
     render: function (t) {
       this.config = t || {};
