@@ -749,6 +749,7 @@ var getCSSAnimationManager = function () {
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
       this.histories.add(this.saveImage);
+      this.checkHistoryButtonStatus();
       console.log(this.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
@@ -1322,11 +1323,13 @@ var getCSSAnimationManager = function () {
       this.backBtn.addEventListener("click", function () {
         if (e_group.histories.hasPrevious()) {
           e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
+          e_group.checkHistoryButtonStatus() // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       this.nextBtn.addEventListener("click", function () {
         if (e_group.histories.hasNext()) {
           e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
+          e_group.checkHistoryButtonStatus() // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       control_erase.setAttribute(
@@ -1391,7 +1394,7 @@ var getCSSAnimationManager = function () {
       controls.appendChild(control_hide);
       controls.appendChild(l);
       controls.appendChild(p);
-      // this.checkHistoryButtonStatus();
+      this.checkHistoryButtonStatus(); //이전 다음 버튼 활성화 비활성화 체크
       this.CSSAnimationManager.supported
         ? this.panel.addEventListener(
             this.CSSAnimationManager.end,
@@ -1399,6 +1402,18 @@ var getCSSAnimationManager = function () {
             !1
           )
         : (this.panel.style.opacity = 1);
+    },
+    checkHistoryButtonStatus: function () { // 이전 다음 버튼 활성화 비활성화 체크
+      if(this.nextBtn && this.backBtn){
+        if (this.histories.hasNext())
+          this.removeClass(this.nextBtn, "disabled")
+        else
+          this.addClass(this.nextBtn, "disabled")
+        if (this.histories.hasPrevious())
+          this.removeClass(this.backBtn, "disabled")
+        else
+          this.addClass(this.backBtn, "disabled")
+      }
     },
     addClass: function (t, e) {
       0 <= t.className.indexOf(e) || (t.className = t.className + " " + e);
