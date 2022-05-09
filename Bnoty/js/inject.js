@@ -184,10 +184,11 @@ var getCSSAnimationManager = function () {
     boldtext: "", // 볼드
     italictext: "", // 기울이기
     textactive: false, // 텍스트 입력중인지 체크
+    img: null,
     //링크용함수
-    linkX : null,
-    linkY : null,
-    linkcount : 0, // 이건 저장해야함
+    linkX: null,
+    linkY: null,
+    linkcount: 0, // 이건 저장해야함
 
     startPainting: function (event) {
       event.preventDefault();
@@ -252,10 +253,9 @@ var getCSSAnimationManager = function () {
           }
         }
         // real link injection
-        if ( this.activate == "insert_link"){
-          this.LinkInputField( event.offsetX, event.offsetY);
+        if (this.activate == "insert_link") {
+          this.LinkInputField(event.offsetX, event.offsetY);
         }
-
       }
     },
     stopPainting: function (event) {
@@ -544,6 +544,15 @@ var getCSSAnimationManager = function () {
           );
           this.ctx.setLineDash([]); // 실선으로 변경
           this.ctx.restore();
+        } else if (this.activate == "insert_image") {
+          // e_group.ctx.save();
+          e_group.ctx.drawImage(
+            e_group.img,
+            this.sX,
+            this.sY,
+            this.eX - this.sX,
+            this.eY - this.sY
+          );
         }
       }
     },
@@ -554,9 +563,135 @@ var getCSSAnimationManager = function () {
           this.handleMouseClick();
         }
         if (!this.hasInput) {
-          console.log("실행됨");
           this.addInput(event.offsetX, event.offsetY);
         }
+      }
+    },
+    addInput: function (x, y) {
+      var input = document.createElement("input");
+
+      input.id = "textbox";
+      input.type = "text";
+      input.style.position = "fixed";
+      input.style.left = x + "px";
+      input.style.top = y + "px";
+      input.style.width = "500px";
+      // input.style.outline = "none";
+      // input.style.border = "none";
+      // input.style.backgroundColor = "transparent";
+      input.style.opacity = "0.5";
+      input.style.filter.opacity = "0.5";
+      input.style.fontSize = e_group.size;
+      input.style.zIndex = "2147483647";
+
+      input.onkeydown = this.handleENTER;
+
+      document.body.appendChild(input);
+
+      input.focus();
+
+      this.hasInput = true;
+      this.textactive = true;
+    },
+    handleENTER: function (event) {
+      // 공백문자인지 판단하는 패턴
+      var blank_pattern = /^\s+|\s+$/g;
+      var keyCode = event.keyCode;
+      if (keyCode === 13) {
+        e_group.drawText(
+          this.value,
+          parseInt(this.style.left, 10),
+          parseInt(this.style.top, 10)
+        );
+        document.body.removeChild(this);
+        // 공백문자일 경우 저장안됨
+        if (this.value.replace(blank_pattern, "") != "") {
+          e_group.saveImage = e_group.ctx.getImageData(
+            0,
+            0,
+            e_group.canvas.width,
+            e_group.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          e_group.addHistory();
+        }
+        e_group.hasInput = false;
+        e_group.textactive = false;
+      }
+    },
+    handleMouseClick: function () {
+      var inputs = document.getElementById("textbox");
+      var blank_pattern = /^\s+|\s+$/g;
+
+      if (inputs.value.replace(blank_pattern, "") != "") {
+        console.log("value : " + inputs.value);
+        e_group.drawText(
+          inputs.value,
+          parseInt(inputs.style.left, 10),
+          parseInt(inputs.style.top, 10)
+        );
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        e_group.addHistory();
+      }
+      document.body.removeChild(inputs);
+      e_group.hasInput = false;
+      e_group.textactive = false;
+    },
+    // 캔버스에 글자 그리는 함수
+    drawText: function (txt, x, y) {
+      this.ctx.textBaseline = "top";
+      this.ctx.textAlign = "left";
+      // 폰트는 굵기, 기울이기, 크기, 폰트로 들어감
+      this.ctx.font =
+        e_group.boldtext +
+        " " +
+        e_group.italictext +
+        " " +
+        e_group.size +
+        " " +
+        e_group.font;
+      this.ctx.fillText(txt, x, y);
+    },
+    clearLasso: function () {
+      if (
+        e_group.lassosX == e_group.lassosubX &&
+        e_group.lassosY == e_group.lassosubY
+      ) {
+        e_group.ctx.putImageData(e_group.array[e_group.currentIndex], 0, 0);
+        // e_group.currentIndex--;
+        (e_group.saveLasso[0] = null),
+          (e_group.saveLasso[1] = null),
+          (e_group.lassosX = null),
+          (e_group.lassosY = null),
+          (e_group.lassoeX = null),
+          (e_group.lassoeY = null),
+          (e_group.lassosubX = null),
+          (e_group.lassosubY = null);
+      } else {
+        e_group.ctx.putImageData(
+          e_group.saveLasso[0],
+          e_group.lassosX,
+          e_group.lassosY
+        );
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        e_group.addHistory();
+        (e_group.saveLasso[0] = null),
+          (e_group.saveLasso[1] = null),
+          (e_group.lassosX = null),
+          (e_group.lassosY = null),
+          (e_group.lassoeX = null),
+          (e_group.lassoeY = null),
+          (e_group.lassosubX = null),
+          (e_group.lassosubY = null);
       }
     },
     createCanvas: function () {
@@ -603,7 +738,7 @@ var getCSSAnimationManager = function () {
       this.canvas.addEventListener("mouseup", stopPainting);
       this.canvas.addEventListener("touchend", stopPainting);
       this.canvas.addEventListener("mouseleave", leaveStopPainting);
-      // this.canvas.addEventListener("click", onMouseClick);
+      this.canvas.addEventListener("click", onMouseClick);
       // window_e.document.addEventListener("keydown", this.keydownBinded);
       // window_e.document.addEventListener("keypress", this.keypressBinded);
     },
@@ -826,10 +961,14 @@ var getCSSAnimationManager = function () {
           highlighterPen.setAttribute("id", "pen2");
           highlighterPen.setAttribute("title", "highlighter");
           tmp_pen.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
           });
           highlighterPen.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "highlighter";
           });
           penBox.appendChild(tmp_pen);
@@ -845,13 +984,34 @@ var getCSSAnimationManager = function () {
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
-          text.addEventListener("click", function () {});
+          text.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.activate = "text";
+          });
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
           boldText.setAttribute("title", "Bold Text");
+          boldText.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.activate = "text";
+            if (e_group.boldtext == "bold") {
+              e_group.boldtext = "";
+            } else {
+              e_group.boldtext = "bold";
+            }
+          });
           italicText.setAttribute("class", "italicText");
           italicText.setAttribute("id", "italicText");
           italicText.setAttribute("title", "Italic Text");
+          italicText.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.activate = "text";
+            if (e_group.italictext == "italic") {
+              e_group.italictext = "";
+            } else {
+              e_group.italictext = "italic";
+            }
+          });
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
@@ -871,6 +1031,8 @@ var getCSSAnimationManager = function () {
           square.setAttribute("id", "square");
           square.setAttribute("title", "Square");
           square.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -878,6 +1040,8 @@ var getCSSAnimationManager = function () {
           triangle.setAttribute("id", "triangle");
           triangle.setAttribute("title", "Triangle");
           triangle.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "triangle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -885,6 +1049,8 @@ var getCSSAnimationManager = function () {
           circle.setAttribute("id", "circle");
           circle.setAttribute("title", "Circle");
           circle.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "circle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -892,6 +1058,8 @@ var getCSSAnimationManager = function () {
           line.setAttribute("id", "line");
           line.setAttribute("title", "Line");
           line.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "line";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -899,6 +1067,8 @@ var getCSSAnimationManager = function () {
           curve.setAttribute("id", "curve");
           curve.setAttribute("title", "Curve");
           curve.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "curve";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -906,6 +1076,8 @@ var getCSSAnimationManager = function () {
           arrow.setAttribute("id", "arrow");
           arrow.setAttribute("title", "Arrow");
           arrow.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "arrow";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -929,6 +1101,8 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("id", "all_eraser");
           all_eraser.setAttribute("title", "all_eraser");
           eraser.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
             e_group.ctx.lineWidth = 5;
@@ -937,6 +1111,8 @@ var getCSSAnimationManager = function () {
               Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
           all_eraser.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.ctx.clearRect(
               0,
               0,
@@ -959,17 +1135,44 @@ var getCSSAnimationManager = function () {
         if (!window_e.document.getElementById("imageBox")) {
           box.appendChild(imageBox);
           var insert_image = window_e.document.createElement("div");
+          var fileChange = window.document.createElement("input");
           var insert_link = window_e.document.createElement("div");
           insert_image.setAttribute("class", "insert_image");
           insert_image.setAttribute("id", "insert_image");
           insert_image.setAttribute("title", "insert image");
+          fileChange.setAttribute("type", "file");
+          fileChange.setAttribute("id", "fileloader");
+          fileChange.style.visibility = "hidden";
+          insert_image.setAttribute("type", "file");
           insert_link.setAttribute("class", "insert_link");
           insert_link.setAttribute("id", "insert_link");
           insert_link.setAttribute("title", "insert_link");
           insert_image.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "insert_image";
+            fileChange.click();
+          });
+          fileChange.addEventListener("change", function (event) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+              e_group.img = new Image();
+              e_group.img.src = e.target.result;
+              e_group.img.onload = function () {
+                e_group.saveImage = e_group.ctx.getImageData(
+                  0,
+                  0,
+                  e_group.canvas.width,
+                  e_group.canvas.height
+                ); // 지금까지 그린 정보를 저장
+                e_group.addHistory();
+              };
+            };
+            reader.readAsDataURL(event.target.files[0]);
           });
           insert_link.addEventListener("click", function () {
+            e_group.handleMouseClick();
+            e_group.clearLasso();
             e_group.activate = "insert_link";
           });
           imageBox.appendChild(insert_image);
@@ -1112,6 +1315,7 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "lasso") {
           r.addEventListener("click", function () {
+            e_group.handleMouseClick();
             e_group.activate = "lasso";
             e_group.canvas.style.cursor = "pointer";
             window_e.document.getElementById("penBox").style.display = "none";
@@ -1598,16 +1802,16 @@ var getCSSAnimationManager = function () {
           null !== unsafeWindow &&
           (unsafeWindow.bnoty_INIT = !0);
     },
-    // 링크 넣는 창 입력하기 
+    // 링크 넣는 창 입력하기
     LinkInputField: function (x, y) {
       // alert("링크입력");
       // a태그
       var atag = window_e.document.createElement("div");
       atag.setAttribute("id", "linkdiv");
-      atag.style.position = 'absolute';
-      atag.style.width = 280 + 'px';
-      atag.style.left = x + 'px';
-      atag.style.top = y + 'px';
+      atag.style.position = "absolute";
+      atag.style.width = 280 + "px";
+      atag.style.left = x + "px";
+      atag.style.top = y + "px";
       atag.style.zIndex = 2147483647;
       e_group.linkX = x;
       e_group.linkY = y;
@@ -1620,7 +1824,6 @@ var getCSSAnimationManager = function () {
       input2.setAttribute("type", "button");
       input2.setAttribute("value", "확인");
       input2.addEventListener("click", this.linkclickfuntion);
-      
 
       // 추가
       atag.appendChild(input1);
@@ -1629,12 +1832,10 @@ var getCSSAnimationManager = function () {
 
       // 바꿔주기
       e_group.activate = "nothing";
-
-
     },
-    linkclickfuntion:function(){
+    linkclickfuntion: function () {
       // alert("클릭");
-      
+
       // 링크 가져오기
       var goto = document.getElementById("linkinput").value;
       // console.log(document.getElementById("linkinput").value);
@@ -1642,21 +1843,24 @@ var getCSSAnimationManager = function () {
 
       // 이미지 생성
       var atag = window_e.document.createElement("a");
-      atag.setAttribute( 'target', "”_blank”" );
-      atag.setAttribute( 'href', goto );
-      atag.addEventListener('contextmenu', function() {
+      atag.setAttribute("target", "”_blank”");
+      atag.setAttribute("href", goto);
+      atag.addEventListener("contextmenu", function () {
         this.remove();
       });
-      atag.style.position = 'absolute';
-      atag.style.width = 24 + 'px';
-      atag.style.height = 24 + 'px';
-      atag.style.left = e_group.linkX + 'px';
-      atag.style.top = e_group.linkY + 'px';
+      atag.style.position = "absolute";
+      atag.style.width = 24 + "px";
+      atag.style.height = 24 + "px";
+      atag.style.left = e_group.linkX + "px";
+      atag.style.top = e_group.linkY + "px";
       atag.style.zIndex = 2147483647;
 
       var imgtag = window_e.document.createElement("img");
-      imgtag.setAttribute("src", "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png");
-      imgtag.setAttribute("alt", "IU");  
+      imgtag.setAttribute(
+        "src",
+        "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png"
+      );
+      imgtag.setAttribute("alt", "IU");
       imgtag.setAttribute("width", "24");
       imgtag.setAttribute("height", "24");
 
@@ -1664,14 +1868,12 @@ var getCSSAnimationManager = function () {
       atag.appendChild(imgtag);
       document.body.appendChild(atag);
 
-      // 지워주기 
+      // 지워주기
       let target = document.getElementById("linkdiv");
       target.remove();
 
-      // 이미지 생성 
-    }
-
-
+      // 이미지 생성
+    },
   };
   return e_group;
 });
