@@ -622,24 +622,26 @@ var getCSSAnimationManager = function () {
       var inputs = document.getElementById("textbox");
       var blank_pattern = /^\s+|\s+$/g;
 
-      if (inputs.value.replace(blank_pattern, "") != "") {
-        console.log("value : " + inputs.value);
-        e_group.drawText(
-          inputs.value,
-          parseInt(inputs.style.left, 10),
-          parseInt(inputs.style.top, 10)
-        );
-        e_group.saveImage = e_group.ctx.getImageData(
-          0,
-          0,
-          e_group.canvas.width,
-          e_group.canvas.height
-        ); // 지금까지 그린 정보를 저장
-        e_group.addHistory();
+      if (inputs != null) {
+        if (inputs.value.replace(blank_pattern, "") != "") {
+          console.log("value : " + inputs.value);
+          e_group.drawText(
+            inputs.value,
+            parseInt(inputs.style.left, 10),
+            parseInt(inputs.style.top, 10)
+          );
+          e_group.saveImage = e_group.ctx.getImageData(
+            0,
+            0,
+            e_group.canvas.width,
+            e_group.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          e_group.addHistory();
+        }
+        document.body.removeChild(inputs);
+        e_group.hasInput = false;
+        e_group.textactive = false;
       }
-      document.body.removeChild(inputs);
-      e_group.hasInput = false;
-      e_group.textactive = false;
     },
     // 캔버스에 글자 그리는 함수
     drawText: function (txt, x, y) {
@@ -961,14 +963,10 @@ var getCSSAnimationManager = function () {
           highlighterPen.setAttribute("id", "pen2");
           highlighterPen.setAttribute("title", "highlighter");
           tmp_pen.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
           });
           highlighterPen.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "highlighter";
           });
           penBox.appendChild(tmp_pen);
@@ -985,15 +983,12 @@ var getCSSAnimationManager = function () {
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
           text.addEventListener("click", function () {
-            e_group.clearLasso();
             e_group.activate = "text";
           });
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
           boldText.setAttribute("title", "Bold Text");
           boldText.addEventListener("click", function () {
-            e_group.clearLasso();
-            e_group.activate = "text";
             if (e_group.boldtext == "bold") {
               e_group.boldtext = "";
             } else {
@@ -1004,8 +999,6 @@ var getCSSAnimationManager = function () {
           italicText.setAttribute("id", "italicText");
           italicText.setAttribute("title", "Italic Text");
           italicText.addEventListener("click", function () {
-            e_group.clearLasso();
-            e_group.activate = "text";
             if (e_group.italictext == "italic") {
               e_group.italictext = "";
             } else {
@@ -1031,8 +1024,6 @@ var getCSSAnimationManager = function () {
           square.setAttribute("id", "square");
           square.setAttribute("title", "Square");
           square.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -1040,8 +1031,6 @@ var getCSSAnimationManager = function () {
           triangle.setAttribute("id", "triangle");
           triangle.setAttribute("title", "Triangle");
           triangle.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "triangle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -1049,8 +1038,6 @@ var getCSSAnimationManager = function () {
           circle.setAttribute("id", "circle");
           circle.setAttribute("title", "Circle");
           circle.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "circle";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -1058,8 +1045,6 @@ var getCSSAnimationManager = function () {
           line.setAttribute("id", "line");
           line.setAttribute("title", "Line");
           line.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "line";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -1067,8 +1052,6 @@ var getCSSAnimationManager = function () {
           curve.setAttribute("id", "curve");
           curve.setAttribute("title", "Curve");
           curve.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "curve";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -1076,8 +1059,6 @@ var getCSSAnimationManager = function () {
           arrow.setAttribute("id", "arrow");
           arrow.setAttribute("title", "Arrow");
           arrow.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "arrow";
             e_group.canvas.style.cursor = "crosshair";
           });
@@ -1101,8 +1082,6 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("id", "all_eraser");
           all_eraser.setAttribute("title", "all_eraser");
           eraser.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
             e_group.ctx.lineWidth = 5;
@@ -1111,8 +1090,6 @@ var getCSSAnimationManager = function () {
               Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
           all_eraser.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.ctx.clearRect(
               0,
               0,
@@ -1148,8 +1125,6 @@ var getCSSAnimationManager = function () {
           insert_link.setAttribute("id", "insert_link");
           insert_link.setAttribute("title", "insert_link");
           insert_image.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "insert_image";
             fileChange.click();
           });
@@ -1171,8 +1146,6 @@ var getCSSAnimationManager = function () {
             reader.readAsDataURL(event.target.files[0]);
           });
           insert_link.addEventListener("click", function () {
-            e_group.handleMouseClick();
-            e_group.clearLasso();
             e_group.activate = "insert_link";
           });
           imageBox.appendChild(insert_image);
@@ -1182,6 +1155,8 @@ var getCSSAnimationManager = function () {
 
         if (a.type == "fill") {
           r.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.handleMouseClick();
             e_group.activate = "fill";
             e_group.canvas.style.cursor = "pointer";
             window_e.document.getElementById("penBox").style.display = "none";
@@ -1194,6 +1169,8 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.handleMouseClick();
             if (
               window_e.document.getElementById("penBox").style.display ===
               "none"
@@ -1225,6 +1202,8 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
+            e_group.activate = "text";
+            e_group.clearLasso();
             if (
               window_e.document.getElementById("textBox").style.display ===
               "none"
@@ -1252,6 +1231,8 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "figure") {
           r.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.handleMouseClick();
             if (
               window_e.document.getElementById("figureBox").style.display ===
               "none"
@@ -1282,6 +1263,8 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.handleMouseClick();
             if (
               window_e.document.getElementById("eraserBox").style.display ===
               "none"
@@ -1328,6 +1311,8 @@ var getCSSAnimationManager = function () {
           });
         } else if (a.type == "image") {
           r.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.handleMouseClick();
             if (
               window_e.document.getElementById("eraserBox").style.display ===
               "none"
