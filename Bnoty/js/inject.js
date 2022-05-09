@@ -309,7 +309,7 @@ var getCSSAnimationManager = function () {
           (this.lassosubY = null);
       }
       this.painting = false;
-      if (this.activate != "text" && this.saveLasso[0] == null) {
+      if (this.activate != "text" && this.activate != "insert_link" && this.activate!="nothing" && this.saveLasso[0] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -349,7 +349,7 @@ var getCSSAnimationManager = function () {
           }
         }
         this.painting = false;
-        if (this.activate != "text" && this.saveLasso[0] == null) {
+        if (this.activate != "text" && this.activate != "nothing" && this.saveLasso[0] == null) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -799,7 +799,6 @@ var getCSSAnimationManager = function () {
       this.histories.add(this.saveImage);
       this.checkHistoryButtonStatus();
       console.log(this.currentIndex);
-      // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
       console.log("inject.js e 내부 setCtxProp");
