@@ -184,6 +184,10 @@ var getCSSAnimationManager = function () {
     boldtext: "", // 볼드
     italictext: "", // 기울이기
     textactive: false, // 텍스트 입력중인지 체크
+    //링크용함수
+    linkX : null,
+    linkY : null,
+    linkcount : 0, // 이건 저장해야함
 
     startPainting: function (event) {
       event.preventDefault();
@@ -247,6 +251,11 @@ var getCSSAnimationManager = function () {
               (this.lassosubY = null);
           }
         }
+        // real link injection
+        if ( this.activate == "insert_link"){
+          this.LinkInputField( event.offsetX, event.offsetY);
+        }
+
       }
     },
     stopPainting: function (event) {
@@ -1141,6 +1150,7 @@ var getCSSAnimationManager = function () {
             }
           });
         }
+
         tools.appendChild(r);
         if (
           !(
@@ -1588,6 +1598,80 @@ var getCSSAnimationManager = function () {
           null !== unsafeWindow &&
           (unsafeWindow.bnoty_INIT = !0);
     },
+    // 링크 넣는 창 입력하기 
+    LinkInputField: function (x, y) {
+      // alert("링크입력");
+      // a태그
+      var atag = window_e.document.createElement("div");
+      atag.setAttribute("id", "linkdiv");
+      atag.style.position = 'absolute';
+      atag.style.width = 280 + 'px';
+      atag.style.left = x + 'px';
+      atag.style.top = y + 'px';
+      atag.style.zIndex = 2147483647;
+      e_group.linkX = x;
+      e_group.linkY = y;
+      var input1 = window_e.document.createElement("input");
+      input1.setAttribute("id", "linkinput");
+      input1.setAttribute("type", "text");
+      input1.setAttribute("placeholder", "링크입력");
+
+      var input2 = window_e.document.createElement("input");
+      input2.setAttribute("type", "button");
+      input2.setAttribute("value", "확인");
+      input2.addEventListener("click", this.linkclickfuntion);
+      
+
+      // 추가
+      atag.appendChild(input1);
+      atag.appendChild(input2);
+      document.body.appendChild(atag);
+
+      // 바꿔주기
+      e_group.activate = "nothing";
+
+
+    },
+    linkclickfuntion:function(){
+      // alert("클릭");
+      
+      // 링크 가져오기
+      var goto = document.getElementById("linkinput").value;
+      // console.log(document.getElementById("linkinput").value);
+      console.log(goto);
+
+      // 이미지 생성
+      var atag = window_e.document.createElement("a");
+      atag.setAttribute( 'target', "”_blank”" );
+      atag.setAttribute( 'href', goto );
+      atag.addEventListener('contextmenu', function() {
+        this.remove();
+      });
+      atag.style.position = 'absolute';
+      atag.style.width = 24 + 'px';
+      atag.style.height = 24 + 'px';
+      atag.style.left = e_group.linkX + 'px';
+      atag.style.top = e_group.linkY + 'px';
+      atag.style.zIndex = 2147483647;
+
+      var imgtag = window_e.document.createElement("img");
+      imgtag.setAttribute("src", "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png");
+      imgtag.setAttribute("alt", "IU");  
+      imgtag.setAttribute("width", "24");
+      imgtag.setAttribute("height", "24");
+
+      // 추가
+      atag.appendChild(imgtag);
+      document.body.appendChild(atag);
+
+      // 지워주기 
+      let target = document.getElementById("linkdiv");
+      target.remove();
+
+      // 이미지 생성 
+    }
+
+
   };
   return e_group;
 });
