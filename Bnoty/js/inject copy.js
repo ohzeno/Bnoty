@@ -217,27 +217,34 @@ var getCSSAnimationManager = function () {
             this.sY > this.lassoeY)
         ) {
           // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
-          if(this.lassosX == this.lassosubX && this.lassosY == this.lassosubY){
+          if (
+            this.lassosX == this.lassosubX &&
+            this.lassosY == this.lassosubY
+          ) {
             this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
             this.currentIndex--;
-            this.saveLasso[0] = null,
-            this.saveLasso[1] = null,
-            this.lassosX = null,
-            this.lassosY= null,
-            this.lassoeX = null,
-            this.lassoeY = null,
-            this.lassosubX = null,
-            this.lassosubY = null
-          }else{
-            this.ctx.putImageData(this.saveLasso[0], this.lassosX, this.lassosY)
-            this.saveLasso[0] = null,
-            this.saveLasso[1] = null,
-            this.lassosX = null,
-            this.lassosY= null,
-            this.lassoeX = null,
-            this.lassoeY = null,
-            this.lassosubX = null,
-            this.lassosubY = null
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          } else {
+            this.ctx.putImageData(
+              this.saveLasso[0],
+              this.lassosX,
+              this.lassosY
+            );
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
           }
         }
       }
@@ -322,18 +329,18 @@ var getCSSAnimationManager = function () {
           if (this.saveLasso[1] != null || this.saveLasso[0] != null) {
             this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
             this.currentIndex--;
-            this.saveLasso[0] = null,
-            this.saveLasso[1] = null,
-            this.lassosX = null,
-            this.lassosY= null,
-            this.lassoeX = null,
-            this.lassoeY = null,
-            this.lassosubX = null,
-            this.lassosubY = null
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
           }
         }
         this.painting = false;
-        if (this.activate != "text"  && this.saveLasso[0] == null ) {
+        if (this.activate != "text" && this.saveLasso[0] == null) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -515,7 +522,8 @@ var getCSSAnimationManager = function () {
             );
           }
           this.ctx.save();
-          this.ctx.strokeStyle = "rgba(46,112,245)"; // 파란색
+          this.ctx.strokeStyle = "rgb(255,85,160)"; // 핑크색
+          this.ctx.globalAlpha = 1;
           this.ctx.lineWidth = 1;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
           this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
@@ -643,6 +651,8 @@ var getCSSAnimationManager = function () {
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
       this.histories.add(this.saveImage);
+      this.checkHistoryButtonStatus();
+      // console.log(this.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
@@ -651,6 +661,11 @@ var getCSSAnimationManager = function () {
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
       this.ctx.lineWidth = this.lineWidth; // 선 굵기
+      if (this.linePicker) {
+        this.linePicker.value = this.lineWidth;
+        this.linePickerPreview.innerHTML =
+          Math.round((this.linePicker.value / 20) * 100) + "%";
+      }
     },
     handlePanelAppearing: function (t) {
       console.log("inject.js e 내부 handlePanelAppearing");
@@ -907,6 +922,10 @@ var getCSSAnimationManager = function () {
           eraser.addEventListener("click", function () {
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
           all_eraser.addEventListener("click", function () {
             e_group.ctx.clearRect(
@@ -988,6 +1007,9 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "pen";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
+            e_group.setCtxProp();
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
@@ -1042,6 +1064,9 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "rectangle";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.setCtxProp();
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
@@ -1069,6 +1094,12 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "eraser";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
         } else if (a.type == "lasso") {
           r.addEventListener("click", function () {
@@ -1160,18 +1191,19 @@ var getCSSAnimationManager = function () {
       this.alphaPickerPreview = window_e.document.createElement("p");
       transparency.appendChild(this.alphaPicker);
       transparency.appendChild(this.alphaPickerPreview);
-      var linePicker = window_e.document.createElement("input");
-      linePicker.setAttribute("type", "range");
-      linePicker.setAttribute("min", "1");
-      linePicker.setAttribute("max", "20");
-      linePicker.setAttribute("step", "1");
-      linePicker.value = this.config.thickness || 1;
-      linePicker.setAttribute("title", "Select line width");
-      linePicker.addEventListener("change", function (event) {
+      this.linePicker = window_e.document.createElement("input");
+      this.linePicker.setAttribute("type", "range");
+      this.linePicker.setAttribute("min", "1");
+      this.linePicker.setAttribute("max", "20");
+      this.linePicker.setAttribute("step", "1");
+      this.linePicker.value = this.config.thickness || 1;
+      this.linePicker.setAttribute("title", "Select line width");
+      this.linePicker.addEventListener("change", function (event) {
         e_group.lineWidth = event.currentTarget.value;
         e_group.setCtxProp();
+        console.log("굵기", event.currentTarget.value);
       });
-      linePicker.addEventListener("input", function (event) {
+      this.linePicker.addEventListener("input", function (event) {
         console.log("inject.js e 내부 onLineUpdate");
         if (e_group.linePickerPreview) {
           e_group.linePickerPreview.innerHTML =
@@ -1179,11 +1211,11 @@ var getCSSAnimationManager = function () {
         }
       });
       this.linePickerPreview = window_e.document.createElement("p");
-      size_control.appendChild(linePicker);
+      size_control.appendChild(this.linePicker);
       size_control.appendChild(this.linePickerPreview);
       // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value));
       this.selectedAlphaOption = this.alphaPicker.value;
-      this.ctx.lineWidth = linePicker.value;
+      this.ctx.lineWidth = this.linePicker.value;
       this.alphaPickerPreview.innerHTML =
         Math.round(100 * this.selectedAlphaOption) + "%";
       this.linePickerPreview.innerHTML =
@@ -1214,11 +1246,13 @@ var getCSSAnimationManager = function () {
       this.backBtn.addEventListener("click", function () {
         if (e_group.histories.hasPrevious()) {
           e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       this.nextBtn.addEventListener("click", function () {
         if (e_group.histories.hasNext()) {
           e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       control_erase.setAttribute(
@@ -1283,7 +1317,7 @@ var getCSSAnimationManager = function () {
       controls.appendChild(control_hide);
       controls.appendChild(l);
       controls.appendChild(p);
-      // this.checkHistoryButtonStatus();
+      this.checkHistoryButtonStatus(); //이전 다음 버튼 활성화 비활성화 체크
       this.CSSAnimationManager.supported
         ? this.panel.addEventListener(
             this.CSSAnimationManager.end,
@@ -1291,6 +1325,18 @@ var getCSSAnimationManager = function () {
             !1
           )
         : (this.panel.style.opacity = 1);
+      e_group.setCtxProp();
+    },
+    checkHistoryButtonStatus: function () {
+      // 이전 다음 버튼 활성화 비활성화 체크
+      if (this.nextBtn && this.backBtn) {
+        if (this.histories.hasNext())
+          this.removeClass(this.nextBtn, "disabled");
+        else this.addClass(this.nextBtn, "disabled");
+        if (this.histories.hasPrevious())
+          this.removeClass(this.backBtn, "disabled");
+        else this.addClass(this.backBtn, "disabled");
+      }
     },
     addClass: function (t, e) {
       0 <= t.className.indexOf(e) || (t.className = t.className + " " + e);
@@ -1449,7 +1495,7 @@ var getCSSAnimationManager = function () {
         (this.paragraph = null),
         (this.activate = "pen"),
         (this.saveImage = null),
-        (this.saveLasso = null),
+        (this.saveLasso = [null, null]),
         (this.histories = null),
         (this.MAX_ITEMS = null),
         (this.currentIndex = null),
@@ -1467,6 +1513,8 @@ var getCSSAnimationManager = function () {
         (this.lassosY = null),
         (this.lassoeX = null),
         (this.lassoeY = null),
+        (this.lassosubX = null),
+        (this.lassosubY = null),
         (this.hasInput = false),
         (this.size = "20px"),
         (this.font = "sans-serif"),

@@ -652,7 +652,7 @@ var getCSSAnimationManager = function () {
     addHistory: function () {
       this.histories.add(this.saveImage);
       this.checkHistoryButtonStatus();
-      console.log(this.currentIndex);
+      // console.log(this.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
@@ -661,6 +661,11 @@ var getCSSAnimationManager = function () {
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
       this.ctx.lineWidth = this.lineWidth; // 선 굵기
+      if (this.linePicker) {
+        this.linePicker.value = this.lineWidth;
+        this.linePickerPreview.innerHTML =
+          Math.round((this.linePicker.value / 20) * 100) + "%";
+      }
     },
     handlePanelAppearing: function (t) {
       console.log("inject.js e 내부 handlePanelAppearing");
@@ -917,6 +922,10 @@ var getCSSAnimationManager = function () {
           eraser.addEventListener("click", function () {
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
           all_eraser.addEventListener("click", function () {
             e_group.ctx.clearRect(
@@ -1000,6 +1009,7 @@ var getCSSAnimationManager = function () {
             }
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
+            e_group.setCtxProp();
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
@@ -1056,6 +1066,7 @@ var getCSSAnimationManager = function () {
             }
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.setCtxProp();
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
@@ -1083,6 +1094,12 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("imageBox").style.display =
                 "none";
             }
+            e_group.activate = "eraser";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
         } else if (a.type == "lasso") {
           r.addEventListener("click", function () {
@@ -1174,18 +1191,19 @@ var getCSSAnimationManager = function () {
       this.alphaPickerPreview = window_e.document.createElement("p");
       transparency.appendChild(this.alphaPicker);
       transparency.appendChild(this.alphaPickerPreview);
-      var linePicker = window_e.document.createElement("input");
-      linePicker.setAttribute("type", "range");
-      linePicker.setAttribute("min", "1");
-      linePicker.setAttribute("max", "20");
-      linePicker.setAttribute("step", "1");
-      linePicker.value = this.config.thickness || 1;
-      linePicker.setAttribute("title", "Select line width");
-      linePicker.addEventListener("change", function (event) {
+      this.linePicker = window_e.document.createElement("input");
+      this.linePicker.setAttribute("type", "range");
+      this.linePicker.setAttribute("min", "1");
+      this.linePicker.setAttribute("max", "20");
+      this.linePicker.setAttribute("step", "1");
+      this.linePicker.value = this.config.thickness || 1;
+      this.linePicker.setAttribute("title", "Select line width");
+      this.linePicker.addEventListener("change", function (event) {
         e_group.lineWidth = event.currentTarget.value;
         e_group.setCtxProp();
+        console.log("굵기", event.currentTarget.value);
       });
-      linePicker.addEventListener("input", function (event) {
+      this.linePicker.addEventListener("input", function (event) {
         console.log("inject.js e 내부 onLineUpdate");
         if (e_group.linePickerPreview) {
           e_group.linePickerPreview.innerHTML =
@@ -1193,11 +1211,11 @@ var getCSSAnimationManager = function () {
         }
       });
       this.linePickerPreview = window_e.document.createElement("p");
-      size_control.appendChild(linePicker);
+      size_control.appendChild(this.linePicker);
       size_control.appendChild(this.linePickerPreview);
       // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value));
       this.selectedAlphaOption = this.alphaPicker.value;
-      this.ctx.lineWidth = linePicker.value;
+      this.ctx.lineWidth = this.linePicker.value;
       this.alphaPickerPreview.innerHTML =
         Math.round(100 * this.selectedAlphaOption) + "%";
       this.linePickerPreview.innerHTML =
@@ -1307,6 +1325,7 @@ var getCSSAnimationManager = function () {
             !1
           )
         : (this.panel.style.opacity = 1);
+      e_group.setCtxProp();
     },
     checkHistoryButtonStatus: function () {
       // 이전 다음 버튼 활성화 비활성화 체크
