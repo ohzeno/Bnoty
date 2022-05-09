@@ -1675,6 +1675,8 @@ var getCSSAnimationManager = function () {
     },
     exit: function () {
       console.log("inject.js e 내부 exit");
+      e_group.clearLasso();
+      e_group.handleMouseClick();
       this.canvas.parentNode.removeChild(this.canvas),
         this.panel.parentNode.parentNode.removeChild(this.panel.parentNode),
         window_e.removeEventListener("resize", this.resizeBinded),
