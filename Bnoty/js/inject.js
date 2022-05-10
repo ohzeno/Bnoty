@@ -718,21 +718,37 @@ var getCSSAnimationManager = function () {
         }
       }
     },
+    loadCanvas: function (changes, namespace) {
+      for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+        var subnewValue, suboldValue;
+        if (oldValue) {
+          suboldValue = oldValue.substring(0, 30);
+        }
+        if (newValue) {
+          subnewValue = newValue.substring(0, 30);
+        }
+        console.log(
+          `Storage key "${key}" in namespace "${namespace}" changed.`,
+          `Old value was "${suboldValue}", new value is "${subnewValue}".`
+        );
+        if (key === "key" + this.pageUrl && newValue !== undefined) {
+          console.log("init onChanged chrome Storage FB");
+          e_group.getConfig();
+        }
+      }
+    },
     sendRead: async function () {
-      var pageUrl = document.location.href;
+      this.pageUrl = document.location.href;
 
       await chrome.runtime.sendMessage(
-        { method: "startRead", url: pageUrl },
+        { method: "startRead", url: this.pageUrl },
         async (response) => {
           console.log("[popup.js] chrome.runtime.sendMessage().startRead");
           console.log("sendMessage : ", response);
         }
       );
 
-      chrome.storage.onChanged.addListener(() => {
-        console.log("init onChanged");
-        e_group.getConfig();
-      });
+      chrome.storage.onChanged.addListener(this.loadCanvasBinded);
     },
     toast: function (string) {
       const toast = document.getElementById("toast");
@@ -753,7 +769,10 @@ var getCSSAnimationManager = function () {
         ["key" + pageUrl],
         async function (result) {
           var t = result["key" + pageUrl];
-          console.log("t : ", t);
+          if (t) {
+            var subt = t.substring(0, 30);
+          }
+          console.log("t : ", subt);
           if (t) {
             console.log("this : ", this);
             console.log("e_group : ", e_group);
@@ -812,12 +831,12 @@ var getCSSAnimationManager = function () {
       window_e.document.body.appendChild(e_group.toastElement);
       function auto_save() {
         e_group.autoSave = setInterval(() => {
-          var pageUrl = document.location.href;
+          this.pageUrl = document.location.href;
           chrome.runtime.sendMessage(
             {
               method: "save",
               config: e_group.canvas.toDataURL(),
-              url: pageUrl,
+              url: this.pageUrl,
             },
             (response) => {
               console.log("[popup.js] chrome.runtime.sendMessage()");
@@ -1313,12 +1332,12 @@ var getCSSAnimationManager = function () {
 
         // capture box
         if (!window_e.document.getElementById("captureBox")) {
-          // capture 
+          // capture
           box.appendChild(captureBox);
           var screen_capture_btn = window_e.document.createElement("div");
           var full_capture_btn = window_e.document.createElement("div");
-          screen_capture_btn.addEventListener( "click", this.ScreencaptureStart );
-          full_capture_btn.addEventListener("click",  this.FullcaptureStart );
+          screen_capture_btn.addEventListener("click", this.ScreencaptureStart);
+          full_capture_btn.addEventListener("click", this.FullcaptureStart);
 
           screen_capture_btn.setAttribute("class", "screen_capture_btn");
           screen_capture_btn.setAttribute("id", "screen_capture_btn");
@@ -1337,11 +1356,14 @@ var getCSSAnimationManager = function () {
             e_group.handleMouseClick();
             e_group.activate = "fill";
             e_group.canvas.style.cursor = "pointer";
-            window_e.document.getElementById("penBox").style.display = 'none';
-            window_e.document.getElementById("textBox").style.display = 'none';
-            window_e.document.getElementById("figureBox").style.display = 'none';
-            window_e.document.getElementById("captureBox").style.display = 'none';
-            window_e.document.getElementById("eraserBox").style.display = "none";
+            window_e.document.getElementById("penBox").style.display = "none";
+            window_e.document.getElementById("textBox").style.display = "none";
+            window_e.document.getElementById("figureBox").style.display =
+              "none";
+            window_e.document.getElementById("captureBox").style.display =
+              "none";
+            window_e.document.getElementById("eraserBox").style.display =
+              "none";
             window_e.document.getElementById("imageBox").style.display = "none";
             window_e.document.getElementById("saveBox").style.display = "none";
             e_group.removeClass(e_group.canvas, "cursor");
@@ -1366,15 +1388,22 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("saveBox").style.display =
                 "none";
-              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
             } else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("captureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = "none";
-              window_e.document.getElementById("imageBox").style.display = "none";
-              window_e.document.getElementById("saveBox").style.display = "none";
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display =
+                "none";
             }
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
@@ -1400,15 +1429,22 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("saveBox").style.display =
                 "none";
-              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
             } else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("captureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = "none";
-              window_e.document.getElementById("imageBox").style.display = "none";
-              window_e.document.getElementById("saveBox").style.display = "none";
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display =
+                "none";
             }
             e_group.removeClass(e_group.canvas, "cursor");
           });
@@ -1431,15 +1467,22 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("saveBox").style.display =
                 "none";
-                window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
             } else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("captureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = "none";
-              window_e.document.getElementById("imageBox").style.display = "none";
-              window_e.document.getElementById("saveBox").style.display = "none";
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display =
+                "none";
             }
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
@@ -1465,15 +1508,22 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("saveBox").style.display =
                 "none";
-              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
             } else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("captureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = "none";
-              window_e.document.getElementById("imageBox").style.display = "none";
-              window_e.document.getElementById("saveBox").style.display = "none";
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display =
+                "none";
             }
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
@@ -1488,11 +1538,14 @@ var getCSSAnimationManager = function () {
             e_group.handleMouseClick();
             e_group.activate = "lasso";
             e_group.canvas.style.cursor = "pointer";
-            window_e.document.getElementById("penBox").style.display = 'none';
-            window_e.document.getElementById("textBox").style.display = 'none';
-            window_e.document.getElementById("figureBox").style.display = 'none';
-            window_e.document.getElementById("captureBox").style.display = 'none';
-            window_e.document.getElementById("eraserBox").style.display = "none";
+            window_e.document.getElementById("penBox").style.display = "none";
+            window_e.document.getElementById("textBox").style.display = "none";
+            window_e.document.getElementById("figureBox").style.display =
+              "none";
+            window_e.document.getElementById("captureBox").style.display =
+              "none";
+            window_e.document.getElementById("eraserBox").style.display =
+              "none";
             window_e.document.getElementById("imageBox").style.display = "none";
             window_e.document.getElementById("saveBox").style.display = "none";
             e_group.removeClass(e_group.canvas, "cursor");
@@ -1516,7 +1569,8 @@ var getCSSAnimationManager = function () {
                 "block";
               window_e.document.getElementById("saveBox").style.display =
                 "none";
-              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -1529,7 +1583,8 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("saveBox").style.display =
                 "none";
-              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display =
+                "none";
             }
             e_group.removeClass(e_group.canvas, "cursor");
           });
@@ -1568,7 +1623,7 @@ var getCSSAnimationManager = function () {
       color.appendChild(this.colorPicker);
       this.alphaPicker = window_e.document.createElement("input");
       this.alphaPicker.setAttribute("type", "range");
-      this.alphaPicker.setAttribute("min", "0");
+      this.alphaPicker.setAttribute("min", "0.01");
       this.alphaPicker.setAttribute("max", "1");
       this.alphaPicker.setAttribute("step", "0.01");
       this.alphaPicker.value =
@@ -1687,12 +1742,12 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("eraserBox").style.display = "none";
           window_e.document.getElementById("imageBox").style.display = "none";
           window_e.document.getElementById("saveBox").style.display = "block";
-          window_e.document.getElementById("captureBox").style.display = 'none';
+          window_e.document.getElementById("captureBox").style.display = "none";
         } else {
-          window_e.document.getElementById("penBox").style.display = 'none';
-          window_e.document.getElementById("textBox").style.display = 'none';
-          window_e.document.getElementById("figureBox").style.display = 'none';
-          window_e.document.getElementById("captureBox").style.display = 'none';
+          window_e.document.getElementById("penBox").style.display = "none";
+          window_e.document.getElementById("textBox").style.display = "none";
+          window_e.document.getElementById("figureBox").style.display = "none";
+          window_e.document.getElementById("captureBox").style.display = "none";
           window_e.document.getElementById("eraserBox").style.display = "none";
           window_e.document.getElementById("imageBox").style.display = "none";
           window_e.document.getElementById("saveBox").style.display = "none";
@@ -1906,7 +1961,7 @@ var getCSSAnimationManager = function () {
         window_e.document.addEventListener("touchend", this.handleDragDone);
     },
     handleDraggingStart: function (t) {
-      console.log("inject.js e 내부 handleDraggingStart", this);
+      console.log("inject.js e 내부 handleDraggingStart");
       e_group.pos_x =
         this.getBoundingClientRect().left -
         (void 0 === t.clientX ? t.touches[0].clientX : t.clientX);
@@ -1917,7 +1972,7 @@ var getCSSAnimationManager = function () {
       this.addEventListener("touchmove", e_group.handleDragging);
     },
     handleDragging: function (t) {
-      console.log("inject.js e 내부 handleDragging", this);
+      console.log("inject.js e 내부 handleDragging");
       if ("INPUT" !== t.target.nodeName.toUpperCase()) {
         t.preventDefault();
         this.style.top =
@@ -1944,6 +1999,7 @@ var getCSSAnimationManager = function () {
       this.toastElement.parentNode.removeChild(this.toastElement);
       window_e.removeEventListener("resize", this.resizeBinded);
       window_e.removeEventListener("scroll", this.resizeBinded);
+      chrome.storage.onChanged.removeListener(this.loadCanvasBinded);
       this.canvas = null;
       this.ctx = null;
       this.initialized = !1;
@@ -2052,6 +2108,10 @@ var getCSSAnimationManager = function () {
               200
             ));
         }, this)),
+        (this.loadCanvasBinded = Function.prototype.bind.call(
+          this.loadCanvas,
+          this
+        )),
         this.initConfig(),
         (this.initialized = !0),
         "undefined" != typeof unsafeWindow &&
@@ -2130,57 +2190,82 @@ var getCSSAnimationManager = function () {
 
       // 이미지 생성
     },
-    onPrintButtonClick:function(){
+    onPrintButtonClick: function () {
       // alert("프린터클릭");
-      if(window_e.document.getElementById("captureBox").style.display === 'none'){
-        window_e.document.getElementById("captureBox").style.display = 'block';
-        window_e.document.getElementById("penBox").style.display = 'none';
-        window_e.document.getElementById("textBox").style.display = 'none';
-        window_e.document.getElementById("figureBox").style.display = 'none';
+      if (
+        window_e.document.getElementById("captureBox").style.display === "none"
+      ) {
+        window_e.document.getElementById("captureBox").style.display = "block";
+        window_e.document.getElementById("penBox").style.display = "none";
+        window_e.document.getElementById("textBox").style.display = "none";
+        window_e.document.getElementById("figureBox").style.display = "none";
         window_e.document.getElementById("eraserBox").style.display = "none";
         window_e.document.getElementById("imageBox").style.display = "none";
         window_e.document.getElementById("saveBox").style.display = "none";
-      }else {
-        window_e.document.getElementById("penBox").style.display = 'none';
-        window_e.document.getElementById("textBox").style.display = 'none';
-        window_e.document.getElementById("figureBox").style.display = 'none';
-        window_e.document.getElementById("captureBox").style.display = 'none';
+      } else {
+        window_e.document.getElementById("penBox").style.display = "none";
+        window_e.document.getElementById("textBox").style.display = "none";
+        window_e.document.getElementById("figureBox").style.display = "none";
+        window_e.document.getElementById("captureBox").style.display = "none";
         window_e.document.getElementById("eraserBox").style.display = "none";
         window_e.document.getElementById("imageBox").style.display = "none";
         window_e.document.getElementById("saveBox").style.display = "none";
       }
-    }, 
-    // 현재 화면 캡처
-    ScreencaptureStart:function(){
-      console.log("현재화면 캡처");
-      chrome.runtime.sendMessage( { method : 'ShowCapture'}, (response) => {
-        console.log(response.farewell);
-      });
     },
-    // 전체 화면 캡처 
-    FullcaptureStart:function(){
+    // 현재 화면 캡처
+    ScreencaptureStart: function () {
+      console.log("현재화면 캡처");
+      e_group.hideControlPanel();
+      window_e.setTimeout(function () {
+        chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
+          console.log(response.farewell);
+        });
+      }, 100);
+      window_e.setTimeout(function () {
+        e_group.showControlPanel();
+      }, 500);
+    },
+    // 전체 화면 캡처
+    FullcaptureStart: function () {
       console.log("전체화면 캡처");
-      chrome.runtime.sendMessage( { method : 'FullcaptureStart'}, (response) => {
-        console.log(response.farewell);
-      })
+      e_group.hideControlPanel();
+      window_e.setTimeout(function () {
+        chrome.runtime.sendMessage(
+          { method: "FullcaptureStart" },
+          (response) => {
+            console.log(response.farewell);
+          }
+        );
+      }, 100);
     },
     // 창 전환
-    updateScreenshot: function(t, n) {
+    updateScreenshot: function (t, n) {
       var a = arguments[2];
-      if ( a == null ){
-          (a = 0);
+      if (a == null) {
+        a = 0;
       }
-      if ( 10 >= a ){
-          global.runtime.sendMessage({
-              method: "update_url",
-              url: t
-          }, function(e) {
-              e && e.success || window.setTimeout(Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, t, n, ++a), 300);
-          });
+      if (10 >= a) {
+        global.runtime.sendMessage(
+          {
+            method: "update_url",
+            url: t,
+          },
+          function (e) {
+            (e && e.success) ||
+              window.setTimeout(
+                Function.prototype.bind.call(
+                  Bnoty.updateScreenshot,
+                  Bnoty,
+                  t,
+                  n,
+                  ++a
+                ),
+                300
+              );
+          }
+        );
       }
     },
-
-
   };
   return e_group;
 });
