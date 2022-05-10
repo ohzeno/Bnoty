@@ -295,6 +295,34 @@
   margin: 2px;
   background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971929982257475664/link.png);
 }
+.pen_box .save {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  z-index: 2147483647;
+  /* right: 106px; */
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  display: inline-block;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  margin: 2px;
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930575898288138/saveeee.png);
+}
+.pen_box .capacity_check {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  z-index: 2147483647;
+  /* right: 106px; */
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  display: inline-block;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  margin: 2px;
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930575294312488/pensavbbe.png);
+}
 #bnoty,
 #bnoty div,
 #bnoty span,
@@ -877,8 +905,8 @@
 }
 #bnoty_controls
   .bnoty_controls_control
-  .bnoty_controls_control_option.eraseAllBtn {
-  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930487004217344/bin.png);
+  .bnoty_controls_control_option.save {
+  background-image: url(https://cdn.discordapp.com/attachments/962708703277096990/971930575545958421/savee.png);
 }
 #bnoty_controls
   .bnoty_controls_control
