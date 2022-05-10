@@ -40,6 +40,11 @@
   animation: controlFadingIn 0.3s;
   animation-fill-mode: forwards;
 }
+
+.top_box.hide {
+  display: none;
+}
+
 .pen_box {
   display: table;
   width: auto;
@@ -446,7 +451,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 2147483647;
+  z-index: 100000000;
   background: transparent;
   pointer-events: auto;
 }
@@ -489,7 +494,8 @@
   position: fixed;
   top: 2px;
   right: 5px;
-  z-index: 2147483647;
+  /* z-index: 2147483647; */
+  z-index: 100000010;
   background-color: #b8dff8;
   border: 1px solid #eee;
   -webkit-border-top-right-radius: 8px;
@@ -928,4 +934,19 @@
   to {
     opacity: 1;
   }
+}
+
+#bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.linkinjection {
+  background-image: url(
+    https://media.discordapp.net/attachments/962708703277096990/971929982257475664/link.png
+    );
+
+}
+
+#subtools {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  right : 30px;
+
 }

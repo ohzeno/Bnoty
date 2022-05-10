@@ -46,7 +46,7 @@ var getCSSAnimationManager = function () {
   // t는 window, e는 function(window_e)
   if ("undefined" != typeof unsafeWindow && null !== unsafeWindow) {
     if (unsafeWindow.CTRL_HIDDEN) {
-      // t.bnoty.showControlPanel();
+      window_t.bnoty.showControlPanel();
     } else {
       if (!unsafeWindow.bnoty_INIT) {
         window_t.bnoty = func_e(window_t);
@@ -58,7 +58,7 @@ var getCSSAnimationManager = function () {
       window_t.bnoty = func_e(window_t);
     }
     if (window_t.bnoty.controlPanelHidden) {
-      // t.bnoty.showControlPanel();
+      window_t.bnoty.showControlPanel();
     } else {
       if (!window_t.bnoty.initialized) {
         window_t.bnoty.init();
@@ -80,6 +80,7 @@ var getCSSAnimationManager = function () {
     canvas: null,
     ctx: null,
     initialized: !1,
+    controlPanelHidden: !1,
     INITIAL_COLOR: "red",
     painting: false,
     // controlPanelHidden: !1,
@@ -91,8 +92,7 @@ var getCSSAnimationManager = function () {
       },
       {
         type: "lasso",
-        title:
-          "Area lasso - Lasso a area",
+        title: "Area lasso - Lasso a area",
       },
       {
         type: "text",
@@ -158,7 +158,7 @@ var getCSSAnimationManager = function () {
     globalAlpha: 1, //투명도
     activate: "pen", // 지금 활성화된 도구 기본은 펜!
     saveImage: null, // 지금 까지 그린 이미지를 저장
-    saveLasso: null, // 올가미로 선택한 영역을 이미지로 저장
+    saveLasso: [null, null], // 올가미로 선택한 영역을 이미지로 저장 (테투리 x , 테두리 o)
     histories: null, // 여기에 이제 그 작업한거 저장함
     MAX_ITEMS: null, // 최대 저장 아이템
     currentIndex: null, // 지금 인덱스 위치
@@ -176,12 +176,19 @@ var getCSSAnimationManager = function () {
     lassosY: null,
     lassoeX: null,
     lassoeY: null,
+    lassosubX: null,
+    lassosubY: null,
     hasInput: false, // 텍스트 입력 여부
     size: "20px", // 텍스트 사이즈
     font: "sans-serif", // 텍스트 폰트
     boldtext: "", // 볼드
     italictext: "", // 기울이기
     textactive: false, // 텍스트 입력중인지 체크
+    img: null,
+    //링크용함수
+    linkX: null,
+    linkY: null,
+    linkcount: 0, // 이건 저장해야함
 
     startPainting: function (event) {
       event.preventDefault();
@@ -200,9 +207,54 @@ var getCSSAnimationManager = function () {
         if (this.activate == "fill") {
           this.handleFill(event.clientX, event.clientY);
         }
-        if (this.activate == "lasso" && this.saveLasso == null) {
+        if (this.activate == "lasso" && this.saveLasso[0] == null) {
+          // 올가미 활성화이면서 테두리없는 이미지가 저장되어있지않으면 범위를 시작범위 지정
           this.lassosX = event.offsetX;
           this.lassosY = event.offsetY;
+          this.lassosubX = event.offsetX;
+          this.lassosubY = event.offsetY;
+        } else if (
+          this.activate == "lasso" &&
+          this.saveLasso[0] != null &&
+          (this.sX < this.lassosX ||
+            this.sX > this.lassoeX ||
+            this.sY < this.lassosY ||
+            this.sY > this.lassoeY)
+        ) {
+          // 올가미 활성화면서 이미 저장된 이미지있으면 이건 범위체크해서 다른범위찍으면 이미지 저장.
+          if (
+            this.lassosX == this.lassosubX &&
+            this.lassosY == this.lassosubY
+          ) {
+            this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+            this.currentIndex--;
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          } else {
+            this.ctx.putImageData(
+              this.saveLasso[0],
+              this.lassosX,
+              this.lassosY
+            );
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          }
+        }
+        // real link injection
+        if (this.activate == "insert_link") {
+          this.LinkInputField(event.offsetX, event.offsetY);
         }
       }
     },
@@ -219,19 +271,45 @@ var getCSSAnimationManager = function () {
         this.mX = null;
         this.mY = null;
       } else if (this.activate == "lasso") {
-        if (this.saveLasso == null) {
-          this.saveLasso = this.ctx.getImageData(
+        if (this.lassosX > this.lassoeX) {
+          var tmp = this.lassosX;
+          this.lassosX = this.lassoeX;
+          this.lassoeX = tmp;
+          this.lassosubX = this.lassosX;
+        }
+        if (this.lassosY > this.lassoeY) {
+          var tmp = this.lassosY;
+          this.lassosY = this.lassoeY;
+          this.lassoeY = tmp;
+          this.lassosubY = this.lassosY;
+        }
+        if (this.saveLasso[1] == null && this.saveLasso[0] != null) {
+          this.saveLasso[1] = this.ctx.getImageData(
             this.lassosX,
             this.lassosY,
             this.lassoeX - this.lassosX,
             this.lassoeY - this.lassosY
           );
-        } else {
-          this.saveLasso = null;
+        } else if (this.saveLasso[1] != null) {
+          this.lassosX = this.eX - (this.sX - this.lassosX);
+          this.lassosY = this.eY - (this.sY - this.lassosY);
+          (this.lassoeX = this.lassosX + this.saveLasso[1].width),
+            (this.lassoeY = this.lassosY + this.saveLasso[1].height);
+          this.ctx.putImageData(this.saveLasso[1], this.lassosX, this.lassosY);
         }
       }
+      if (this.activate != "lasso") {
+        (this.saveLasso[0] = null),
+          (this.saveLasso[1] = null),
+          (this.lassosX = null),
+          (this.lassosY = null),
+          (this.lassoeX = null),
+          (this.lassoeY = null),
+          (this.lassosubX = null),
+          (this.lassosubY = null);
+      }
       this.painting = false;
-      if (this.activate != "text" && this.activate != "lasso") {
+      if (this.activate != "text" && this.activate != "insert_link" && this.activate!="nothing" && this.saveLasso[0] == null) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -244,8 +322,34 @@ var getCSSAnimationManager = function () {
     leaveStopPainting: function () {
       // 마우스 범위 밖으로 나감
       if (this.painting) {
+        if (this.activate == "lasso") {
+          if (this.lassosX > this.lassoeX) {
+            var tmp = this.lassosX;
+            this.lassosX = this.lassoeX;
+            this.lassoeX = tmp;
+            this.lassosubX = this.lassosX;
+          }
+          if (this.lassosY > this.lassoeY) {
+            var tmp = this.lassosY;
+            this.lassosY = this.lassoeY;
+            this.lassoeY = tmp;
+            this.lassosubY = this.lassosY;
+          }
+          if (this.saveLasso[1] != null || this.saveLasso[0] != null) {
+            this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+            this.currentIndex--;
+            (this.saveLasso[0] = null),
+              (this.saveLasso[1] = null),
+              (this.lassosX = null),
+              (this.lassosY = null),
+              (this.lassoeX = null),
+              (this.lassoeY = null),
+              (this.lassosubX = null),
+              (this.lassosubY = null);
+          }
+        }
         this.painting = false;
-        if (this.activate != "text") {
+        if (this.activate != "text" && this.activate != "nothing" && this.saveLasso[0] == null) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -265,7 +369,21 @@ var getCSSAnimationManager = function () {
       // clientX는 화면 전체에서 마우스 좌표, offsetX는 캔버스 내 좌표
       this.eX = event.offsetX;
       this.eY = event.offsetY;
-
+      if (this.activate == "lasso") {
+        if (
+          this.lassosX <= this.eX &&
+          this.lassoeX >= this.eX &&
+          this.lassosY <= this.eY &&
+          this.lassoeY >= this.eY
+        ) {
+          this.canvas.style.cursor = "move";
+        } else {
+          this.canvas.style.cursor = "crosshair";
+        }
+      }
+      if (this.activate == "lasso" && this.lassosX == null) {
+        return;
+      }
       // console.log("좌표", x, y);
       if (!this.painting) {
         // console.log("begin들어옴");
@@ -278,17 +396,12 @@ var getCSSAnimationManager = function () {
         if (this.activate == "eraser") {
           // 부분 지우기
           // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
-          this.ctx.save();
-          this.lineWidth = 4;
-          this.setCtxProp();
           this.ctx.clearRect(
             this.eX - this.ctx.lineWidth * 1.5,
             this.eY - this.ctx.lineWidth * 1.5,
             this.ctx.lineWidth * 3,
             this.ctx.lineWidth * 3
           ); // 해당 범위만큼 지운다.
-          this.ctx.restore();
-          this.lineWidth = this.ctx.lineWidth;
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -393,31 +506,53 @@ var getCSSAnimationManager = function () {
           this.ctx.lineCap = "butt"; // 끝을 원래로
         } else if (this.activate == "lasso") {
           // 올가미
-          if (this.saveLasso != null) {
+          if (this.saveLasso[1] != null) {
             this.ctx.clearRect(
-              this.lassosX,
-              this.lassosY,
-              this.lassoeX - this.lassosX,
-              this.lassoeY - this.lassosY
+              this.lassosubX,
+              this.lassosubY,
+              this.saveLasso[1].width,
+              this.saveLasso[1].height
             );
-            this.ctx.putImageData(this.saveLasso, this.eX, this.eY);
+            this.ctx.putImageData(
+              this.saveLasso[1],
+              this.eX - (this.sX - this.lassosX),
+              this.eY - (this.sY - this.lassosY)
+            );
             return;
           }
           this.lassoeX = event.offsetX;
           this.lassoeY = event.offsetY;
+          if (this.eX != this.lassosX && this.eY != this.lassosY) {
+            this.saveLasso[0] = this.ctx.getImageData(
+              this.lassosX,
+              this.lassosY,
+              this.eX - this.lassosX,
+              this.eY - this.lassosY
+            );
+          }
           this.ctx.save();
-          this.ctx.strokeStyle = "rgba(46,112,245)";
-          this.ctx.lineWidth = 1;
+          this.ctx.strokeStyle = "rgb(255,85,160)"; // 핑크색
+          this.ctx.globalAlpha = 1;
+          this.ctx.lineWidth = 2;
           // 네모 그리는 부분 시작 좌표에서 해당 너비 높이만큼 그린다
-          this.ctx.setLineDash([5]); // 간격이 20인 점선 설정
+          this.ctx.setLineDash([5]); // 간격이 5인 점선 설정
           this.ctx.strokeRect(
+            this.sX,
+            this.sY,
+            this.eX - this.sX,
+            this.eY - this.sY - 0.5
+          );
+          this.ctx.setLineDash([]); // 실선으로 변경
+          this.ctx.restore();
+        } else if (this.activate == "insert_image") {
+          // e_group.ctx.save();
+          e_group.ctx.drawImage(
+            e_group.img,
             this.sX,
             this.sY,
             this.eX - this.sX,
             this.eY - this.sY
           );
-          this.ctx.setLineDash([]); // 실선으로 변경
-          this.ctx.restore();
         }
       }
     },
@@ -428,10 +563,192 @@ var getCSSAnimationManager = function () {
           this.handleMouseClick();
         }
         if (!this.hasInput) {
-          console.log("실행됨");
           this.addInput(event.offsetX, event.offsetY);
         }
       }
+    },
+    addInput: function (x, y) {
+      var input = document.createElement("input");
+
+      input.id = "textbox";
+      input.type = "text";
+      input.style.position = "fixed";
+      input.style.left = x + "px";
+      input.style.top = y + "px";
+      input.style.width = "500px";
+      // input.style.outline = "none";
+      // input.style.border = "none";
+      // input.style.backgroundColor = "transparent";
+      input.style.opacity = "0.5";
+      input.style.filter.opacity = "0.5";
+      input.style.fontSize = e_group.size;
+      input.style.zIndex = "2147483647";
+
+      input.onkeydown = this.handleENTER;
+
+      document.body.appendChild(input);
+
+      input.focus();
+
+      this.hasInput = true;
+      this.textactive = true;
+    },
+    handleENTER: function (event) {
+      // 공백문자인지 판단하는 패턴
+      var blank_pattern = /^\s+|\s+$/g;
+      var keyCode = event.keyCode;
+      if (keyCode === 13) {
+        e_group.drawText(
+          this.value,
+          parseInt(this.style.left, 10),
+          parseInt(this.style.top, 10)
+        );
+        document.body.removeChild(this);
+        // 공백문자일 경우 저장안됨
+        if (this.value.replace(blank_pattern, "") != "") {
+          e_group.saveImage = e_group.ctx.getImageData(
+            0,
+            0,
+            e_group.canvas.width,
+            e_group.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          e_group.addHistory();
+        }
+        e_group.hasInput = false;
+        e_group.textactive = false;
+      }
+    },
+    handleMouseClick: function () {
+      var inputs = document.getElementById("textbox");
+      var blank_pattern = /^\s+|\s+$/g;
+
+      if (inputs != null) {
+        if (inputs.value.replace(blank_pattern, "") != "") {
+          console.log("value : " + inputs.value);
+          e_group.drawText(
+            inputs.value,
+            parseInt(inputs.style.left, 10),
+            parseInt(inputs.style.top, 10)
+          );
+          e_group.saveImage = e_group.ctx.getImageData(
+            0,
+            0,
+            e_group.canvas.width,
+            e_group.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          e_group.addHistory();
+        }
+        document.body.removeChild(inputs);
+        e_group.hasInput = false;
+        e_group.textactive = false;
+      }
+    },
+    // 캔버스에 글자 그리는 함수
+    drawText: function (txt, x, y) {
+      this.ctx.textBaseline = "top";
+      this.ctx.textAlign = "left";
+      // 폰트는 굵기, 기울이기, 크기, 폰트로 들어감
+      this.ctx.font =
+        e_group.boldtext +
+        " " +
+        e_group.italictext +
+        " " +
+        e_group.size +
+        " " +
+        e_group.font;
+      this.ctx.fillText(txt, x, y);
+    },
+    clearLasso: function () {
+      if (
+        e_group.lassosX == e_group.lassosubX &&
+        e_group.lassosY == e_group.lassosubY
+      ) {
+        e_group.ctx.putImageData(e_group.array[e_group.currentIndex], 0, 0);
+        // e_group.currentIndex--;
+        (e_group.saveLasso[0] = null),
+          (e_group.saveLasso[1] = null),
+          (e_group.lassosX = null),
+          (e_group.lassosY = null),
+          (e_group.lassoeX = null),
+          (e_group.lassoeY = null),
+          (e_group.lassosubX = null),
+          (e_group.lassosubY = null);
+      } else {
+        e_group.ctx.putImageData(
+          e_group.saveLasso[0],
+          e_group.lassosX,
+          e_group.lassosY
+        );
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        e_group.addHistory();
+        (e_group.saveLasso[0] = null),
+          (e_group.saveLasso[1] = null),
+          (e_group.lassosX = null),
+          (e_group.lassosY = null),
+          (e_group.lassoeX = null),
+          (e_group.lassoeY = null),
+          (e_group.lassosubX = null),
+          (e_group.lassosubY = null);
+      }
+    },
+    sendRead: async function(){
+      var pageUrl = document.location.href;
+
+      await chrome.runtime.sendMessage( { method : 'startRead', url : pageUrl}, async (response) => {
+        console.log("[popup.js] chrome.runtime.sendMessage().startRead");
+        console.log("sendMessage : ", response);
+      });
+
+      chrome.storage.onChanged.addListener(()=>{
+        console.log("init onChanged");
+        e_group.getConfig();
+      });
+
+    },
+    getConfig: async function() {
+
+      var pageUrl = document.location.href;
+      await chrome.storage.local.get(['key' + pageUrl], async function(result) {
+        var t = result['key' + pageUrl];
+        console.log("t : ", t);
+        if (t) {
+          console.log("this : ", this);
+          console.log("e_group : ", e_group);
+          var e = new Image();
+          (e.onload = Function.prototype.bind.call(e_group.initCanvas, e_group, e)),(e.src = t);
+          await e_group.saveConfig();
+        } else {
+          await e_group.initCanvas();
+        }
+      });
+      
+    },
+    saveConfig: async function(){
+      console.log("saveConfig")
+      e_group.saveImage = await e_group.ctx.getImageData(
+        0,
+        0,
+        e_group.canvas.width,
+        e_group.canvas.height
+      ); // 지금까지 그린 정보를 저장
+      await chrome.storage.local.clear();
+      await e_group.addHistory2();
+    },
+    get_time: async function(){
+      let today = new Date();
+      let minutes = today.getMinutes();
+      let seconds = today.getSeconds();
+      let milseconds = today.getMilliseconds();
+      console.log(minutes + " : " + seconds + " : " + milseconds);
+    },
+    autoRead: async function(){
+      console.log("AutoReadStart");
+      await e_group.sendRead();
     },
     createCanvas: function () {
       console.log("inject.js e 내부 createCanvas");
@@ -445,15 +762,24 @@ var getCSSAnimationManager = function () {
       this.setCtxProp();
       this.Histories();
       this.initCanvas();
+      chrome.storage.local.clear();
+      e_group.autoRead();
     },
-    initCanvas: function (t) {
+    initCanvas: async function (t) {
       console.log("inject.js e 내부 initCanvas");
       if (t) {
-        this.handleResize(!0);
-        // this.ctx.drawImage(t, 0, 0);
-        // this.storeCanvas(!0);
+        await this.handleResize(!0);
+        await this.ctx.drawImage(t, 0, 0);
+        e_group.saveImage = await e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        await e_group.addHistory();
+        //this.storeCanvas(!0);
       } else {
-        this.handleResize();
+        await this.handleResize();
       }
       // this.storeHistory();
     },
@@ -477,7 +803,7 @@ var getCSSAnimationManager = function () {
       this.canvas.addEventListener("mouseup", stopPainting);
       this.canvas.addEventListener("touchend", stopPainting);
       this.canvas.addEventListener("mouseleave", leaveStopPainting);
-      // this.canvas.addEventListener("click", onMouseClick);
+      this.canvas.addEventListener("click", onMouseClick);
       // window_e.document.addEventListener("keydown", this.keydownBinded);
       // window_e.document.addEventListener("keypress", this.keypressBinded);
     },
@@ -533,7 +859,19 @@ var getCSSAnimationManager = function () {
     },
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
+      console.log('addHistory')
       this.histories.add(this.saveImage);
+      console.log("addhistory : ", e_group.currentIndex);
+      var pageUrl = document.location.href;
+      chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+        console.log("[popup.js] chrome.runtime.sendMessage()");
+      });
+      // 여기서 버튼 디스에이블하는것도 해줘야함
+    },
+    addHistory2: function () {
+      console.log('addHistory')
+      this.histories.add(this.saveImage);
+      console.log("addhistory : ", e_group.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
@@ -542,10 +880,31 @@ var getCSSAnimationManager = function () {
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
       this.ctx.lineWidth = this.lineWidth; // 선 굵기
+      if (this.linePicker) {
+        this.linePicker.value = this.lineWidth;
+        this.linePickerPreview.innerHTML =
+          Math.round((this.linePicker.value / 20) * 100) + "%";
+      }
     },
     handlePanelAppearing: function (t) {
       console.log("inject.js e 내부 handlePanelAppearing");
       t.target.style.opacity = 1;
+    },
+    hideControlPanel: function () {
+      console.log("inject.js e 내부 hideControlPanel", this.panel.parentNode);
+      this.addClass(this.panel.parentNode, "hide");
+      this.controlPanelHidden = !0;
+      "undefined" != typeof unsafeWindow &&
+        null !== unsafeWindow &&
+        (unsafeWindow.CTRL_HIDDEN = !0);
+    },
+    showControlPanel: function () {
+      console.log("inject.js e 내부 showControlPanel", this.panel.parentNode);
+      this.removeClass(this.panel.parentNode, "hide");
+      this.controlPanelHidden = !1;
+      "undefined" != typeof unsafeWindow &&
+        null !== unsafeWindow &&
+        (unsafeWindow.CTRL_HIDDEN = !1);
     },
     handleResize: function (t) {
       // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
@@ -604,14 +963,14 @@ var getCSSAnimationManager = function () {
       // }
       // updatePaintStyle();
       this.ctx.lineWidth = n;
-      if (this.array.length == 0) {
-        // 저장된 정보가 없으면 현재 정보 초기값을 추가해줌
+      if (this.array.length != 0) {
+        // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
+        this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+      } 
+      else {
         this.histories.add(
           this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
         );
-      } else {
-        // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
-        this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
       }
     },
     createControlPanel: function () {
@@ -696,13 +1055,29 @@ var getCSSAnimationManager = function () {
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
-          text.addEventListener("click", function () {});
+          text.addEventListener("click", function () {
+            e_group.activate = "text";
+          });
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
           boldText.setAttribute("title", "Bold Text");
+          boldText.addEventListener("click", function () {
+            if (e_group.boldtext == "bold") {
+              e_group.boldtext = "";
+            } else {
+              e_group.boldtext = "bold";
+            }
+          });
           italicText.setAttribute("class", "italicText");
           italicText.setAttribute("id", "italicText");
           italicText.setAttribute("title", "Italic Text");
+          italicText.addEventListener("click", function () {
+            if (e_group.italictext == "italic") {
+              e_group.italictext = "";
+            } else {
+              e_group.italictext = "italic";
+            }
+          });
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
@@ -781,7 +1156,11 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("title", "all_eraser");
           eraser.addEventListener("click", function () {
             e_group.activate = "eraser";
-            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/901731363844132894/970567643847356457/2e2938dfcaaf1173.png") 8 8, auto`;
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
           all_eraser.addEventListener("click", function () {
             e_group.ctx.clearRect(
@@ -806,17 +1185,40 @@ var getCSSAnimationManager = function () {
         if (!window_e.document.getElementById("imageBox")) {
           box.appendChild(imageBox);
           var insert_image = window_e.document.createElement("div");
+          var fileChange = window.document.createElement("input");
           var insert_link = window_e.document.createElement("div");
           insert_image.setAttribute("class", "insert_image");
           insert_image.setAttribute("id", "insert_image");
           insert_image.setAttribute("title", "insert image");
+          fileChange.setAttribute("type", "file");
+          fileChange.setAttribute("id", "fileloader");
+          fileChange.style.visibility = "hidden";
+          insert_image.setAttribute("type", "file");
           insert_link.setAttribute("class", "insert_link");
           insert_link.setAttribute("id", "insert_link");
           insert_link.setAttribute("title", "insert_link");
-          eraser.addEventListener("click", function () {
+          insert_image.addEventListener("click", function () {
             e_group.activate = "insert_image";
+            fileChange.click();
           });
-          all_eraser.addEventListener("click", function () {
+          fileChange.addEventListener("change", function (event) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+              e_group.img = new Image();
+              e_group.img.src = e.target.result;
+              e_group.img.onload = function () {
+                e_group.saveImage = e_group.ctx.getImageData(
+                  0,
+                  0,
+                  e_group.canvas.width,
+                  e_group.canvas.height
+                ); // 지금까지 그린 정보를 저장
+                e_group.addHistory();
+              };
+            };
+            reader.readAsDataURL(event.target.files[0]);
+          });
+          insert_link.addEventListener("click", function () {
             e_group.activate = "insert_link";
           });
           imageBox.appendChild(insert_image);
@@ -826,105 +1228,191 @@ var getCSSAnimationManager = function () {
 
         if (a.type == "fill") {
           r.addEventListener("click", function () {
+            e_group.clearLasso();
+            e_group.handleMouseClick();
             e_group.activate = "fill";
             e_group.canvas.style.cursor = "pointer";
-            window_e.document.getElementById("penBox").style.display = 'none';
-            window_e.document.getElementById("textBox").style.display = 'none';
-            window_e.document.getElementById("figureBox").style.display = 'none';
-            window_e.document.getElementById("eraserBox").style.display = 'none';
-            window_e.document.getElementById("imageBox").style.display = 'none';
+            window_e.document.getElementById("penBox").style.display = "none";
+            window_e.document.getElementById("textBox").style.display = "none";
+            window_e.document.getElementById("figureBox").style.display =
+              "none";
+            window_e.document.getElementById("eraserBox").style.display =
+              "none";
+            window_e.document.getElementById("imageBox").style.display = "none";
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("penBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'block';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'none';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'none';
+            e_group.clearLasso();
+            e_group.handleMouseClick();
+            if (
+              window_e.document.getElementById("penBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display =
+                "block";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             }
+            e_group.activate = "pen";
+            e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
+            e_group.setCtxProp();
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("textBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'block';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'none';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'none';
+            e_group.activate = "text";
+            e_group.clearLasso();
+            if (
+              window_e.document.getElementById("textBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "block";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             }
           });
         } else if (a.type == "figure") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("figureBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'block';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'none';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'none';
+            e_group.clearLasso();
+            e_group.handleMouseClick();
+            if (
+              window_e.document.getElementById("figureBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "block";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             }
+            e_group.activate = "rectangle";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.setCtxProp();
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("eraserBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'block';
-              window_e.document.getElementById("imageBox").style.display = 'none';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'none';
+            e_group.clearLasso();
+            e_group.handleMouseClick();
+            if (
+              window_e.document.getElementById("eraserBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "block";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             }
+            e_group.activate = "eraser";
+            e_group.canvas.style.cursor = "crosshair";
+            e_group.ctx.lineWidth = 5;
+            e_group.linePicker.value = 5;
+            e_group.linePickerPreview.innerHTML =
+              Math.round((e_group.linePicker.value / 20) * 100) + "%";
           });
-        } else if (a.type == "lasso"){
+        } else if (a.type == "lasso") {
           r.addEventListener("click", function () {
+            e_group.handleMouseClick();
             e_group.activate = "lasso";
             e_group.canvas.style.cursor = "pointer";
-            window_e.document.getElementById("penBox").style.display = 'none';
-            window_e.document.getElementById("textBox").style.display = 'none';
-            window_e.document.getElementById("figureBox").style.display = 'none';
-            window_e.document.getElementById("eraserBox").style.display = 'none';
-            window_e.document.getElementById("imageBox").style.display = 'none';
+            window_e.document.getElementById("penBox").style.display = "none";
+            window_e.document.getElementById("textBox").style.display = "none";
+            window_e.document.getElementById("figureBox").style.display =
+              "none";
+            window_e.document.getElementById("eraserBox").style.display =
+              "none";
+            window_e.document.getElementById("imageBox").style.display = "none";
           });
-        } else if (a.type == "image"){
+        } else if (a.type == "image") {
           r.addEventListener("click", function () {
-            if(window_e.document.getElementById("eraserBox").style.display === 'none'){
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'block';
-            }else {
-              window_e.document.getElementById("penBox").style.display = 'none';
-              window_e.document.getElementById("textBox").style.display = 'none';
-              window_e.document.getElementById("figureBox").style.display = 'none';
-              window_e.document.getElementById("eraserBox").style.display = 'none';
-              window_e.document.getElementById("imageBox").style.display = 'none';
+            e_group.clearLasso();
+            e_group.handleMouseClick();
+            if (
+              window_e.document.getElementById("eraserBox").style.display ===
+              "none"
+            ) {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "block";
+            } else {
+              window_e.document.getElementById("penBox").style.display = "none";
+              window_e.document.getElementById("textBox").style.display =
+                "none";
+              window_e.document.getElementById("figureBox").style.display =
+                "none";
+              window_e.document.getElementById("eraserBox").style.display =
+                "none";
+              window_e.document.getElementById("imageBox").style.display =
+                "none";
             }
           });
         }
+
         tools.appendChild(r);
         if (
           !(
@@ -975,18 +1463,19 @@ var getCSSAnimationManager = function () {
       this.alphaPickerPreview = window_e.document.createElement("p");
       transparency.appendChild(this.alphaPicker);
       transparency.appendChild(this.alphaPickerPreview);
-      var linePicker = window_e.document.createElement("input");
-      linePicker.setAttribute("type", "range");
-      linePicker.setAttribute("min", "1");
-      linePicker.setAttribute("max", "20");
-      linePicker.setAttribute("step", "1");
-      linePicker.value = this.config.thickness || 1;
-      linePicker.setAttribute("title", "Select line width");
-      linePicker.addEventListener("change", function (event) {
+      this.linePicker = window_e.document.createElement("input");
+      this.linePicker.setAttribute("type", "range");
+      this.linePicker.setAttribute("min", "1");
+      this.linePicker.setAttribute("max", "20");
+      this.linePicker.setAttribute("step", "1");
+      this.linePicker.value = this.config.thickness || 1;
+      this.linePicker.setAttribute("title", "Select line width");
+      this.linePicker.addEventListener("change", function (event) {
         e_group.lineWidth = event.currentTarget.value;
         e_group.setCtxProp();
+        console.log("굵기", event.currentTarget.value);
       });
-      linePicker.addEventListener("input", function (event) {
+      this.linePicker.addEventListener("input", function (event) {
         console.log("inject.js e 내부 onLineUpdate");
         if (e_group.linePickerPreview) {
           e_group.linePickerPreview.innerHTML =
@@ -994,11 +1483,11 @@ var getCSSAnimationManager = function () {
         }
       });
       this.linePickerPreview = window_e.document.createElement("p");
-      size_control.appendChild(linePicker);
+      size_control.appendChild(this.linePicker);
       size_control.appendChild(this.linePickerPreview);
       // (this.selectedColorOption = this.hexToRgb(this.colorPicker.value));
       this.selectedAlphaOption = this.alphaPicker.value;
-      this.ctx.lineWidth = linePicker.value;
+      this.ctx.lineWidth = this.linePicker.value;
       this.alphaPickerPreview.innerHTML =
         Math.round(100 * this.selectedAlphaOption) + "%";
       this.linePickerPreview.innerHTML =
@@ -1006,8 +1495,8 @@ var getCSSAnimationManager = function () {
       // this.updatePaintStyle();
       var c = window_e.document.createElement("div"),
         l = window_e.document.createElement("div"),
-        d = window_e.document.createElement("div"),
-        u = window_e.document.createElement("div"),
+        control_erase = window_e.document.createElement("div"),
+        control_hide = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
       c.setAttribute("class", "bnoty_controls_control_option prtBtn");
       c.setAttribute(
@@ -1029,11 +1518,13 @@ var getCSSAnimationManager = function () {
       this.backBtn.addEventListener("click", function () {
         if (e_group.histories.hasPrevious()) {
           e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       this.nextBtn.addEventListener("click", function () {
         if (e_group.histories.hasNext()) {
           e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
+          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
       d.setAttribute("class", "bnoty_controls_control_option save");
@@ -1101,14 +1592,10 @@ var getCSSAnimationManager = function () {
       //   "click",
       //   Function.prototype.bind.call(this.handleForwardButtonClick, this)
       // );
-      // d.addEventListener(
-      //   "click",
-      //   Function.prototype.bind.call(this.eraseAll, this)
-      // );
-      // u.addEventListener(
-      //   "click",
-      //   Function.prototype.bind.call(this.hideControlPanel, this)
-      // );
+      control_hide.addEventListener(
+        "click",
+        Function.prototype.bind.call(this.hideControlPanel, this)
+      );
       // p.addEventListener("click", function () {
       //   global.runtime.sendMessage({
       //     method: "open_options",
@@ -1116,12 +1603,12 @@ var getCSSAnimationManager = function () {
       // });
       controls.appendChild(this.backBtn);
       controls.appendChild(this.nextBtn);
-      controls.appendChild(d);
+      controls.appendChild(control_erase);
       controls.appendChild(c);
-      controls.appendChild(u);
+      controls.appendChild(control_hide);
       controls.appendChild(l);
       controls.appendChild(p);
-      // this.checkHistoryButtonStatus();
+      this.checkHistoryButtonStatus(); //이전 다음 버튼 활성화 비활성화 체크
       this.CSSAnimationManager.supported
         ? this.panel.addEventListener(
             this.CSSAnimationManager.end,
@@ -1129,6 +1616,18 @@ var getCSSAnimationManager = function () {
             !1
           )
         : (this.panel.style.opacity = 1);
+      e_group.setCtxProp();
+    },
+    checkHistoryButtonStatus: function () {
+      // 이전 다음 버튼 활성화 비활성화 체크
+      if (this.nextBtn && this.backBtn) {
+        if (this.histories.hasNext())
+          this.removeClass(this.nextBtn, "disabled");
+        else this.addClass(this.nextBtn, "disabled");
+        if (this.histories.hasPrevious())
+          this.removeClass(this.backBtn, "disabled");
+        else this.addClass(this.backBtn, "disabled");
+      }
     },
     addClass: function (t, e) {
       0 <= t.className.indexOf(e) || (t.className = t.className + " " + e);
@@ -1268,6 +1767,8 @@ var getCSSAnimationManager = function () {
     },
     exit: function () {
       console.log("inject.js e 내부 exit");
+      e_group.clearLasso();
+      e_group.handleMouseClick();
       this.canvas.parentNode.removeChild(this.canvas),
         this.panel.parentNode.parentNode.removeChild(this.panel.parentNode),
         window_e.removeEventListener("resize", this.resizeBinded),
@@ -1275,6 +1776,7 @@ var getCSSAnimationManager = function () {
         (this.canvas = null),
         (this.ctx = null),
         (this.initialized = !1),
+        (this.controlPanelHidden = !1),
         (this.painting = false),
         (this.selectedAlphaOption = null),
         (this.resizeTimeoutID = null),
@@ -1286,7 +1788,7 @@ var getCSSAnimationManager = function () {
         (this.paragraph = null),
         (this.activate = "pen"),
         (this.saveImage = null),
-        (this.saveLasso = null),
+        (this.saveLasso = [null, null]),
         (this.histories = null),
         (this.MAX_ITEMS = null),
         (this.currentIndex = null),
@@ -1304,6 +1806,8 @@ var getCSSAnimationManager = function () {
         (this.lassosY = null),
         (this.lassoeX = null),
         (this.lassoeY = null),
+        (this.lassosubX = null),
+        (this.lassosubY = null),
         (this.hasInput = false),
         (this.size = "20px"),
         (this.font = "sans-serif"),
@@ -1329,8 +1833,9 @@ var getCSSAnimationManager = function () {
         {
           method: "get_data",
         },
-        this.renderBinded
+        //this.renderBinded
       );
+      e_group.render();
     },
     init: function () {
       // 여기 this는 401번 줄 e임.
@@ -1376,6 +1881,78 @@ var getCSSAnimationManager = function () {
         "undefined" != typeof unsafeWindow &&
           null !== unsafeWindow &&
           (unsafeWindow.bnoty_INIT = !0);
+    },
+    // 링크 넣는 창 입력하기
+    LinkInputField: function (x, y) {
+      // alert("링크입력");
+      // a태그
+      var atag = window_e.document.createElement("div");
+      atag.setAttribute("id", "linkdiv");
+      atag.style.position = "absolute";
+      atag.style.width = 280 + "px";
+      atag.style.left = x + "px";
+      atag.style.top = y + "px";
+      atag.style.zIndex = 2147483647;
+      e_group.linkX = x;
+      e_group.linkY = y;
+      var input1 = window_e.document.createElement("input");
+      input1.setAttribute("id", "linkinput");
+      input1.setAttribute("type", "text");
+      input1.setAttribute("placeholder", "링크입력");
+
+      var input2 = window_e.document.createElement("input");
+      input2.setAttribute("type", "button");
+      input2.setAttribute("value", "확인");
+      input2.addEventListener("click", this.linkclickfuntion);
+
+      // 추가
+      atag.appendChild(input1);
+      atag.appendChild(input2);
+      document.body.appendChild(atag);
+
+      // 바꿔주기
+      e_group.activate = "nothing";
+    },
+    linkclickfuntion: function () {
+      // alert("클릭");
+
+      // 링크 가져오기
+      var goto = document.getElementById("linkinput").value;
+      // console.log(document.getElementById("linkinput").value);
+      console.log(goto);
+
+      // 이미지 생성
+      var atag = window_e.document.createElement("a");
+      atag.setAttribute("target", "”_blank”");
+      atag.setAttribute("href", goto);
+      atag.addEventListener("contextmenu", function () {
+        this.remove();
+      });
+      atag.style.position = "absolute";
+      atag.style.width = 24 + "px";
+      atag.style.height = 24 + "px";
+      atag.style.left = e_group.linkX + "px";
+      atag.style.top = e_group.linkY + "px";
+      atag.style.zIndex = 2147483647;
+
+      var imgtag = window_e.document.createElement("img");
+      imgtag.setAttribute(
+        "src",
+        "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png"
+      );
+      imgtag.setAttribute("alt", "IU");
+      imgtag.setAttribute("width", "24");
+      imgtag.setAttribute("height", "24");
+
+      // 추가
+      atag.appendChild(imgtag);
+      document.body.appendChild(atag);
+
+      // 지워주기
+      let target = document.getElementById("linkdiv");
+      target.remove();
+
+      // 이미지 생성
     },
   };
   return e_group;
