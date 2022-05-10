@@ -1239,6 +1239,8 @@ var getCSSAnimationManager = function () {
             window_e.document.getElementById("eraserBox").style.display =
               "none";
             window_e.document.getElementById("imageBox").style.display = "none";
+            window_e.document.getElementById("saveBox").style.display = 
+              "none";
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
@@ -1258,6 +1260,8 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
+              window_e.document.getElementById("saveBox").style.display = 
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -1267,6 +1271,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("eraserBox").style.display =
                 "none";
               window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display = 
                 "none";
             }
             e_group.activate = "pen";
@@ -1290,6 +1296,8 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
+              window_e.document.getElementById("saveBox").style.display = 
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -1299,6 +1307,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("eraserBox").style.display =
                 "none";
               window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display = 
                 "none";
             }
           });
@@ -1319,6 +1329,8 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
+              window_e.document.getElementById("saveBox").style.display = 
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -1328,6 +1340,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("eraserBox").style.display =
                 "none";
               window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display = 
                 "none";
             }
             e_group.activate = "rectangle";
@@ -1351,6 +1365,8 @@ var getCSSAnimationManager = function () {
                 "block";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
+              window_e.document.getElementById("saveBox").style.display = 
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -1360,6 +1376,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("eraserBox").style.display =
                 "none";
               window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display = 
                 "none";
             }
             e_group.activate = "eraser";
@@ -1399,6 +1417,8 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "block";
+              window_e.document.getElementById("saveBox").style.display = 
+                "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -1408,6 +1428,8 @@ var getCSSAnimationManager = function () {
               window_e.document.getElementById("eraserBox").style.display =
                 "none";
               window_e.document.getElementById("imageBox").style.display =
+                "none";
+              window_e.document.getElementById("saveBox").style.display = 
                 "none";
             }
           });
