@@ -1495,7 +1495,7 @@ var getCSSAnimationManager = function () {
       // this.updatePaintStyle();
       var c = window_e.document.createElement("div"),
         l = window_e.document.createElement("div"),
-        control_save = window_e.document.createElement("div"),
+        control_erase = window_e.document.createElement("div"),
         control_hide = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
       c.setAttribute("class", "bnoty_controls_control_option prtBtn");
@@ -1527,6 +1527,23 @@ var getCSSAnimationManager = function () {
           e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
+      d.setAttribute("class", "bnoty_controls_control_option save");
+      d.setAttribute("title", "Save");
+      u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn");
+      u.setAttribute(
+        "title",
+        "Close control panel (Click the extension icon to re-open)"
+      );
+      p.setAttribute("class", "settingsBtn");
+      p.setAttribute("title", "Settings");
+      // c.addEventListener(
+      //   "click",
+      //   Function.prototype.bind.call(this.onPrintButtonClick, this)
+      // );
+      l.addEventListener(
+        "click",
+        Function.prototype.bind.call(this.exit, this)
+      );
 
       var saveBox = window_e.document.createElement("div"); // save
       saveBox.setAttribute("class", "pen_box");
@@ -1548,47 +1565,25 @@ var getCSSAnimationManager = function () {
         window_e.document.getElementById("saveBox").style.display = "none";
       }
 
-      control_save.setAttribute(
-        "class",
-        "bnoty_controls_control_option save"
-      );
-      control_save.setAttribute("title", "Save");
-      control_save.addEventListener("click", function () {
-        if(window_e.document.getElementById("saveBox").style.display === 'none'){
-          window_e.document.getElementById("penBox").style.display = 'none';
-          window_e.document.getElementById("textBox").style.display = 'none';
-          window_e.document.getElementById("figureBox").style.display = 'none';
-          window_e.document.getElementById("eraserBox").style.display = 'none';
-          window_e.document.getElementById("imageBox").style.display = 'none';
-          window_e.document.getElementById("saveBox").style.display = 'block';
-        }else {
-          window_e.document.getElementById("penBox").style.display = 'none';
-          window_e.document.getElementById("textBox").style.display = 'none';
-          window_e.document.getElementById("figureBox").style.display = 'none';
-          window_e.document.getElementById("eraserBox").style.display = 'none';
-          window_e.document.getElementById("imageBox").style.display = 'none';
-          window_e.document.getElementById("saveBox").style.display = 'none';
+      d.addEventListener(
+        "click", function() {
+          if(window_e.document.getElementById("saveBox").style.display === 'none'){
+            window_e.document.getElementById("penBox").style.display = 'none';
+            window_e.document.getElementById("textBox").style.display = 'none';
+            window_e.document.getElementById("figureBox").style.display = 'none';
+            window_e.document.getElementById("eraserBox").style.display = 'none';
+            window_e.document.getElementById("imageBox").style.display = 'none';
+            window_e.document.getElementById("saveBox").style.display = 'block';
+          }else {
+            window_e.document.getElementById("penBox").style.display = 'none';
+            window_e.document.getElementById("textBox").style.display = 'none';
+            window_e.document.getElementById("figureBox").style.display = 'none';
+            window_e.document.getElementById("eraserBox").style.display = 'none';
+            window_e.document.getElementById("imageBox").style.display = 'none';
+            window_e.document.getElementById("saveBox").style.display = 'none';
+          }
         }
-        e_group.addHistory();
-      });
-      control_hide.setAttribute(
-        "class",
-        "bnoty_controls_control_option hideCtrlBtn"
-      );
-      control_hide.setAttribute(
-        "title",
-        "Close control panel (Click the extension icon to re-open)"
-      );
-      p.setAttribute("class", "settingsBtn");
-      p.setAttribute("title", "Settings");
-      // c.addEventListener(
-      //   "click",
-      //   Function.prototype.bind.call(this.onPrintButtonClick, this)
-      // );
-      l.addEventListener(
-        "click",
-        Function.prototype.bind.call(this.exit, this)
-      );
+      )
       // this.backBtn.addEventListener(
       //   "click",
       //   Function.prototype.bind.call(this.handleBackButtonClick, this)
@@ -1608,7 +1603,7 @@ var getCSSAnimationManager = function () {
       // });
       controls.appendChild(this.backBtn);
       controls.appendChild(this.nextBtn);
-      controls.appendChild(control_save);
+      controls.appendChild(control_erase);
       controls.appendChild(c);
       controls.appendChild(control_hide);
       controls.appendChild(l);
