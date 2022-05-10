@@ -1230,7 +1230,9 @@ var getCSSAnimationManager = function () {
     // 전체 화면 캡처 
     FullcaptureStart:function(){
       console.log("전체화면 캡처");
-      
+      chrome.runtime.sendMessage( { method : 'FullcaptureStart'}, (response) => {
+        console.log(response.farewell);
+      })
     },
     // 창 전환
     updateScreenshot: function(t, n) {
