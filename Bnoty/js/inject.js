@@ -1,3 +1,4 @@
+let removeToast;
 var getCSSAnimationManager = function () {
   for (
     var t,
@@ -701,24 +702,37 @@ var getCSSAnimationManager = function () {
 
       await chrome.runtime.sendMessage( { method : 'startRead', url : pageUrl}, async (response) => {
         console.log("[popup.js] chrome.runtime.sendMessage().startRead");
-        console.log("sendMessage : ", response);
+       // console.log("sendMessage : ", response);
       });
 
       chrome.storage.onChanged.addListener(()=>{
-        console.log("init onChanged");
+       // console.log("init onChanged");
         e_group.getConfig();
       });
 
+    },
+    toast: function(string) {
+        const toast = document.getElementById("toast");
+
+        toast.classList.contains("reveal") ?
+            (clearTimeout(removeToast), removeToast = setTimeout(function () {
+                document.getElementById("toast").classList.remove("reveal")
+            }, 1000)) :
+            removeToast = setTimeout(function () {
+                document.getElementById("toast").classList.remove("reveal")
+            }, 1000)
+        toast.classList.add("reveal"),
+            toast.innerText = string
     },
     getConfig: async function() {
 
       var pageUrl = document.location.href;
       await chrome.storage.local.get(['key' + pageUrl], async function(result) {
         var t = result['key' + pageUrl];
-        console.log("t : ", t);
+        //console.log("t : ", t);
         if (t) {
-          console.log("this : ", this);
-          console.log("e_group : ", e_group);
+        //  console.log("this : ", this);
+        //  console.log("e_group : ", e_group);
           var e = new Image();
           (e.onload = Function.prototype.bind.call(e_group.initCanvas, e_group, e)),(e.src = t);
           await e_group.saveConfig();
@@ -737,7 +751,7 @@ var getCSSAnimationManager = function () {
         e_group.canvas.height
       ); // 지금까지 그린 정보를 저장
       await chrome.storage.local.clear();
-      await e_group.addHistory2();
+     //await e_group.addHistory2();
     },
     get_time: async function(){
       let today = new Date();
@@ -764,6 +778,16 @@ var getCSSAnimationManager = function () {
       this.initCanvas();
       chrome.storage.local.clear();
       e_group.autoRead();
+      var toastElement = window_e.document.createElement('div');
+      toastElement.setAttribute('id', 'toast');
+      window_e.document.body.appendChild(toastElement);
+      setInterval(() => {
+        var pageUrl = document.location.href;
+        chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage()");
+        });
+        e_group.toast("저장");
+      }, 3000);
     },
     initCanvas: async function (t) {
       console.log("inject.js e 내부 initCanvas");
@@ -862,10 +886,10 @@ var getCSSAnimationManager = function () {
       console.log('addHistory')
       this.histories.add(this.saveImage);
       console.log("addhistory : ", e_group.currentIndex);
-      var pageUrl = document.location.href;
-      chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
-        console.log("[popup.js] chrome.runtime.sendMessage()");
-      });
+      // var pageUrl = document.location.href;
+      // chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+      //   console.log("[popup.js] chrome.runtime.sendMessage()");
+      // });
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     addHistory2: function () {
@@ -1527,10 +1551,31 @@ var getCSSAnimationManager = function () {
           e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
-      d.setAttribute("class", "bnoty_controls_control_option save");
-      d.setAttribute("title", "Save");
-      u.setAttribute("class", "bnoty_controls_control_option hideCtrlBtn");
-      u.setAttribute(
+      control_erase.setAttribute(
+        "class",
+        "bnoty_controls_control_option eraseAllBtn"
+      );
+      control_erase.setAttribute("title", "Erase all");
+      control_erase.addEventListener("click", function () {
+        e_group.ctx.clearRect(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); //clear canvas
+        e_group.saveImage = e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        );
+        e_group.addHistory();
+      });
+      control_hide.setAttribute(
+        "class",
+        "bnoty_controls_control_option hideCtrlBtn"
+      );
+      control_hide.setAttribute(
         "title",
         "Close control panel (Click the extension icon to re-open)"
       );
@@ -1544,46 +1589,6 @@ var getCSSAnimationManager = function () {
         "click",
         Function.prototype.bind.call(this.exit, this)
       );
-
-      var saveBox = window_e.document.createElement("div"); // save
-      saveBox.setAttribute("class", "pen_box");
-      saveBox.setAttribute("id", "saveBox");
-      if (!window_e.document.getElementById("saveBox")) {
-        box.appendChild(saveBox);
-        var save = window_e.document.createElement("div"),
-        capacity_check = window_e.document.createElement("div");
-
-        save.setAttribute("class", "save");
-        save.setAttribute("id", "save");
-        save.setAttribute("title", "Manual save");
-        capacity_check.setAttribute("class", "capacity_check");
-        capacity_check.setAttribute("id", "capacity_check");
-        capacity_check.setAttribute("title", "Check My Computer Capacity");
-        
-        saveBox.appendChild(save);
-        saveBox.appendChild(capacity_check);
-        window_e.document.getElementById("saveBox").style.display = "none";
-      }
-
-      d.addEventListener(
-        "click", function() {
-          if(window_e.document.getElementById("saveBox").style.display === 'none'){
-            window_e.document.getElementById("penBox").style.display = 'none';
-            window_e.document.getElementById("textBox").style.display = 'none';
-            window_e.document.getElementById("figureBox").style.display = 'none';
-            window_e.document.getElementById("eraserBox").style.display = 'none';
-            window_e.document.getElementById("imageBox").style.display = 'none';
-            window_e.document.getElementById("saveBox").style.display = 'block';
-          }else {
-            window_e.document.getElementById("penBox").style.display = 'none';
-            window_e.document.getElementById("textBox").style.display = 'none';
-            window_e.document.getElementById("figureBox").style.display = 'none';
-            window_e.document.getElementById("eraserBox").style.display = 'none';
-            window_e.document.getElementById("imageBox").style.display = 'none';
-            window_e.document.getElementById("saveBox").style.display = 'none';
-          }
-        }
-      )
       // this.backBtn.addEventListener(
       //   "click",
       //   Function.prototype.bind.call(this.handleBackButtonClick, this)
