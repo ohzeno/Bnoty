@@ -1280,15 +1280,15 @@ var getCSSAnimationManager = function () {
             reader.onload = function (e) {
               e_group.img = new Image();
               e_group.img.src = e.target.result;
-              e_group.img.onload = function () {
-                e_group.saveImage = e_group.ctx.getImageData(
-                  0,
-                  0,
-                  e_group.canvas.width,
-                  e_group.canvas.height
-                ); // 지금까지 그린 정보를 저장
-                e_group.addHistory();
-              };
+              // e_group.img.onload = function () {
+              //   e_group.saveImage = e_group.ctx.getImageData(
+              //     0,
+              //     0,
+              //     e_group.canvas.width,
+              //     e_group.canvas.height
+              //   ); // 지금까지 그린 정보를 저장
+              //   e_group.addHistory();
+              // };
             };
             reader.readAsDataURL(event.target.files[0]);
           });
