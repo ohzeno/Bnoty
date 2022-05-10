@@ -65,7 +65,7 @@ Bnoty = {
     global.tabs.insertCSS(
       null,
       {
-        file: "/css/main.min.css",
+        file: "/css/main.min.css"
       },
       function () {
         if (global.extension.lastError) {
