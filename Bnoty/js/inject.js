@@ -1,4 +1,3 @@
-let removeToast;
 var getCSSAnimationManager = function () {
   for (
     var t,
@@ -190,6 +189,8 @@ var getCSSAnimationManager = function () {
     linkX: null,
     linkY: null,
     linkcount: 0, // 이건 저장해야함
+    removeToast: null,
+    toastElement: null,
 
     startPainting: function (event) {
       event.preventDefault();
@@ -669,7 +670,7 @@ var getCSSAnimationManager = function () {
       this.ctx.fillText(txt, x, y);
     },
     clearLasso: function () {
-      if(e_group.currentIndex != 0){
+      if (e_group.currentIndex != 0) {
         if (
           e_group.lassosX == e_group.lassosubX &&
           e_group.lassosY == e_group.lassosubY
@@ -724,18 +725,18 @@ var getCSSAnimationManager = function () {
         e_group.getConfig();
       });
     },
-    toast: function(string) {
+    toast: function (string) {
       const toast = document.getElementById("toast");
 
-      toast.classList.contains("reveal") ?
-          (clearTimeout(removeToast), removeToast = setTimeout(function () {
-              document.getElementById("toast").classList.remove("reveal")
-          }, 1000)) :
-          removeToast = setTimeout(function () {
-              document.getElementById("toast").classList.remove("reveal")
-          }, 1000)
-      toast.classList.add("reveal"),
-          toast.innerText = string
+      toast.classList.contains("reveal")
+        ? (clearTimeout(removeToast),
+          (removeToast = setTimeout(function () {
+            document.getElementById("toast").classList.remove("reveal");
+          }, 1000)))
+        : (removeToast = setTimeout(function () {
+            document.getElementById("toast").classList.remove("reveal");
+          }, 1000));
+      toast.classList.add("reveal"), (toast.innerText = string);
     },
     getConfig: async function () {
       var pageUrl = document.location.href;
@@ -797,14 +798,17 @@ var getCSSAnimationManager = function () {
       this.initCanvas();
       chrome.storage.local.clear();
       e_group.autoRead();
-      var toastElement = window_e.document.createElement('div');
-      toastElement.setAttribute('id', 'toast');
-      window_e.document.body.appendChild(toastElement);
+      this.toastElement = window_e.document.createElement("div");
+      this.toastElement.setAttribute("id", "toast");
+      window_e.document.body.appendChild(e_group.toastElement);
       setInterval(() => {
         var pageUrl = document.location.href;
-        chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
-          console.log("[popup.js] chrome.runtime.sendMessage()");
-        });
+        chrome.runtime.sendMessage(
+          { method: "save", config: e_group.canvas.toDataURL(), url: pageUrl },
+          (response) => {
+            console.log("[popup.js] chrome.runtime.sendMessage()");
+          }
+        );
         e_group.toast("저장");
       }, 3000);
     },
@@ -1869,6 +1873,7 @@ var getCSSAnimationManager = function () {
       e_group.handleMouseClick();
       this.canvas.parentNode.removeChild(this.canvas),
         this.panel.parentNode.parentNode.removeChild(this.panel.parentNode),
+        this.toastElement.parentNode.removeChild(this.toastElement),
         window_e.removeEventListener("resize", this.resizeBinded),
         window_e.removeEventListener("scroll", this.resizeBinded),
         (this.canvas = null),
@@ -1912,6 +1917,8 @@ var getCSSAnimationManager = function () {
         (this.boldtext = ""),
         (this.italictext = ""),
         (this.textactive = false),
+        (this.removeToast = null),
+        (this.toastElement = null),
         "undefined" != typeof unsafeWindow &&
           null !== unsafeWindow &&
           ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
