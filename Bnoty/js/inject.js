@@ -318,6 +318,8 @@ var getCSSAnimationManager = function () {
         this.activate != "nothing" &&
         this.saveLasso[0] == null
       ) {
+        if(this.activate != "lasso" && this.activate != "fill" && this.sX == this.eX && this.sY == this.eY)
+          return;
         this.saveImage = this.ctx.getImageData(
           0,
           0,
