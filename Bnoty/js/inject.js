@@ -189,6 +189,10 @@ var getCSSAnimationManager = function () {
     linkX: null,
     linkY: null,
     linkcount: 0, // 이건 저장해야함
+    removeToast: null,
+    toastElement: null,
+    autoSave: null,
+    top_box: null,
 
     startPainting: function (event) {
       event.preventDefault();
@@ -309,7 +313,19 @@ var getCSSAnimationManager = function () {
           (this.lassosubY = null);
       }
       this.painting = false;
-      if (this.activate != "text" && this.activate != "insert_link" && this.activate!="nothing" && this.saveLasso[0] == null) {
+      if (
+        this.activate != "text" &&
+        this.activate != "insert_link" &&
+        this.activate != "nothing" &&
+        this.saveLasso[0] == null
+      ) {
+        if (
+          this.activate != "lasso" &&
+          this.activate != "fill" &&
+          this.sX == this.eX &&
+          this.sY == this.eY
+        )
+          return;
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -349,7 +365,11 @@ var getCSSAnimationManager = function () {
           }
         }
         this.painting = false;
-        if (this.activate != "text" && this.activate != "nothing" && this.saveLasso[0] == null) {
+        if (
+          this.activate != "text" &&
+          this.activate != "nothing" &&
+          this.saveLasso[0] == null
+        ) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -405,7 +425,7 @@ var getCSSAnimationManager = function () {
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        if (this.currentIndex != 0) {
+        if (this.array.length != 0) {
           // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
           this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
         }
@@ -659,77 +679,100 @@ var getCSSAnimationManager = function () {
       this.ctx.fillText(txt, x, y);
     },
     clearLasso: function () {
-      if (
-        e_group.lassosX == e_group.lassosubX &&
-        e_group.lassosY == e_group.lassosubY
-      ) {
-        e_group.ctx.putImageData(e_group.array[e_group.currentIndex], 0, 0);
-        // e_group.currentIndex--;
-        (e_group.saveLasso[0] = null),
-          (e_group.saveLasso[1] = null),
-          (e_group.lassosX = null),
-          (e_group.lassosY = null),
-          (e_group.lassoeX = null),
-          (e_group.lassoeY = null),
-          (e_group.lassosubX = null),
-          (e_group.lassosubY = null);
-      } else {
-        e_group.ctx.putImageData(
-          e_group.saveLasso[0],
-          e_group.lassosX,
-          e_group.lassosY
-        );
-        e_group.saveImage = e_group.ctx.getImageData(
-          0,
-          0,
-          e_group.canvas.width,
-          e_group.canvas.height
-        ); // 지금까지 그린 정보를 저장
-        e_group.addHistory();
-        (e_group.saveLasso[0] = null),
-          (e_group.saveLasso[1] = null),
-          (e_group.lassosX = null),
-          (e_group.lassosY = null),
-          (e_group.lassoeX = null),
-          (e_group.lassoeY = null),
-          (e_group.lassosubX = null),
-          (e_group.lassosubY = null);
+      if (e_group.currentIndex != 0) {
+        if (
+          e_group.lassosX == e_group.lassosubX &&
+          e_group.lassosY == e_group.lassosubY
+        ) {
+          e_group.ctx.putImageData(e_group.array[e_group.currentIndex], 0, 0);
+          // e_group.currentIndex--;
+          (e_group.saveLasso[0] = null),
+            (e_group.saveLasso[1] = null),
+            (e_group.lassosX = null),
+            (e_group.lassosY = null),
+            (e_group.lassoeX = null),
+            (e_group.lassoeY = null),
+            (e_group.lassosubX = null),
+            (e_group.lassosubY = null);
+        } else {
+          e_group.ctx.putImageData(
+            e_group.saveLasso[0],
+            e_group.lassosX,
+            e_group.lassosY
+          );
+          e_group.saveImage = e_group.ctx.getImageData(
+            0,
+            0,
+            e_group.canvas.width,
+            e_group.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          e_group.addHistory();
+          (e_group.saveLasso[0] = null),
+            (e_group.saveLasso[1] = null),
+            (e_group.lassosX = null),
+            (e_group.lassosY = null),
+            (e_group.lassoeX = null),
+            (e_group.lassoeY = null),
+            (e_group.lassosubX = null),
+            (e_group.lassosubY = null);
+        }
       }
     },
-    sendRead: async function(){
+    sendRead: async function () {
       var pageUrl = document.location.href;
 
-      await chrome.runtime.sendMessage( { method : 'startRead', url : pageUrl}, async (response) => {
-        console.log("[popup.js] chrome.runtime.sendMessage().startRead");
-        console.log("sendMessage : ", response);
-      });
+      await chrome.runtime.sendMessage(
+        { method: "startRead", url: pageUrl },
+        async (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage().startRead");
+          console.log("sendMessage : ", response);
+        }
+      );
 
-      chrome.storage.onChanged.addListener(()=>{
+      chrome.storage.onChanged.addListener(() => {
         console.log("init onChanged");
         e_group.getConfig();
       });
-
     },
-    getConfig: async function() {
+    toast: function (string) {
+      const toast = document.getElementById("toast");
 
+      toast.classList.contains("reveal")
+        ? (clearTimeout(removeToast),
+          (removeToast = setTimeout(function () {
+            document.getElementById("toast").classList.remove("reveal");
+          }, 1000)))
+        : (removeToast = setTimeout(function () {
+            document.getElementById("toast").classList.remove("reveal");
+          }, 1000));
+      toast.classList.add("reveal"), (toast.innerText = string);
+    },
+    getConfig: async function () {
       var pageUrl = document.location.href;
-      await chrome.storage.local.get(['key' + pageUrl], async function(result) {
-        var t = result['key' + pageUrl];
-        console.log("t : ", t);
-        if (t) {
-          console.log("this : ", this);
-          console.log("e_group : ", e_group);
-          var e = new Image();
-          (e.onload = Function.prototype.bind.call(e_group.initCanvas, e_group, e)),(e.src = t);
-          await e_group.saveConfig();
-        } else {
-          await e_group.initCanvas();
+      await chrome.storage.local.get(
+        ["key" + pageUrl],
+        async function (result) {
+          var t = result["key" + pageUrl];
+          console.log("t : ", t);
+          if (t) {
+            console.log("this : ", this);
+            console.log("e_group : ", e_group);
+            var e = new Image();
+            (e.onload = Function.prototype.bind.call(
+              e_group.initCanvas,
+              e_group,
+              e
+            )),
+              (e.src = t);
+            await e_group.saveConfig();
+          } else {
+            await e_group.initCanvas();
+          }
         }
-      });
-      
+      );
     },
-    saveConfig: async function(){
-      console.log("saveConfig")
+    saveConfig: async function () {
+      console.log("saveConfig");
       e_group.saveImage = await e_group.ctx.getImageData(
         0,
         0,
@@ -737,16 +780,16 @@ var getCSSAnimationManager = function () {
         e_group.canvas.height
       ); // 지금까지 그린 정보를 저장
       await chrome.storage.local.clear();
-      await e_group.addHistory2();
+      // await e_group.addHistory2();
     },
-    get_time: async function(){
+    get_time: async function () {
       let today = new Date();
       let minutes = today.getMinutes();
       let seconds = today.getSeconds();
       let milseconds = today.getMilliseconds();
       console.log(minutes + " : " + seconds + " : " + milseconds);
     },
-    autoRead: async function(){
+    autoRead: async function () {
       console.log("AutoReadStart");
       await e_group.sendRead();
     },
@@ -764,6 +807,26 @@ var getCSSAnimationManager = function () {
       this.initCanvas();
       chrome.storage.local.clear();
       e_group.autoRead();
+      this.toastElement = window_e.document.createElement("div");
+      this.toastElement.setAttribute("id", "toast");
+      window_e.document.body.appendChild(e_group.toastElement);
+      function auto_save() {
+        e_group.autoSave = setInterval(() => {
+          var pageUrl = document.location.href;
+          chrome.runtime.sendMessage(
+            {
+              method: "save",
+              config: e_group.canvas.toDataURL(),
+              url: pageUrl,
+            },
+            (response) => {
+              console.log("[popup.js] chrome.runtime.sendMessage()");
+            }
+          );
+          e_group.toast("저장");
+        }, 10000);
+      }
+      auto_save();
     },
     initCanvas: async function (t) {
       console.log("inject.js e 내부 initCanvas");
@@ -859,17 +922,21 @@ var getCSSAnimationManager = function () {
     },
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
-      console.log('addHistory')
+      console.log("addHistory");
       this.histories.add(this.saveImage);
       console.log("addhistory : ", e_group.currentIndex);
       var pageUrl = document.location.href;
-      chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
-        console.log("[popup.js] chrome.runtime.sendMessage()");
-      });
+      chrome.runtime.sendMessage(
+        { method: "save", config: e_group.canvas.toDataURL(), url: pageUrl },
+        (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage()");
+        }
+      );
       // 여기서 버튼 디스에이블하는것도 해줘야함
+      this.checkHistoryButtonStatus();
     },
     addHistory2: function () {
-      console.log('addHistory')
+      console.log("addHistory");
       this.histories.add(this.saveImage);
       console.log("addhistory : ", e_group.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
@@ -966,8 +1033,7 @@ var getCSSAnimationManager = function () {
       if (this.array.length != 0) {
         // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
         this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
-      } 
-      else {
+      } else {
         this.histories.add(
           this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
         );
@@ -991,6 +1057,7 @@ var getCSSAnimationManager = function () {
 
       var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
+      this.top_box = box;
       window_e.document.body.appendChild(box);
       var penBox = window_e.document.createElement("div"); // pen
       penBox.setAttribute("class", "pen_box");
@@ -1007,6 +1074,9 @@ var getCSSAnimationManager = function () {
       var imageBox = window_e.document.createElement("div"); // image
       imageBox.setAttribute("class", "pen_box");
       imageBox.setAttribute("id", "imageBox");
+      var captureBox = window_e.document.createElement("div"); // capture
+      captureBox.setAttribute("class", "pen_box");
+      captureBox.setAttribute("id", "captureBox");
       box.appendChild(this.panel);
       // window_e.document.body.appendChild(this.panel);
       this.panel.appendChild(tools);
@@ -1038,9 +1108,11 @@ var getCSSAnimationManager = function () {
           tmp_pen.addEventListener("click", function () {
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           highlighterPen.addEventListener("click", function () {
             e_group.activate = "highlighter";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           penBox.appendChild(tmp_pen);
           penBox.appendChild(highlighterPen);
@@ -1057,6 +1129,7 @@ var getCSSAnimationManager = function () {
           text.setAttribute("title", "Input Text");
           text.addEventListener("click", function () {
             e_group.activate = "text";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
@@ -1067,6 +1140,7 @@ var getCSSAnimationManager = function () {
             } else {
               e_group.boldtext = "bold";
             }
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           italicText.setAttribute("class", "italicText");
           italicText.setAttribute("id", "italicText");
@@ -1077,6 +1151,7 @@ var getCSSAnimationManager = function () {
             } else {
               e_group.italictext = "italic";
             }
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           textBox.appendChild(text);
           textBox.appendChild(boldText);
@@ -1099,6 +1174,7 @@ var getCSSAnimationManager = function () {
           square.addEventListener("click", function () {
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           triangle.setAttribute("class", "triangle");
           triangle.setAttribute("id", "triangle");
@@ -1106,6 +1182,7 @@ var getCSSAnimationManager = function () {
           triangle.addEventListener("click", function () {
             e_group.activate = "triangle";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           circle.setAttribute("class", "circle");
           circle.setAttribute("id", "circle");
@@ -1113,6 +1190,7 @@ var getCSSAnimationManager = function () {
           circle.addEventListener("click", function () {
             e_group.activate = "circle";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           line.setAttribute("class", "line");
           line.setAttribute("id", "line");
@@ -1120,6 +1198,7 @@ var getCSSAnimationManager = function () {
           line.addEventListener("click", function () {
             e_group.activate = "line";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           curve.setAttribute("class", "curve");
           curve.setAttribute("id", "curve");
@@ -1127,6 +1206,7 @@ var getCSSAnimationManager = function () {
           curve.addEventListener("click", function () {
             e_group.activate = "curve";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           arrow.setAttribute("class", "arrow");
           arrow.setAttribute("id", "arrow");
@@ -1134,6 +1214,7 @@ var getCSSAnimationManager = function () {
           arrow.addEventListener("click", function () {
             e_group.activate = "arrow";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           figureBox.appendChild(square);
           figureBox.appendChild(triangle);
@@ -1161,6 +1242,7 @@ var getCSSAnimationManager = function () {
             e_group.linePicker.value = 5;
             e_group.linePickerPreview.innerHTML =
               Math.round((e_group.linePicker.value / 20) * 100) + "%";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           all_eraser.addEventListener("click", function () {
             e_group.ctx.clearRect(
@@ -1176,6 +1258,7 @@ var getCSSAnimationManager = function () {
               e_group.canvas.height
             );
             e_group.addHistory();
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           eraserBox.appendChild(eraser);
           eraserBox.appendChild(all_eraser);
@@ -1199,6 +1282,7 @@ var getCSSAnimationManager = function () {
           insert_link.setAttribute("title", "insert_link");
           insert_image.addEventListener("click", function () {
             e_group.activate = "insert_image";
+            e_group.removeClass(e_group.canvas, "cursor");
             fileChange.click();
           });
           fileChange.addEventListener("change", function (event) {
@@ -1206,24 +1290,45 @@ var getCSSAnimationManager = function () {
             reader.onload = function (e) {
               e_group.img = new Image();
               e_group.img.src = e.target.result;
-              e_group.img.onload = function () {
-                e_group.saveImage = e_group.ctx.getImageData(
-                  0,
-                  0,
-                  e_group.canvas.width,
-                  e_group.canvas.height
-                ); // 지금까지 그린 정보를 저장
-                e_group.addHistory();
-              };
+              // e_group.img.onload = function () {
+              //   e_group.saveImage = e_group.ctx.getImageData(
+              //     0,
+              //     0,
+              //     e_group.canvas.width,
+              //     e_group.canvas.height
+              //   ); // 지금까지 그린 정보를 저장
+              //   e_group.addHistory();
+              // };
             };
             reader.readAsDataURL(event.target.files[0]);
           });
           insert_link.addEventListener("click", function () {
             e_group.activate = "insert_link";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           imageBox.appendChild(insert_image);
           imageBox.appendChild(insert_link);
           window_e.document.getElementById("imageBox").style.display = "none";
+        }
+
+        // capture box
+        if (!window_e.document.getElementById("captureBox")) {
+          // capture 
+          box.appendChild(captureBox);
+          var screen_capture_btn = window_e.document.createElement("div");
+          var full_capture_btn = window_e.document.createElement("div");
+          screen_capture_btn.addEventListener( "click", this.ScreencaptureStart );
+          full_capture_btn.addEventListener("click",  this.FullcaptureStart );
+
+          screen_capture_btn.setAttribute("class", "screen_capture_btn");
+          screen_capture_btn.setAttribute("id", "screen_capture_btn");
+
+          full_capture_btn.setAttribute("class", "full_capture_btn");
+          full_capture_btn.setAttribute("id", "full_capture_btn");
+
+          captureBox.appendChild(screen_capture_btn);
+          captureBox.appendChild(full_capture_btn);
+          window_e.document.getElementById("captureBox").style.display = "none";
         }
 
         if (a.type == "fill") {
@@ -1232,15 +1337,14 @@ var getCSSAnimationManager = function () {
             e_group.handleMouseClick();
             e_group.activate = "fill";
             e_group.canvas.style.cursor = "pointer";
-            window_e.document.getElementById("penBox").style.display = "none";
-            window_e.document.getElementById("textBox").style.display = "none";
-            window_e.document.getElementById("figureBox").style.display =
-              "none";
-            window_e.document.getElementById("eraserBox").style.display =
-              "none";
+            window_e.document.getElementById("penBox").style.display = 'none';
+            window_e.document.getElementById("textBox").style.display = 'none';
+            window_e.document.getElementById("figureBox").style.display = 'none';
+            window_e.document.getElementById("captureBox").style.display = 'none';
+            window_e.document.getElementById("eraserBox").style.display = "none";
             window_e.document.getElementById("imageBox").style.display = "none";
-            window_e.document.getElementById("saveBox").style.display = 
-              "none";
+            window_e.document.getElementById("saveBox").style.display = "none";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
@@ -1260,24 +1364,22 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
+              window_e.document.getElementById("captureBox").style.display = 'none';
             } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
-              window_e.document.getElementById("eraserBox").style.display =
-                "none";
-              window_e.document.getElementById("imageBox").style.display =
-                "none";
-              window_e.document.getElementById("saveBox").style.display = 
-                "none";
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = "none";
+              window_e.document.getElementById("imageBox").style.display = "none";
+              window_e.document.getElementById("saveBox").style.display = "none";
             }
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
             e_group.setCtxProp();
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
@@ -1296,21 +1398,19 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
+              window_e.document.getElementById("captureBox").style.display = 'none';
             } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
-              window_e.document.getElementById("eraserBox").style.display =
-                "none";
-              window_e.document.getElementById("imageBox").style.display =
-                "none";
-              window_e.document.getElementById("saveBox").style.display = 
-                "none";
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = "none";
+              window_e.document.getElementById("imageBox").style.display = "none";
+              window_e.document.getElementById("saveBox").style.display = "none";
             }
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "figure") {
           r.addEventListener("click", function () {
@@ -1329,24 +1429,22 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
+                window_e.document.getElementById("captureBox").style.display = 'none';
             } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
-              window_e.document.getElementById("eraserBox").style.display =
-                "none";
-              window_e.document.getElementById("imageBox").style.display =
-                "none";
-              window_e.document.getElementById("saveBox").style.display = 
-                "none";
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = "none";
+              window_e.document.getElementById("imageBox").style.display = "none";
+              window_e.document.getElementById("saveBox").style.display = "none";
             }
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
             e_group.setCtxProp();
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
@@ -1365,20 +1463,17 @@ var getCSSAnimationManager = function () {
                 "block";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
+              window_e.document.getElementById("captureBox").style.display = 'none';
             } else {
-              window_e.document.getElementById("penBox").style.display = "none";
-              window_e.document.getElementById("textBox").style.display =
-                "none";
-              window_e.document.getElementById("figureBox").style.display =
-                "none";
-              window_e.document.getElementById("eraserBox").style.display =
-                "none";
-              window_e.document.getElementById("imageBox").style.display =
-                "none";
-              window_e.document.getElementById("saveBox").style.display = 
-                "none";
+              window_e.document.getElementById("penBox").style.display = 'none';
+              window_e.document.getElementById("textBox").style.display = 'none';
+              window_e.document.getElementById("figureBox").style.display = 'none';
+              window_e.document.getElementById("captureBox").style.display = 'none';
+              window_e.document.getElementById("eraserBox").style.display = "none";
+              window_e.document.getElementById("imageBox").style.display = "none";
+              window_e.document.getElementById("saveBox").style.display = "none";
             }
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
@@ -1386,19 +1481,21 @@ var getCSSAnimationManager = function () {
             e_group.linePicker.value = 5;
             e_group.linePickerPreview.innerHTML =
               Math.round((e_group.linePicker.value / 20) * 100) + "%";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "lasso") {
           r.addEventListener("click", function () {
             e_group.handleMouseClick();
             e_group.activate = "lasso";
             e_group.canvas.style.cursor = "pointer";
-            window_e.document.getElementById("penBox").style.display = "none";
-            window_e.document.getElementById("textBox").style.display = "none";
-            window_e.document.getElementById("figureBox").style.display =
-              "none";
-            window_e.document.getElementById("eraserBox").style.display =
-              "none";
+            window_e.document.getElementById("penBox").style.display = 'none';
+            window_e.document.getElementById("textBox").style.display = 'none';
+            window_e.document.getElementById("figureBox").style.display = 'none';
+            window_e.document.getElementById("captureBox").style.display = 'none';
+            window_e.document.getElementById("eraserBox").style.display = "none";
             window_e.document.getElementById("imageBox").style.display = "none";
+            window_e.document.getElementById("saveBox").style.display = "none";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "image") {
           r.addEventListener("click", function () {
@@ -1417,8 +1514,9 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "block";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
+              window_e.document.getElementById("captureBox").style.display = 'none';
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
               window_e.document.getElementById("textBox").style.display =
@@ -1429,9 +1527,16 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
+              window_e.document.getElementById("captureBox").style.display = 'none';
             }
+            e_group.removeClass(e_group.canvas, "cursor");
+          });
+        } else if (a.type == "cursor") {
+          r.addEventListener("click", function () {
+            e_group.activate = "cursor";
+            e_group.addClass(e_group.canvas, "cursor");
           });
         }
 
@@ -1556,7 +1661,7 @@ var getCSSAnimationManager = function () {
       if (!window_e.document.getElementById("saveBox")) {
         box.appendChild(saveBox);
         var save = window_e.document.createElement("div"),
-        capacity_check = window_e.document.createElement("div");
+          capacity_check = window_e.document.createElement("div");
 
         save.setAttribute("class", "save");
         save.setAttribute("id", "save");
@@ -1564,32 +1669,33 @@ var getCSSAnimationManager = function () {
         capacity_check.setAttribute("class", "capacity_check");
         capacity_check.setAttribute("id", "capacity_check");
         capacity_check.setAttribute("title", "Check My Computer Capacity");
-        
+
         saveBox.appendChild(save);
         saveBox.appendChild(capacity_check);
         window_e.document.getElementById("saveBox").style.display = "none";
       }
 
-      control_save.setAttribute(
-        "class",
-        "bnoty_controls_control_option save"
-      );
+      control_save.setAttribute("class", "bnoty_controls_control_option save");
       control_save.setAttribute("title", "Save");
       control_save.addEventListener("click", function () {
-        if(window_e.document.getElementById("saveBox").style.display === 'none'){
+        if (
+          window_e.document.getElementById("saveBox").style.display === "none"
+        ) {
+          window_e.document.getElementById("penBox").style.display = "none";
+          window_e.document.getElementById("textBox").style.display = "none";
+          window_e.document.getElementById("figureBox").style.display = "none";
+          window_e.document.getElementById("eraserBox").style.display = "none";
+          window_e.document.getElementById("imageBox").style.display = "none";
+          window_e.document.getElementById("saveBox").style.display = "block";
+          window_e.document.getElementById("captureBox").style.display = 'none';
+        } else {
           window_e.document.getElementById("penBox").style.display = 'none';
           window_e.document.getElementById("textBox").style.display = 'none';
           window_e.document.getElementById("figureBox").style.display = 'none';
-          window_e.document.getElementById("eraserBox").style.display = 'none';
-          window_e.document.getElementById("imageBox").style.display = 'none';
-          window_e.document.getElementById("saveBox").style.display = 'block';
-        }else {
-          window_e.document.getElementById("penBox").style.display = 'none';
-          window_e.document.getElementById("textBox").style.display = 'none';
-          window_e.document.getElementById("figureBox").style.display = 'none';
-          window_e.document.getElementById("eraserBox").style.display = 'none';
-          window_e.document.getElementById("imageBox").style.display = 'none';
-          window_e.document.getElementById("saveBox").style.display = 'none';
+          window_e.document.getElementById("captureBox").style.display = 'none';
+          window_e.document.getElementById("eraserBox").style.display = "none";
+          window_e.document.getElementById("imageBox").style.display = "none";
+          window_e.document.getElementById("saveBox").style.display = "none";
         }
         e_group.addHistory();
       });
@@ -1603,10 +1709,10 @@ var getCSSAnimationManager = function () {
       );
       p.setAttribute("class", "settingsBtn");
       p.setAttribute("title", "Settings");
-      // c.addEventListener(
-      //   "click",
-      //   Function.prototype.bind.call(this.onPrintButtonClick, this)
-      // );
+      c.addEventListener(
+        "click",
+        Function.prototype.bind.call(this.onPrintButtonClick, this)
+      );
       l.addEventListener(
         "click",
         Function.prototype.bind.call(this.exit, this)
@@ -1792,58 +1898,101 @@ var getCSSAnimationManager = function () {
         }
       }
     },
+    initDragging: function () {
+      console.log("inject.js e 내부 initDragging");
+      this.top_box.addEventListener("mousedown", this.handleDraggingStart),
+        this.top_box.addEventListener("touchstart", this.handleDraggingStart),
+        window_e.document.addEventListener("mouseup", this.handleDragDone),
+        window_e.document.addEventListener("touchend", this.handleDragDone);
+    },
+    handleDraggingStart: function (t) {
+      console.log("inject.js e 내부 handleDraggingStart", this);
+      e_group.pos_x =
+        this.getBoundingClientRect().left -
+        (void 0 === t.clientX ? t.touches[0].clientX : t.clientX);
+      e_group.pos_y =
+        this.getBoundingClientRect().top -
+        (void 0 === t.clientY ? t.touches[0].clientY : t.clientY);
+      this.addEventListener("mousemove", e_group.handleDragging);
+      this.addEventListener("touchmove", e_group.handleDragging);
+    },
+    handleDragging: function (t) {
+      console.log("inject.js e 내부 handleDragging", this);
+      if ("INPUT" !== t.target.nodeName.toUpperCase()) {
+        t.preventDefault();
+        this.style.top =
+          (void 0 === t.clientY ? t.touches[0].clientY : t.clientY) +
+          e_group.pos_y +
+          "px";
+        this.style.left =
+          (void 0 === t.clientX ? t.touches[0].clientX : t.clientX) +
+          e_group.pos_x +
+          "px";
+      }
+    },
+    handleDragDone: function (t) {
+      console.log("inject.js e 내부 handleDragDone");
+      e_group.top_box.removeEventListener("mousemove", e_group.handleDragging);
+      e_group.top_box.removeEventListener("touchmove", e_group.handleDragging);
+    },
     exit: function () {
       console.log("inject.js e 내부 exit");
       e_group.clearLasso();
       e_group.handleMouseClick();
-      this.canvas.parentNode.removeChild(this.canvas),
-        this.panel.parentNode.parentNode.removeChild(this.panel.parentNode),
-        window_e.removeEventListener("resize", this.resizeBinded),
-        window_e.removeEventListener("scroll", this.resizeBinded),
-        (this.canvas = null),
-        (this.ctx = null),
-        (this.initialized = !1),
-        (this.controlPanelHidden = !1),
-        (this.painting = false),
-        (this.selectedAlphaOption = null),
-        (this.resizeTimeoutID = null),
-        (this.paragraph = null),
-        (this.panel = null),
-        (this.strokeStyle = "rgb(0, 0, 0)"),
-        (this.lineWidth = 3),
-        (this.globalAlpha = 1),
-        (this.paragraph = null),
-        (this.activate = "pen"),
-        (this.saveImage = null),
-        (this.saveLasso = [null, null]),
-        (this.histories = null),
-        (this.MAX_ITEMS = null),
-        (this.currentIndex = null),
-        (this.array = []),
-        (this.red = 0),
-        (this.green = 0),
-        (this.blue = 0),
-        (this.sX = null),
-        (this.sY = null),
-        (this.eX = null),
-        (this.eY = null),
-        (this.mX = null),
-        (this.mY = null),
-        (this.lassosX = null),
-        (this.lassosY = null),
-        (this.lassoeX = null),
-        (this.lassoeY = null),
-        (this.lassosubX = null),
-        (this.lassosubY = null),
-        (this.hasInput = false),
-        (this.size = "20px"),
-        (this.font = "sans-serif"),
-        (this.boldtext = ""),
-        (this.italictext = ""),
-        (this.textactive = false),
-        "undefined" != typeof unsafeWindow &&
-          null !== unsafeWindow &&
-          ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
+      this.canvas.parentNode.removeChild(this.canvas);
+      this.panel.parentNode.parentNode.removeChild(this.panel.parentNode);
+      this.toastElement.parentNode.removeChild(this.toastElement);
+      window_e.removeEventListener("resize", this.resizeBinded);
+      window_e.removeEventListener("scroll", this.resizeBinded);
+      this.canvas = null;
+      this.ctx = null;
+      this.initialized = !1;
+      this.controlPanelHidden = !1;
+      this.painting = false;
+      this.selectedAlphaOption = null;
+      this.resizeTimeoutID = null;
+      this.paragraph = null;
+      this.panel = null;
+      this.strokeStyle = "rgb(0, 0, 0)";
+      this.lineWidth = 3;
+      this.globalAlpha = 1;
+      this.paragraph = null;
+      this.activate = "pen";
+      this.saveImage = null;
+      this.saveLasso = [null, null];
+      this.histories = null;
+      this.MAX_ITEMS = null;
+      this.currentIndex = null;
+      this.array = [];
+      this.red = 0;
+      this.green = 0;
+      this.blue = 0;
+      this.sX = null;
+      this.sY = null;
+      this.eX = null;
+      this.eY = null;
+      this.mX = null;
+      this.mY = null;
+      this.lassosX = null;
+      this.lassosY = null;
+      this.lassoeX = null;
+      this.lassoeY = null;
+      this.lassosubX = null;
+      this.lassosubY = null;
+      this.hasInput = false;
+      this.size = "20px";
+      this.font = "sans-serif";
+      this.boldtext = "";
+      this.italictext = "";
+      this.textactive = false;
+      this.removeToast = null;
+      this.toastElement = null;
+      clearInterval(this.autoSave);
+      this.autoSave = null;
+      this.top_box = null;
+      "undefined" != typeof unsafeWindow &&
+        null !== unsafeWindow &&
+        ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
     },
     render: function (t) {
       this.config = t || {};
@@ -1851,7 +2000,7 @@ var getCSSAnimationManager = function () {
       // this.setLineProperty();
       this.createControlPanel();
       this.addMouseEventListener();
-      // this.initDragging(),
+      this.initDragging();
       // this.addMouseEventListener(),
       // this.addKeyEventListeners();
     },
@@ -1859,7 +2008,7 @@ var getCSSAnimationManager = function () {
       global.runtime.sendMessage(
         {
           method: "get_data",
-        },
+        }
         //this.renderBinded
       );
       e_group.render();
@@ -1981,6 +2130,57 @@ var getCSSAnimationManager = function () {
 
       // 이미지 생성
     },
+    onPrintButtonClick:function(){
+      // alert("프린터클릭");
+      if(window_e.document.getElementById("captureBox").style.display === 'none'){
+        window_e.document.getElementById("captureBox").style.display = 'block';
+        window_e.document.getElementById("penBox").style.display = 'none';
+        window_e.document.getElementById("textBox").style.display = 'none';
+        window_e.document.getElementById("figureBox").style.display = 'none';
+        window_e.document.getElementById("eraserBox").style.display = "none";
+        window_e.document.getElementById("imageBox").style.display = "none";
+        window_e.document.getElementById("saveBox").style.display = "none";
+      }else {
+        window_e.document.getElementById("penBox").style.display = 'none';
+        window_e.document.getElementById("textBox").style.display = 'none';
+        window_e.document.getElementById("figureBox").style.display = 'none';
+        window_e.document.getElementById("captureBox").style.display = 'none';
+        window_e.document.getElementById("eraserBox").style.display = "none";
+        window_e.document.getElementById("imageBox").style.display = "none";
+        window_e.document.getElementById("saveBox").style.display = "none";
+      }
+    }, 
+    // 현재 화면 캡처
+    ScreencaptureStart:function(){
+      console.log("현재화면 캡처");
+      chrome.runtime.sendMessage( { method : 'ShowCapture'}, (response) => {
+        console.log(response.farewell);
+      });
+    },
+    // 전체 화면 캡처 
+    FullcaptureStart:function(){
+      console.log("전체화면 캡처");
+      chrome.runtime.sendMessage( { method : 'FullcaptureStart'}, (response) => {
+        console.log(response.farewell);
+      })
+    },
+    // 창 전환
+    updateScreenshot: function(t, n) {
+      var a = arguments[2];
+      if ( a == null ){
+          (a = 0);
+      }
+      if ( 10 >= a ){
+          global.runtime.sendMessage({
+              method: "update_url",
+              url: t
+          }, function(e) {
+              e && e.success || window.setTimeout(Function.prototype.bind.call(Bnoty.updateScreenshot, Bnoty, t, n, ++a), 300);
+          });
+      }
+    },
+
+
   };
   return e_group;
 });
