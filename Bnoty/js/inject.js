@@ -1,3 +1,4 @@
+let removeToast;
 var getCSSAnimationManager = function () {
   for (
     var t,
@@ -723,6 +724,19 @@ var getCSSAnimationManager = function () {
         e_group.getConfig();
       });
     },
+    toast: function(string) {
+      const toast = document.getElementById("toast");
+
+      toast.classList.contains("reveal") ?
+          (clearTimeout(removeToast), removeToast = setTimeout(function () {
+              document.getElementById("toast").classList.remove("reveal")
+          }, 1000)) :
+          removeToast = setTimeout(function () {
+              document.getElementById("toast").classList.remove("reveal")
+          }, 1000)
+      toast.classList.add("reveal"),
+          toast.innerText = string
+    },
     getConfig: async function () {
       var pageUrl = document.location.href;
       await chrome.storage.local.get(
@@ -783,6 +797,16 @@ var getCSSAnimationManager = function () {
       this.initCanvas();
       chrome.storage.local.clear();
       e_group.autoRead();
+      var toastElement = window_e.document.createElement('div');
+      toastElement.setAttribute('id', 'toast');
+      window_e.document.body.appendChild(toastElement);
+      setInterval(() => {
+        var pageUrl = document.location.href;
+        chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage()");
+        });
+        e_group.toast("저장");
+      }, 3000);
     },
     initCanvas: async function (t) {
       console.log("inject.js e 내부 initCanvas");
