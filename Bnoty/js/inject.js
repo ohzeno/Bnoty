@@ -414,7 +414,7 @@ var getCSSAnimationManager = function () {
           return;
         }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        if (this.currentIndex != 0) {
+        if (this.array.length != 0) {
           // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
           this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
         }
@@ -668,41 +668,43 @@ var getCSSAnimationManager = function () {
       this.ctx.fillText(txt, x, y);
     },
     clearLasso: function () {
-      if (
-        e_group.lassosX == e_group.lassosubX &&
-        e_group.lassosY == e_group.lassosubY
-      ) {
-        e_group.ctx.putImageData(e_group.array[e_group.currentIndex], 0, 0);
-        // e_group.currentIndex--;
-        (e_group.saveLasso[0] = null),
-          (e_group.saveLasso[1] = null),
-          (e_group.lassosX = null),
-          (e_group.lassosY = null),
-          (e_group.lassoeX = null),
-          (e_group.lassoeY = null),
-          (e_group.lassosubX = null),
-          (e_group.lassosubY = null);
-      } else {
-        e_group.ctx.putImageData(
-          e_group.saveLasso[0],
-          e_group.lassosX,
-          e_group.lassosY
-        );
-        e_group.saveImage = e_group.ctx.getImageData(
-          0,
-          0,
-          e_group.canvas.width,
-          e_group.canvas.height
-        ); // 지금까지 그린 정보를 저장
-        e_group.addHistory();
-        (e_group.saveLasso[0] = null),
-          (e_group.saveLasso[1] = null),
-          (e_group.lassosX = null),
-          (e_group.lassosY = null),
-          (e_group.lassoeX = null),
-          (e_group.lassoeY = null),
-          (e_group.lassosubX = null),
-          (e_group.lassosubY = null);
+      if(e_group.currentIndex != 0){
+        if (
+          e_group.lassosX == e_group.lassosubX &&
+          e_group.lassosY == e_group.lassosubY
+        ) {
+          e_group.ctx.putImageData(e_group.array[e_group.currentIndex], 0, 0);
+          // e_group.currentIndex--;
+          (e_group.saveLasso[0] = null),
+            (e_group.saveLasso[1] = null),
+            (e_group.lassosX = null),
+            (e_group.lassosY = null),
+            (e_group.lassoeX = null),
+            (e_group.lassoeY = null),
+            (e_group.lassosubX = null),
+            (e_group.lassosubY = null);
+        } else {
+          e_group.ctx.putImageData(
+            e_group.saveLasso[0],
+            e_group.lassosX,
+            e_group.lassosY
+          );
+          e_group.saveImage = e_group.ctx.getImageData(
+            0,
+            0,
+            e_group.canvas.width,
+            e_group.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          e_group.addHistory();
+          (e_group.saveLasso[0] = null),
+            (e_group.saveLasso[1] = null),
+            (e_group.lassosX = null),
+            (e_group.lassosY = null),
+            (e_group.lassoeX = null),
+            (e_group.lassoeY = null),
+            (e_group.lassosubX = null),
+            (e_group.lassosubY = null);
+        }
       }
     },
     sendRead: async function () {
@@ -754,7 +756,7 @@ var getCSSAnimationManager = function () {
         e_group.canvas.height
       ); // 지금까지 그린 정보를 저장
       await chrome.storage.local.clear();
-      await e_group.addHistory2();
+      // await e_group.addHistory2();
     },
     get_time: async function () {
       let today = new Date();
@@ -887,6 +889,7 @@ var getCSSAnimationManager = function () {
         }
       );
       // 여기서 버튼 디스에이블하는것도 해줘야함
+      this.checkHistoryButtonStatus();
     },
     addHistory2: function () {
       console.log("addHistory");
