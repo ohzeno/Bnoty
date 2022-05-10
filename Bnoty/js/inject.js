@@ -309,7 +309,12 @@ var getCSSAnimationManager = function () {
           (this.lassosubY = null);
       }
       this.painting = false;
-      if (this.activate != "text" && this.activate != "insert_link" && this.activate!="nothing" && this.saveLasso[0] == null) {
+      if (
+        this.activate != "text" &&
+        this.activate != "insert_link" &&
+        this.activate != "nothing" &&
+        this.saveLasso[0] == null
+      ) {
         this.saveImage = this.ctx.getImageData(
           0,
           0,
@@ -349,7 +354,11 @@ var getCSSAnimationManager = function () {
           }
         }
         this.painting = false;
-        if (this.activate != "text" && this.activate != "nothing" && this.saveLasso[0] == null) {
+        if (
+          this.activate != "text" &&
+          this.activate != "nothing" &&
+          this.saveLasso[0] == null
+        ) {
           this.saveImage = this.ctx.getImageData(
             0,
             0,
@@ -696,40 +705,48 @@ var getCSSAnimationManager = function () {
           (e_group.lassosubY = null);
       }
     },
-    sendRead: async function(){
+    sendRead: async function () {
       var pageUrl = document.location.href;
 
-      await chrome.runtime.sendMessage( { method : 'startRead', url : pageUrl}, async (response) => {
-        console.log("[popup.js] chrome.runtime.sendMessage().startRead");
-        console.log("sendMessage : ", response);
-      });
+      await chrome.runtime.sendMessage(
+        { method: "startRead", url: pageUrl },
+        async (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage().startRead");
+          console.log("sendMessage : ", response);
+        }
+      );
 
-      chrome.storage.onChanged.addListener(()=>{
+      chrome.storage.onChanged.addListener(() => {
         console.log("init onChanged");
         e_group.getConfig();
       });
-
     },
-    getConfig: async function() {
-
+    getConfig: async function () {
       var pageUrl = document.location.href;
-      await chrome.storage.local.get(['key' + pageUrl], async function(result) {
-        var t = result['key' + pageUrl];
-        console.log("t : ", t);
-        if (t) {
-          console.log("this : ", this);
-          console.log("e_group : ", e_group);
-          var e = new Image();
-          (e.onload = Function.prototype.bind.call(e_group.initCanvas, e_group, e)),(e.src = t);
-          await e_group.saveConfig();
-        } else {
-          await e_group.initCanvas();
+      await chrome.storage.local.get(
+        ["key" + pageUrl],
+        async function (result) {
+          var t = result["key" + pageUrl];
+          console.log("t : ", t);
+          if (t) {
+            console.log("this : ", this);
+            console.log("e_group : ", e_group);
+            var e = new Image();
+            (e.onload = Function.prototype.bind.call(
+              e_group.initCanvas,
+              e_group,
+              e
+            )),
+              (e.src = t);
+            await e_group.saveConfig();
+          } else {
+            await e_group.initCanvas();
+          }
         }
-      });
-      
+      );
     },
-    saveConfig: async function(){
-      console.log("saveConfig")
+    saveConfig: async function () {
+      console.log("saveConfig");
       e_group.saveImage = await e_group.ctx.getImageData(
         0,
         0,
@@ -739,14 +756,14 @@ var getCSSAnimationManager = function () {
       await chrome.storage.local.clear();
       await e_group.addHistory2();
     },
-    get_time: async function(){
+    get_time: async function () {
       let today = new Date();
       let minutes = today.getMinutes();
       let seconds = today.getSeconds();
       let milseconds = today.getMilliseconds();
       console.log(minutes + " : " + seconds + " : " + milseconds);
     },
-    autoRead: async function(){
+    autoRead: async function () {
       console.log("AutoReadStart");
       await e_group.sendRead();
     },
@@ -859,17 +876,20 @@ var getCSSAnimationManager = function () {
     },
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
-      console.log('addHistory')
+      console.log("addHistory");
       this.histories.add(this.saveImage);
       console.log("addhistory : ", e_group.currentIndex);
       var pageUrl = document.location.href;
-      chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
-        console.log("[popup.js] chrome.runtime.sendMessage()");
-      });
+      chrome.runtime.sendMessage(
+        { method: "save", config: e_group.canvas.toDataURL(), url: pageUrl },
+        (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage()");
+        }
+      );
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     addHistory2: function () {
-      console.log('addHistory')
+      console.log("addHistory");
       this.histories.add(this.saveImage);
       console.log("addhistory : ", e_group.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
@@ -966,8 +986,7 @@ var getCSSAnimationManager = function () {
       if (this.array.length != 0) {
         // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
         this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
-      } 
-      else {
+      } else {
         this.histories.add(
           this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
         );
@@ -1038,9 +1057,11 @@ var getCSSAnimationManager = function () {
           tmp_pen.addEventListener("click", function () {
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           highlighterPen.addEventListener("click", function () {
             e_group.activate = "highlighter";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           penBox.appendChild(tmp_pen);
           penBox.appendChild(highlighterPen);
@@ -1057,6 +1078,7 @@ var getCSSAnimationManager = function () {
           text.setAttribute("title", "Input Text");
           text.addEventListener("click", function () {
             e_group.activate = "text";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
@@ -1067,6 +1089,7 @@ var getCSSAnimationManager = function () {
             } else {
               e_group.boldtext = "bold";
             }
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           italicText.setAttribute("class", "italicText");
           italicText.setAttribute("id", "italicText");
@@ -1077,6 +1100,7 @@ var getCSSAnimationManager = function () {
             } else {
               e_group.italictext = "italic";
             }
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           textBox.appendChild(text);
           textBox.appendChild(boldText);
@@ -1099,6 +1123,7 @@ var getCSSAnimationManager = function () {
           square.addEventListener("click", function () {
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           triangle.setAttribute("class", "triangle");
           triangle.setAttribute("id", "triangle");
@@ -1106,6 +1131,7 @@ var getCSSAnimationManager = function () {
           triangle.addEventListener("click", function () {
             e_group.activate = "triangle";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           circle.setAttribute("class", "circle");
           circle.setAttribute("id", "circle");
@@ -1113,6 +1139,7 @@ var getCSSAnimationManager = function () {
           circle.addEventListener("click", function () {
             e_group.activate = "circle";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           line.setAttribute("class", "line");
           line.setAttribute("id", "line");
@@ -1120,6 +1147,7 @@ var getCSSAnimationManager = function () {
           line.addEventListener("click", function () {
             e_group.activate = "line";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           curve.setAttribute("class", "curve");
           curve.setAttribute("id", "curve");
@@ -1127,6 +1155,7 @@ var getCSSAnimationManager = function () {
           curve.addEventListener("click", function () {
             e_group.activate = "curve";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           arrow.setAttribute("class", "arrow");
           arrow.setAttribute("id", "arrow");
@@ -1134,6 +1163,7 @@ var getCSSAnimationManager = function () {
           arrow.addEventListener("click", function () {
             e_group.activate = "arrow";
             e_group.canvas.style.cursor = "crosshair";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           figureBox.appendChild(square);
           figureBox.appendChild(triangle);
@@ -1161,6 +1191,7 @@ var getCSSAnimationManager = function () {
             e_group.linePicker.value = 5;
             e_group.linePickerPreview.innerHTML =
               Math.round((e_group.linePicker.value / 20) * 100) + "%";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           all_eraser.addEventListener("click", function () {
             e_group.ctx.clearRect(
@@ -1176,6 +1207,7 @@ var getCSSAnimationManager = function () {
               e_group.canvas.height
             );
             e_group.addHistory();
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           eraserBox.appendChild(eraser);
           eraserBox.appendChild(all_eraser);
@@ -1199,6 +1231,7 @@ var getCSSAnimationManager = function () {
           insert_link.setAttribute("title", "insert_link");
           insert_image.addEventListener("click", function () {
             e_group.activate = "insert_image";
+            e_group.removeClass(e_group.canvas, "cursor");
             fileChange.click();
           });
           fileChange.addEventListener("change", function (event) {
@@ -1220,6 +1253,7 @@ var getCSSAnimationManager = function () {
           });
           insert_link.addEventListener("click", function () {
             e_group.activate = "insert_link";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
           imageBox.appendChild(insert_image);
           imageBox.appendChild(insert_link);
@@ -1239,8 +1273,8 @@ var getCSSAnimationManager = function () {
             window_e.document.getElementById("eraserBox").style.display =
               "none";
             window_e.document.getElementById("imageBox").style.display = "none";
-            window_e.document.getElementById("saveBox").style.display = 
-              "none";
+            window_e.document.getElementById("saveBox").style.display = "none";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "pen") {
           r.addEventListener("click", function () {
@@ -1260,7 +1294,7 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
@@ -1272,12 +1306,13 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             }
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("https://cdn.discordapp.com/attachments/962708703277096990/971930047340511272/office-material.png"), auto`;
             e_group.setCtxProp();
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
@@ -1296,7 +1331,7 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
@@ -1308,9 +1343,10 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             }
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "figure") {
           r.addEventListener("click", function () {
@@ -1329,7 +1365,7 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
@@ -1341,12 +1377,13 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             }
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
             e_group.setCtxProp();
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "eraser") {
           r.addEventListener("click", function () {
@@ -1365,7 +1402,7 @@ var getCSSAnimationManager = function () {
                 "block";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
@@ -1377,7 +1414,7 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             }
             e_group.activate = "eraser";
@@ -1386,6 +1423,7 @@ var getCSSAnimationManager = function () {
             e_group.linePicker.value = 5;
             e_group.linePickerPreview.innerHTML =
               Math.round((e_group.linePicker.value / 20) * 100) + "%";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "lasso") {
           r.addEventListener("click", function () {
@@ -1399,6 +1437,7 @@ var getCSSAnimationManager = function () {
             window_e.document.getElementById("eraserBox").style.display =
               "none";
             window_e.document.getElementById("imageBox").style.display = "none";
+            e_group.removeClass(e_group.canvas, "cursor");
           });
         } else if (a.type == "image") {
           r.addEventListener("click", function () {
@@ -1417,7 +1456,7 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "block";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             } else {
               window_e.document.getElementById("penBox").style.display = "none";
@@ -1429,9 +1468,15 @@ var getCSSAnimationManager = function () {
                 "none";
               window_e.document.getElementById("imageBox").style.display =
                 "none";
-              window_e.document.getElementById("saveBox").style.display = 
+              window_e.document.getElementById("saveBox").style.display =
                 "none";
             }
+            e_group.removeClass(e_group.canvas, "cursor");
+          });
+        } else if (a.type == "cursor") {
+          r.addEventListener("click", function () {
+            e_group.activate = "cursor";
+            e_group.addClass(e_group.canvas, "cursor");
           });
         }
 
@@ -1556,7 +1601,7 @@ var getCSSAnimationManager = function () {
       if (!window_e.document.getElementById("saveBox")) {
         box.appendChild(saveBox);
         var save = window_e.document.createElement("div"),
-        capacity_check = window_e.document.createElement("div");
+          capacity_check = window_e.document.createElement("div");
 
         save.setAttribute("class", "save");
         save.setAttribute("id", "save");
@@ -1564,32 +1609,31 @@ var getCSSAnimationManager = function () {
         capacity_check.setAttribute("class", "capacity_check");
         capacity_check.setAttribute("id", "capacity_check");
         capacity_check.setAttribute("title", "Check My Computer Capacity");
-        
+
         saveBox.appendChild(save);
         saveBox.appendChild(capacity_check);
         window_e.document.getElementById("saveBox").style.display = "none";
       }
 
-      control_save.setAttribute(
-        "class",
-        "bnoty_controls_control_option save"
-      );
+      control_save.setAttribute("class", "bnoty_controls_control_option save");
       control_save.setAttribute("title", "Save");
       control_save.addEventListener("click", function () {
-        if(window_e.document.getElementById("saveBox").style.display === 'none'){
-          window_e.document.getElementById("penBox").style.display = 'none';
-          window_e.document.getElementById("textBox").style.display = 'none';
-          window_e.document.getElementById("figureBox").style.display = 'none';
-          window_e.document.getElementById("eraserBox").style.display = 'none';
-          window_e.document.getElementById("imageBox").style.display = 'none';
-          window_e.document.getElementById("saveBox").style.display = 'block';
-        }else {
-          window_e.document.getElementById("penBox").style.display = 'none';
-          window_e.document.getElementById("textBox").style.display = 'none';
-          window_e.document.getElementById("figureBox").style.display = 'none';
-          window_e.document.getElementById("eraserBox").style.display = 'none';
-          window_e.document.getElementById("imageBox").style.display = 'none';
-          window_e.document.getElementById("saveBox").style.display = 'none';
+        if (
+          window_e.document.getElementById("saveBox").style.display === "none"
+        ) {
+          window_e.document.getElementById("penBox").style.display = "none";
+          window_e.document.getElementById("textBox").style.display = "none";
+          window_e.document.getElementById("figureBox").style.display = "none";
+          window_e.document.getElementById("eraserBox").style.display = "none";
+          window_e.document.getElementById("imageBox").style.display = "none";
+          window_e.document.getElementById("saveBox").style.display = "block";
+        } else {
+          window_e.document.getElementById("penBox").style.display = "none";
+          window_e.document.getElementById("textBox").style.display = "none";
+          window_e.document.getElementById("figureBox").style.display = "none";
+          window_e.document.getElementById("eraserBox").style.display = "none";
+          window_e.document.getElementById("imageBox").style.display = "none";
+          window_e.document.getElementById("saveBox").style.display = "none";
         }
         e_group.addHistory();
       });
@@ -1859,7 +1903,7 @@ var getCSSAnimationManager = function () {
       global.runtime.sendMessage(
         {
           method: "get_data",
-        },
+        }
         //this.renderBinded
       );
       e_group.render();
