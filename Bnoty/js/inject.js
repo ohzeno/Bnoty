@@ -192,6 +192,7 @@ var getCSSAnimationManager = function () {
     removeToast: null,
     toastElement: null,
     autoSave: null,
+    top_box: null,
 
     startPainting: function (event) {
       event.preventDefault();
@@ -318,7 +319,12 @@ var getCSSAnimationManager = function () {
         this.activate != "nothing" &&
         this.saveLasso[0] == null
       ) {
-        if(this.activate != "lasso" && this.activate != "fill" && this.sX == this.eX && this.sY == this.eY)
+        if (
+          this.activate != "lasso" &&
+          this.activate != "fill" &&
+          this.sX == this.eX &&
+          this.sY == this.eY
+        )
           return;
         this.saveImage = this.ctx.getImageData(
           0,
@@ -818,7 +824,7 @@ var getCSSAnimationManager = function () {
             }
           );
           e_group.toast("저장");
-        }, 3000);
+        }, 10000);
       }
       auto_save();
     },
@@ -1051,6 +1057,7 @@ var getCSSAnimationManager = function () {
 
       var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
+      this.top_box = box;
       window_e.document.body.appendChild(box);
       var penBox = window_e.document.createElement("div"); // pen
       penBox.setAttribute("class", "pen_box");
@@ -1877,6 +1884,43 @@ var getCSSAnimationManager = function () {
         }
       }
     },
+    initDragging: function () {
+      console.log("inject.js e 내부 initDragging");
+      this.top_box.addEventListener("mousedown", this.handleDraggingStart),
+        this.top_box.addEventListener("touchstart", this.handleDraggingStart),
+        window_e.document.addEventListener("mouseup", this.handleDragDone),
+        window_e.document.addEventListener("touchend", this.handleDragDone);
+    },
+    handleDraggingStart: function (t) {
+      console.log("inject.js e 내부 handleDraggingStart", this);
+      e_group.pos_x =
+        this.getBoundingClientRect().left -
+        (void 0 === t.clientX ? t.touches[0].clientX : t.clientX);
+      e_group.pos_y =
+        this.getBoundingClientRect().top -
+        (void 0 === t.clientY ? t.touches[0].clientY : t.clientY);
+      this.addEventListener("mousemove", e_group.handleDragging);
+      this.addEventListener("touchmove", e_group.handleDragging);
+    },
+    handleDragging: function (t) {
+      console.log("inject.js e 내부 handleDragging", this);
+      if ("INPUT" !== t.target.nodeName.toUpperCase()) {
+        t.preventDefault();
+        this.style.top =
+          (void 0 === t.clientY ? t.touches[0].clientY : t.clientY) +
+          e_group.pos_y +
+          "px";
+        this.style.left =
+          (void 0 === t.clientX ? t.touches[0].clientX : t.clientX) +
+          e_group.pos_x +
+          "px";
+      }
+    },
+    handleDragDone: function (t) {
+      console.log("inject.js e 내부 handleDragDone");
+      e_group.top_box.removeEventListener("mousemove", e_group.handleDragging);
+      e_group.top_box.removeEventListener("touchmove", e_group.handleDragging);
+    },
     exit: function () {
       console.log("inject.js e 내부 exit");
       e_group.clearLasso();
@@ -1931,6 +1975,7 @@ var getCSSAnimationManager = function () {
       this.toastElement = null;
       clearInterval(this.autoSave);
       this.autoSave = null;
+      this.top_box = null;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
         ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
@@ -1941,7 +1986,7 @@ var getCSSAnimationManager = function () {
       // this.setLineProperty();
       this.createControlPanel();
       this.addMouseEventListener();
-      // this.initDragging(),
+      this.initDragging();
       // this.addMouseEventListener(),
       // this.addKeyEventListeners();
     },
