@@ -922,7 +922,7 @@
   background-repeat: no-repeat;
 }
 #bnoty_controls .bnoty_controls_control .bnoty_controls_control_option.prtBtn {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAACXBIWXMAAAsTAAALEwEAmpwYAAADGGlDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjaY2BgnuDo4uTKJMDAUFBUUuQe5BgZERmlwH6egY2BmYGBgYGBITG5uMAxIMCHgYGBIS8/L5UBFTAyMHy7xsDIwMDAcFnX0cXJlYE0wJpcUFTCwMBwgIGBwSgltTiZgYHhCwMDQ3p5SUEJAwNjDAMDg0hSdkEJAwNjAQMDg0h2SJAzAwNjCwMDE09JakUJAwMDg3N+QWVRZnpGiYKhpaWlgmNKflKqQnBlcUlqbrGCZ15yflFBflFiSWoKAwMD1A4GBgYGXpf8EgX3xMw8BSMDVQYqg4jIKAUICxE+CDEESC4tKoMHJQODAIMCgwGDA0MAQyJDPcMChqMMbxjFGV0YSxlXMN5jEmMKYprAdIFZmDmSeSHzGxZLlg6WW6x6rK2s99gs2aaxfWMPZ9/NocTRxfGFM5HzApcj1xZuTe4FPFI8U3mFeCfxCfNN45fhXyygI7BD0FXwilCq0A/hXhEVkb2i4aJfxCaJG4lfkaiQlJM8JpUvLS19QqZMVl32llyfvIv8H4WtioVKekpvldeqFKiaqP5UO6jepRGqqaT5QeuA9iSdVF0rPUG9V/pHDBYY1hrFGNuayJsym740u2C+02KJ5QSrOutcmzjbQDtXe2sHY0cdJzVnJRcFV3k3BXdlD3VPXS8Tbxsfd99gvwT//ID6wIlBS4N3hVwMfRnOFCEXaRUVEV0RMzN2T9yDBLZE3aSw5IaUNak30zkyLDIzs+ZmX8xlz7PPryjYVPiuWLskq3RV2ZsK/cqSql01jLVedVPrHzbqNdU0n22VaytsP9op3VXUfbpXta+x/+5Em0mzJ/+dGj/t8AyNmf2zvs9JmHt6vvmCpYtEFrcu+bYsc/m9lSGrTq9xWbtvveWGbZtMNm/ZarJt+w6rnft3u+45uy9s/4ODOYd+Hmk/Jn58xUnrU+fOJJ/9dX7SRe1LR68kXv13fc5Nm1t379TfU75/4mHeY7En+59lvhB5efB1/lv5dxc+NH0y/fzq64Lv4T8Ffp360/rP8f9/AA0ADzT6lvFdAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAGrSURBVHjatNTfa81xGAfw1/dstrZZKWenFZN2I1OmqXG40ORHp6wp4UqhuGLFXMgf4Eep3VhpV2p+NOTGoRRFMWuN1VBo2Zq4IEdJjlPOmYvp7HuOQ86F5+7z/jzv58f7+TyfYEZ5FinTX1B0bnewKMigO38mNBt2wacQUu2wTsNzQKWVetSbbWW1XqeKck5KevAreMb5wCu3vZSVVWNaEk0S4iqNumUCHZaDnKg9gSltUho1eAbO2O6+cT+ssMGoQ9KhfEMROVUWmDJuLQa022pEm3UmdKqXNC/vXjcra4W0cy6atFurnS7ZYcyQuLt6BE4UNvVGU16xMQmX9eXvjnuo1XM1+QxDYc2XyXmvxdE8clqdxT5aVXrSUVNiMjIh7JEl0ppLE76KSqkoKLjFZ1U+lCa81qha2oE8stkiTy30JDzpOftmwDH7PBZzTc5GJ3Xp9kKqNIGz7ukWd0SfiLc6bLPJ+rBLIeG7hEFX9LsuZ6le820peIxFBL5I2KXLfhHTrur/fSPeiZWxPyOBGxrCsv3VatUG1tirysw/bWfWzeC/fwJlE34OAFb4aqv7qiqkAAAAAElFTkSuQmCC);
+  background-image: url(https://media.discordapp.net/attachments/962708703277096990/971930486819676250/screen.png);
 }
 #bnoty_controls .bnoty_controls_control .bnoty_controls_control_option.exitBtn {
   background-position: center top;
@@ -989,6 +989,34 @@
   to {
     opacity: 1;
   }
+}
+.pen_box .screen_capture_btn {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  z-index: 2147483647;
+  /* right: 106px; */
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  display: inline-block;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  margin: 2px;
+  background-image: url(https://media.discordapp.net/attachments/962708703277096990/971930486425419776/screen_1.png);
+}
+.pen_box .full_capture_btn {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  z-index: 2147483647;
+  /* right: 106px; */
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+  display: inline-block;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  margin: 2px;
+  background-image: url(https://media.discordapp.net/attachments/962708703277096990/971930487222312970/full-screen.png);
 }
 
 #bnoty_controls .bnoty_controls_draw .bnoty_controls_draw_option.linkinjection {
