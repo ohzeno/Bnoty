@@ -696,6 +696,60 @@ var getCSSAnimationManager = function () {
           (e_group.lassosubY = null);
       }
     },
+    sendRead: async function(){
+      var pageUrl = document.location.href;
+
+      await chrome.runtime.sendMessage( { method : 'startRead', url : pageUrl}, async (response) => {
+        console.log("[popup.js] chrome.runtime.sendMessage().startRead");
+        console.log("sendMessage : ", response);
+      });
+
+      chrome.storage.onChanged.addListener(()=>{
+        console.log("init onChanged");
+        e_group.getConfig();
+      });
+
+    },
+    getConfig: async function() {
+
+      var pageUrl = document.location.href;
+      await chrome.storage.local.get(['key' + pageUrl], async function(result) {
+        var t = result['key' + pageUrl];
+        console.log("t : ", t);
+        if (t) {
+          console.log("this : ", this);
+          console.log("e_group : ", e_group);
+          var e = new Image();
+          (e.onload = Function.prototype.bind.call(e_group.initCanvas, e_group, e)),(e.src = t);
+          await e_group.saveConfig();
+        } else {
+          await e_group.initCanvas();
+        }
+      });
+      
+    },
+    saveConfig: async function(){
+      console.log("saveConfig")
+      e_group.saveImage = await e_group.ctx.getImageData(
+        0,
+        0,
+        e_group.canvas.width,
+        e_group.canvas.height
+      ); // 지금까지 그린 정보를 저장
+      await chrome.storage.local.clear();
+      await e_group.addHistory2();
+    },
+    get_time: async function(){
+      let today = new Date();
+      let minutes = today.getMinutes();
+      let seconds = today.getSeconds();
+      let milseconds = today.getMilliseconds();
+      console.log(minutes + " : " + seconds + " : " + milseconds);
+    },
+    autoRead: async function(){
+      console.log("AutoReadStart");
+      await e_group.sendRead();
+    },
     createCanvas: function () {
       console.log("inject.js e 내부 createCanvas");
       this.canvas = window_e.document.createElement("Canvas");
@@ -708,15 +762,24 @@ var getCSSAnimationManager = function () {
       this.setCtxProp();
       this.Histories();
       this.initCanvas();
+      chrome.storage.local.clear();
+      e_group.autoRead();
     },
-    initCanvas: function (t) {
+    initCanvas: async function (t) {
       console.log("inject.js e 내부 initCanvas");
       if (t) {
-        this.handleResize(!0);
-        // this.ctx.drawImage(t, 0, 0);
-        // this.storeCanvas(!0);
+        await this.handleResize(!0);
+        await this.ctx.drawImage(t, 0, 0);
+        e_group.saveImage = await e_group.ctx.getImageData(
+          0,
+          0,
+          e_group.canvas.width,
+          e_group.canvas.height
+        ); // 지금까지 그린 정보를 저장
+        await e_group.addHistory();
+        //this.storeCanvas(!0);
       } else {
-        this.handleResize();
+        await this.handleResize();
       }
       // this.storeHistory();
     },
@@ -796,9 +859,20 @@ var getCSSAnimationManager = function () {
     },
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
+      console.log('addHistory')
       this.histories.add(this.saveImage);
-      this.checkHistoryButtonStatus();
-      console.log(this.currentIndex);
+      console.log("addhistory : ", e_group.currentIndex);
+      var pageUrl = document.location.href;
+      chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+        console.log("[popup.js] chrome.runtime.sendMessage()");
+      });
+      // 여기서 버튼 디스에이블하는것도 해줘야함
+    },
+    addHistory2: function () {
+      console.log('addHistory')
+      this.histories.add(this.saveImage);
+      console.log("addhistory : ", e_group.currentIndex);
+      // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
       console.log("inject.js e 내부 setCtxProp");
@@ -889,14 +963,14 @@ var getCSSAnimationManager = function () {
       // }
       // updatePaintStyle();
       this.ctx.lineWidth = n;
-      if (this.array.length == 0) {
-        // 저장된 정보가 없으면 현재 정보 초기값을 추가해줌
+      if (this.array.length != 0) {
+        // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
+        this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
+      } 
+      else {
         this.histories.add(
           this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
         );
-      } else {
-        // 저장된 정보가 있으면 불러옴 이전에 그렸던 작업을 다시 불러옴
-        this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
       }
     },
     createControlPanel: function () {
@@ -1740,8 +1814,9 @@ var getCSSAnimationManager = function () {
         {
           method: "get_data",
         },
-        this.renderBinded
+        //this.renderBinded
       );
+      e_group.render();
     },
     init: function () {
       // 여기 this는 401번 줄 e임.
