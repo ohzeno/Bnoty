@@ -1495,7 +1495,7 @@ var getCSSAnimationManager = function () {
       // this.updatePaintStyle();
       var c = window_e.document.createElement("div"),
         l = window_e.document.createElement("div"),
-        control_erase = window_e.document.createElement("div"),
+        control_save = window_e.document.createElement("div"),
         control_hide = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
       c.setAttribute("class", "bnoty_controls_control_option prtBtn");
@@ -1527,24 +1527,48 @@ var getCSSAnimationManager = function () {
           e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
         }
       });
-      control_erase.setAttribute(
+
+      var saveBox = window_e.document.createElement("div"); // save
+      saveBox.setAttribute("class", "pen_box");
+      saveBox.setAttribute("id", "saveBox");
+      if (!window_e.document.getElementById("saveBox")) {
+        box.appendChild(saveBox);
+        var save = window_e.document.createElement("div"),
+        capacity_check = window_e.document.createElement("div");
+
+        save.setAttribute("class", "save");
+        save.setAttribute("id", "save");
+        save.setAttribute("title", "Manual save");
+        capacity_check.setAttribute("class", "capacity_check");
+        capacity_check.setAttribute("id", "capacity_check");
+        capacity_check.setAttribute("title", "Check My Computer Capacity");
+        
+        saveBox.appendChild(save);
+        saveBox.appendChild(capacity_check);
+        window_e.document.getElementById("saveBox").style.display = "none";
+      }
+
+      control_save.setAttribute(
         "class",
-        "bnoty_controls_control_option eraseAllBtn"
+        "bnoty_controls_control_option save"
       );
-      control_erase.setAttribute("title", "Erase all");
-      control_erase.addEventListener("click", function () {
-        e_group.ctx.clearRect(
-          0,
-          0,
-          e_group.canvas.width,
-          e_group.canvas.height
-        ); //clear canvas
-        e_group.saveImage = e_group.ctx.getImageData(
-          0,
-          0,
-          e_group.canvas.width,
-          e_group.canvas.height
-        );
+      control_save.setAttribute("title", "Save");
+      control_save.addEventListener("click", function () {
+        if(window_e.document.getElementById("saveBox").style.display === 'none'){
+          window_e.document.getElementById("penBox").style.display = 'none';
+          window_e.document.getElementById("textBox").style.display = 'none';
+          window_e.document.getElementById("figureBox").style.display = 'none';
+          window_e.document.getElementById("eraserBox").style.display = 'none';
+          window_e.document.getElementById("imageBox").style.display = 'none';
+          window_e.document.getElementById("saveBox").style.display = 'block';
+        }else {
+          window_e.document.getElementById("penBox").style.display = 'none';
+          window_e.document.getElementById("textBox").style.display = 'none';
+          window_e.document.getElementById("figureBox").style.display = 'none';
+          window_e.document.getElementById("eraserBox").style.display = 'none';
+          window_e.document.getElementById("imageBox").style.display = 'none';
+          window_e.document.getElementById("saveBox").style.display = 'none';
+        }
         e_group.addHistory();
       });
       control_hide.setAttribute(
@@ -1584,7 +1608,7 @@ var getCSSAnimationManager = function () {
       // });
       controls.appendChild(this.backBtn);
       controls.appendChild(this.nextBtn);
-      controls.appendChild(control_erase);
+      controls.appendChild(control_save);
       controls.appendChild(c);
       controls.appendChild(control_hide);
       controls.appendChild(l);
