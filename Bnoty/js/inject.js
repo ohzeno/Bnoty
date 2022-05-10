@@ -105,31 +105,6 @@ var getCSSAnimationManager = function () {
         type: "figure",
         title: "Figure - draw a figure",
       },
-      // {
-      //   type: "quadratic_curve",
-      //   title: "Quadratic curve - draw a quadratic curve",
-      //   iteration: 0,
-      //   initLoc: null,
-      //   lastLoc: null,
-      // },
-      // {
-      //   type: "bezier_curve",
-      //   title: "Bezier curve - draw a bezier curve",
-      //   iteration: 0,
-      //   initLoc: null,
-      //   firstPoint: null,
-      //   lastPoint: null,
-      // },
-      // {
-      //   type: "polygon",
-      //   title: "Polygon - draw a polygon",
-      //   initLoc: null,
-      //   lastLoc: null,
-      // },
-      // {
-      //   type: "circle",
-      //   title: "Ellipse - draw an ellipse or a circle",
-      // },
       {
         type: "image",
         title: "Image - Insert Image",
@@ -1341,9 +1316,11 @@ var getCSSAnimationManager = function () {
 
           screen_capture_btn.setAttribute("class", "screen_capture_btn");
           screen_capture_btn.setAttribute("id", "screen_capture_btn");
+          screen_capture_btn.setAttribute("title", "Capture current screen");
 
           full_capture_btn.setAttribute("class", "full_capture_btn");
           full_capture_btn.setAttribute("id", "full_capture_btn");
+          full_capture_btn.setAttribute("title", "Capture entire web page");
 
           captureBox.appendChild(screen_capture_btn);
           captureBox.appendChild(full_capture_btn);
@@ -1675,18 +1652,18 @@ var getCSSAnimationManager = function () {
       this.linePickerPreview.innerHTML =
         Math.round((this.ctx.lineWidth / 20) * 100) + "%";
       // this.updatePaintStyle();
-      var c = window_e.document.createElement("div"),
-        l = window_e.document.createElement("div"),
+      var captureBtn = window_e.document.createElement("div"),
+        exitBtn = window_e.document.createElement("div"),
         control_save = window_e.document.createElement("div"),
         control_hide = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
-      c.setAttribute("class", "bnoty_controls_control_option prtBtn");
-      c.setAttribute(
+      captureBtn.setAttribute("class", "bnoty_controls_control_option prtBtn");
+      captureBtn.setAttribute(
         "title",
         "Take a screenshot of the current web page with your drawings"
       );
-      l.setAttribute("class", "bnoty_controls_control_option exitBtn");
-      l.setAttribute("title", "Quit");
+      exitBtn.setAttribute("class", "bnoty_controls_control_option exitBtn");
+      exitBtn.setAttribute("title", "Quit");
       this.backBtn.setAttribute(
         "class",
         "bnoty_controls_control_option backBtn"
@@ -1764,11 +1741,11 @@ var getCSSAnimationManager = function () {
       );
       p.setAttribute("class", "settingsBtn");
       p.setAttribute("title", "Settings");
-      c.addEventListener(
+      captureBtn.addEventListener(
         "click",
         Function.prototype.bind.call(this.onPrintButtonClick, this)
       );
-      l.addEventListener(
+      exitBtn.addEventListener(
         "click",
         Function.prototype.bind.call(this.exit, this)
       );
@@ -1792,9 +1769,9 @@ var getCSSAnimationManager = function () {
       controls.appendChild(this.backBtn);
       controls.appendChild(this.nextBtn);
       controls.appendChild(control_save);
-      controls.appendChild(c);
+      controls.appendChild(captureBtn);
       controls.appendChild(control_hide);
-      controls.appendChild(l);
+      controls.appendChild(exitBtn);
       controls.appendChild(p);
       this.checkHistoryButtonStatus(); //이전 다음 버튼 활성화 비활성화 체크
       this.CSSAnimationManager.supported
