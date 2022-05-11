@@ -711,6 +711,13 @@
   border-top: 0;
   border-bottom: 0;
 }
+#bnoty_controls .bnoty_controls_range.volume_control:before {
+  content: "Volume";
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  padding-bottom: 5px;
+}
 #bnoty_controls .bnoty_controls_range.alpha_control:before {
   content: "Transparency";
   display: block;

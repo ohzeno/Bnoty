@@ -1039,13 +1039,15 @@ var getCSSAnimationManager = function () {
         color = window_e.document.createElement("div"),
         controls = window_e.document.createElement("div"),
         transparency = window_e.document.createElement("div"),
-        size_control = window_e.document.createElement("div");
+        size_control = window_e.document.createElement("div"),
+        volumeReader = window_e.document.createElement("div");
       this.panel.setAttribute("id", "bnoty_controls");
       tools.setAttribute("class", "bnoty_controls_draw");
       color.setAttribute("class", "bnoty_controls_color");
       controls.setAttribute("class", "bnoty_controls_control");
       transparency.setAttribute("class", "bnoty_controls_range alpha_control");
       size_control.setAttribute("class", "bnoty_controls_range size_control");
+      volumeReader.setAttribute("class", "bnoty_controls_range volume_control");
 
       var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
@@ -1075,6 +1077,7 @@ var getCSSAnimationManager = function () {
       this.panel.appendChild(color);
       this.panel.appendChild(transparency);
       this.panel.appendChild(size_control);
+      this.panel.appendChild(volumeReader);
       this.panel.appendChild(controls);
       for (var o = 0; o < this.drawOptions.length; o++) {
         var a = this.drawOptions[o],
