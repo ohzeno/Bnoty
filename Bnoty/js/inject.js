@@ -1058,7 +1058,7 @@ var getCSSAnimationManager = function () {
       penBox.setAttribute("class", "pen_box");
       penBox.setAttribute("id", "penBox");
       var textBox = window_e.document.createElement("div"); // text
-      textBox.setAttribute("class", "pen_box");
+      textBox.setAttribute("class", "text_box");
       textBox.setAttribute("id", "textBox");
       var figureBox = window_e.document.createElement("div"); // figure
       figureBox.setAttribute("class", "pen_box");
@@ -1118,7 +1118,9 @@ var getCSSAnimationManager = function () {
           box.appendChild(textBox);
           var text = window_e.document.createElement("div"),
             boldText = window_e.document.createElement("div"),
-            italicText = window_e.document.createElement("div");
+            italicText = window_e.document.createElement("div"),
+            fontText = window_e.document.createElement("div"),
+            fontSize = window_e.document.createElement("div");
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
@@ -1148,9 +1150,62 @@ var getCSSAnimationManager = function () {
             }
             e_group.removeClass(e_group.canvas, "cursor");
           });
+          
+          fontSize.setAttribute("class", "fontSize");
+          fontSize.setAttribute("id", "fontSize");
+          fontSize.setAttribute("title", "FontSize");
+
+          var input = window.document.createElement("input");
+          input.setAttribute("id", "jsFontSize");
+          input.setAttribute("type", "number");
+          input.setAttribute("value", "20");
+          input.style.width = "80px";
+          // window.document.body.appendChild(input);
+          // input.style = `position: absolute; top: 60px; left: 380px; z-index: 2147483647;`;
+          fontSize.appendChild(input);
+
+          fontText.setAttribute("class", "fontText");
+          fontText.setAttribute("id", "fontText");
+          fontText.setAttribute("title", "Font");
+
+          var select = window.document.createElement("select");
+          select.setAttribute("id", "jsFont");
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "sans-serif");
+          var optText = window.document.createTextNode("고딕체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "monospace");
+          var optText = window.document.createTextNode("바탕체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "serif");
+          var optText = window.document.createTextNode("명조체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "cursive");
+          var optText = window.document.createTextNode("손글씨");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "fantasy");
+          var optText = window.document.createTextNode("화려체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          window.document.body.appendChild(select);
+          select.style.width = "80px";
+          // select.style = `position: absolute; top: 60px; left: 600px; z-index: 2147483647;`;
+
+          fontText.appendChild(select);
+
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
+          textBox.appendChild(fontSize);
+          textBox.appendChild(fontText);
           window_e.document.getElementById("textBox").style.display = "none";
         }
 
