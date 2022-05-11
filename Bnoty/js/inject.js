@@ -2602,7 +2602,8 @@ var getCSSAnimationManager = function () {
         // 현재 화면 캡처
         ScreencaptureStart: function () {
             console.log("현재화면 캡처");
-            e_group.hideControlPanel();
+            e_group.hideControlPanel();    
+            document.body.style.overflow = "hidden";
             window_e.setTimeout(function () {
                 chrome.runtime.sendMessage(
                     { method: "ShowCapture" },
@@ -2613,6 +2614,7 @@ var getCSSAnimationManager = function () {
             }, 100);
             window_e.setTimeout(function () {
                 e_group.showControlPanel();
+                document.body.style.overflow = "";
             }, 500);
         },
         // 전체 화면 캡처
