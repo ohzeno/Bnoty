@@ -1164,7 +1164,7 @@ var getCSSAnimationManager = function () {
           input.setAttribute("id", "jsFontSize");
           input.setAttribute("type", "number");
           input.setAttribute("value", "20");
-          input.style.width = "100%";
+          input.style.width = "80px";
           // window.document.body.appendChild(input);
           // input.style = `position: absolute; top: 60px; left: 380px; z-index: 2147483647;`;
           fontSize.appendChild(input);
