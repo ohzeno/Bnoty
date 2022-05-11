@@ -336,7 +336,7 @@ window.CaptureAPI = (function () {
         // 재 로드용 (5초 후 리로드)
         window.setTimeout(function () {
           window.location.reload();
-        }, 50000);
+        }, 5000);
 
         function showPanel() {
           window.Bnoty.showPanel();
