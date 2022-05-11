@@ -718,9 +718,17 @@ var getCSSAnimationManager = function () {
        // console.log("sendMessage : ", response);
       });
 
-      chrome.storage.onChanged.addListener(()=>{
-       // console.log("init onChanged");
-        e_group.getConfig();
+      chrome.storage.onChanged.addListener((changes, namespace)=>{
+        for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+          console.log(
+            `Storage key "${key}" in namespace "${namespace}" changed.`,
+            `Old value was "${oldValue}", new value is "${newValue}".`
+          );
+          if(key === 'key' + pageUrl && newValue !== undefined) {
+            console.log("init onChanged chrome Storage FB");
+            e_group.getConfig();
+          }
+        }
       });
     },
     toast: function(string) {
@@ -805,8 +813,8 @@ var getCSSAnimationManager = function () {
               console.log("[popup.js] chrome.runtime.sendMessage()");
             }
           );
-          e_group.toast("저장");
-        }, 3000);
+          e_group.toast("자동 저장");
+        }, 30000);
       }
       auto_save();
     },
@@ -1640,6 +1648,14 @@ var getCSSAnimationManager = function () {
         saveBox.appendChild(capacity_check);
         window_e.document.getElementById("saveBox").style.display = "none";
       }
+
+      save.addEventListener("click", function () {
+        var pageUrl = document.location.href;
+        chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage()");
+        });
+        e_group.toast("저장");
+      });
 
       control_save.setAttribute("class", "bnoty_controls_control_option save");
       control_save.setAttribute("title", "Save");

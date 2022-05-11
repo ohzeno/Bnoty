@@ -101,7 +101,11 @@ const firebaseConfig = {
         db.collection('Users').get().then((response)=>{
           response.forEach(async (doc)=>{
             docEmail = doc.get('email');
+            overVolume = false;
             if(email === docEmail){
+              userVol = doc.get('volume');
+              console.log("uservol : ", userVol);
+              if(userVol > 102400) overVolume = true;
               const user = db.collection('Users').doc(doc.id);
               const urlCheck = await user.collection('dataQuery').where('url', '==', url).get();
               let configVol;
@@ -162,8 +166,8 @@ const firebaseConfig = {
     else if(msg.method == 'startRead'){
       console.log("startRead on FB")
       getConfig(msg.url).then(async response => {
-        await chrome.storage.local.set({['key' + msg.url]: response}, function() {
-          console.log("localStorage set : ", response);
+        await chrome.storage.local.set({['key' + msg.url]: response, ['test']: "test"}, function() {
+          console.log("chrome local set : ", response);
         });
         
         await chrome.storage.onChanged.addListener(function (changes, namespace) {
