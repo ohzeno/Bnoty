@@ -239,7 +239,9 @@ var getCSSAnimationManager = function () {
     },
     stopPainting: function (event) {
       // 마우스 클릭 버튼 떔
-      // console.log("stop들어옴");
+      if (event.which === 1) {
+        //좌클릭 일 때만 그리기
+         // console.log("stop들어옴");
       if (this.activate == "curve") {
         // 커브면 끝좌표 초기화 or 갱신
         if (this.mX == null && this.mY == null) {
@@ -308,6 +310,7 @@ var getCSSAnimationManager = function () {
           this.canvas.height
         ); // 지금까지 그린 정보를 저장
         this.addHistory();
+      }
       }
     },
     leaveStopPainting: function () {
