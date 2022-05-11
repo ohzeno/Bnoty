@@ -188,7 +188,8 @@ var getCSSAnimationManager = function () {
     //링크용함수
     linkX: null,
     linkY: null,
-    linkcount: 0, // 이건 저장해야함
+    linknumber: 0, // 링크저장용
+    linkarr : [],
     removeToast: null,
     toastElement: null,
     autoSave: null,
@@ -1937,6 +1938,7 @@ var getCSSAnimationManager = function () {
     },
     exit: function () {
       console.log("inject.js e 내부 exit");
+      e_group.deleteLink();
       e_group.clearLasso();
       e_group.handleMouseClick();
       this.canvas.parentNode.removeChild(this.canvas);
@@ -1990,9 +1992,13 @@ var getCSSAnimationManager = function () {
       clearInterval(this.autoSave);
       this.autoSave = null;
       this.top_box = null;
+      this.linkarr = [];
+      this.linknumber = 0;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
         ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
+      
+      
     },
     render: function (t) {
       this.config = t || {};
@@ -2099,10 +2105,20 @@ var getCSSAnimationManager = function () {
 
       // 이미지 생성
       var atag = window_e.document.createElement("a");
+      atag.setAttribute("id", "linkobject");
       atag.setAttribute("target", "”_blank”");
       atag.setAttribute("href", goto);
+      atag.setAttribute("linknumber", e_group.linknumber);
+      // 우클릭시 삭제하기
       atag.addEventListener("contextmenu", function () {
+
+        const deletenum = this.getAttribute('linknumber');
+        const deleteindex = e_group.linkarr.findIndex(function(e) { return e.num === deletenum });
+        e_group.linkarr.splice(deleteindex,1);
+        console.log("삭제완료");
+        // console.log(e_group.linkarr);
         this.remove();
+
       });
       atag.style.position = "absolute";
       atag.style.width = 24 + "px";
@@ -2114,8 +2130,22 @@ var getCSSAnimationManager = function () {
       var imgtag = window_e.document.createElement("img");
       imgtag.setAttribute(
         "src",
-        "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png"
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAqRJREFUSEvFlU1sjFEUhp+DFklnusGKSBARNupnTVhq0x/aRtjMN9KdBaqNn0pJK7SNBYmFmG9sKuiQKbpVa0LYkDI2YlUrnSZCtUduvzvtnfHNTLto3N2999zznvO+55wrLPGSJfZPSQCluRKqGkHqgV3AehvQN+AtkIZsWhj6XSzQogCKdxjoAzaVzlK+gHQId5+E2f0DoDQvh8h14Mzi6NMB2NgpdM+470IAvIEC5+OgN0FHYPpz8LhyK3AI9CSwznHYL/gdRQEsLSnHYAiIC342LBvFiwA+cGT+XhqFRDq3n8sgEDTy0eF8CPxWAVVi9SCngD3BQ30Ny24IiWeKKRTvkQOSgeyOnPAOQKwV5IFFHge2mMgV7xrQWUSPq4J/QTkWhZUZYG1gJy1CwmQ/X6aKdx84aiO8KCR7beRz6YaDaJ2QfK54XcAVazMo+McLAcYAI55ZOwX/veK9BPaVqaZRwT+gxGtATW+YNSb42woAYlmQquB+VUS4Pam4Z0VhsoIftYJPWAYmhaQpAJeiPGfRgP8FAUwIfrXV4YcNY/asBEUzNcK9d0psFGR/GYpeCP7BBVDkiixdQqJHideBPi0NILVCYkSJXQK5XErkFuBhSJn2AueLVFCPkOxS2qrhjynTNVaDZiE527AFjRb9ALrZOkuB32IbrRbkNOje4E5egZhGGwkaLZYCabLvMrBiu3BnKg/AbJQTTTDz2Ik2Bb/iwqCtjvw8gsinfMe58dIgJIdzliHDLtYP0u64+g7cCobd6k/B+U/TLyYrM+wsLbPx9gmJvK4PAeheBl/NeDhbpnoKrqUPNpwrO65zr5R4A2i/mUllgDKg7S4trn2ZL7OtAqYNkPkyd4PaL1PMl/kGNA0VwzlBwwL5v5/+4jQIt/4LnsTlGQ5Eqh8AAAAASUVORK5CYII="
       );
+
+      // 저장용 문자열
+      // var linkiconstr = e_group.linkX + " " + e_group.linkY + " " + goto;
+      var linkiobject = {}; // 저장용 객체
+      linkiobject.num = e_group.linknumber++;
+      linkiobject.x = e_group.linkX;
+      linkiobject.y = e_group.linkY;
+      linkiobject.link = goto;
+      
+      e_group.linkarr.push(linkiobject);
+      // console.error(linkiconstr); 
+      console.error(linkiobject);
+      // console.error(e_group.linkarr);
+
       imgtag.setAttribute("alt", "IU");
       imgtag.setAttribute("width", "24");
       imgtag.setAttribute("height", "24");
@@ -2179,6 +2209,21 @@ var getCSSAnimationManager = function () {
           });
       }
     },
+    // 닫기 눌렀을 때 링크 전부 삭제하기
+    deleteLink:function(){
+      while(true){
+        if (document.getElementById('linkobject')) {
+          document.getElementById('linkobject').remove();
+          // console.log("있음");
+        } else {
+          // console.log("없음");
+          break;
+        }
+      }
+      // 상후 TODO : 여기서 배열 저장해주면 됨
+      console.log(e_group.linkarr);
+      
+    }
 
 
   };
