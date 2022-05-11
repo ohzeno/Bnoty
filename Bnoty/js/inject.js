@@ -725,8 +725,8 @@ var getCSSAnimationManager = function () {
 
       chrome.storage.onChanged.addListener(this.loadCanvasBinded);
     },
-    toast: function (string) {
-      const toast = document.getElementById("toast");
+    toast: function(string) {
+        const toast = document.getElementById("toast");
 
       toast.classList.contains("reveal")
         ? (clearTimeout(removeToast),
@@ -738,7 +738,8 @@ var getCSSAnimationManager = function () {
           }, 1000));
       toast.classList.add("reveal"), (toast.innerText = string);
     },
-    getConfig: async function () {
+    getConfig: async function() {
+
       var pageUrl = document.location.href;
       await chrome.storage.local.get(
         ["key" + pageUrl],
@@ -774,7 +775,7 @@ var getCSSAnimationManager = function () {
         e_group.canvas.height
       ); // 지금까지 그린 정보를 저장
       await chrome.storage.local.clear();
-      // await e_group.addHistory2();
+     //await e_group.addHistory2();
     },
     get_time: async function () {
       let today = new Date();
@@ -817,8 +818,8 @@ var getCSSAnimationManager = function () {
               console.log("[popup.js] chrome.runtime.sendMessage()");
             }
           );
-          e_group.toast("저장");
-        }, 10000);
+          e_group.toast("자동 저장");
+        }, 30000);
       }
       auto_save();
     },
@@ -919,13 +920,10 @@ var getCSSAnimationManager = function () {
       console.log("addHistory");
       this.histories.add(this.saveImage);
       console.log("addhistory : ", e_group.currentIndex);
-      var pageUrl = document.location.href;
-      chrome.runtime.sendMessage(
-        { method: "save", config: e_group.canvas.toDataURL(), url: pageUrl },
-        (response) => {
-          console.log("[popup.js] chrome.runtime.sendMessage()");
-        }
-      );
+      // var pageUrl = document.location.href;
+      // chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+      //   console.log("[popup.js] chrome.runtime.sendMessage()");
+      // });
       // 여기서 버튼 디스에이블하는것도 해줘야함
       this.checkHistoryButtonStatus();
     },
@@ -1707,6 +1705,14 @@ var getCSSAnimationManager = function () {
         window_e.document.getElementById("saveBox").style.display = "none";
       }
 
+      save.addEventListener("click", function () {
+        var pageUrl = document.location.href;
+        chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage()");
+        });
+        e_group.toast("저장");
+      });
+
       control_save.setAttribute("class", "bnoty_controls_control_option save");
       control_save.setAttribute("title", "Save");
       control_save.addEventListener("click", function () {
@@ -2189,60 +2195,60 @@ var getCSSAnimationManager = function () {
         window_e.document.getElementById("saveBox").style.display = "none";
       }
     },
-    // 현재 화면 캡처
-    ScreencaptureStart: function () {
-      console.log("현재화면 캡처");
-      e_group.hideControlPanel();
-      window_e.setTimeout(function () {
-        chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
-          console.log(response.farewell);
-        });
-      }, 100);
-      window_e.setTimeout(function () {
-        e_group.showControlPanel();
-      }, 500);
-    },
-    // 전체 화면 캡처
-    FullcaptureStart: function () {
-      console.log("전체화면 캡처");
-      e_group.hideControlPanel();
-      window_e.setTimeout(function () {
-        chrome.runtime.sendMessage(
-          { method: "FullcaptureStart" },
-          (response) => {
-            console.log(response.farewell);
+        // 현재 화면 캡처
+        ScreencaptureStart: function () {
+          console.log("현재화면 캡처");
+          e_group.hideControlPanel();
+          window_e.setTimeout(function () {
+            chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
+              console.log(response.farewell);
+            });
+          }, 100);
+          window_e.setTimeout(function () {
+            e_group.showControlPanel();
+          }, 500);
+        },
+        // 전체 화면 캡처
+        FullcaptureStart: function () {
+          console.log("전체화면 캡처");
+          e_group.hideControlPanel();
+          window_e.setTimeout(function () {
+            chrome.runtime.sendMessage(
+              { method: "FullcaptureStart" },
+              (response) => {
+                console.log(response.farewell);
+              }
+            );
+          }, 100);
+        },
+        // 창 전환
+        updateScreenshot: function (t, n) {
+          var a = arguments[2];
+          if (a == null) {
+            a = 0;
           }
-        );
-      }, 100);
-    },
-    // 창 전환
-    updateScreenshot: function (t, n) {
-      var a = arguments[2];
-      if (a == null) {
-        a = 0;
-      }
-      if (10 >= a) {
-        global.runtime.sendMessage(
-          {
-            method: "update_url",
-            url: t,
-          },
-          function (e) {
-            (e && e.success) ||
-              window.setTimeout(
-                Function.prototype.bind.call(
-                  Bnoty.updateScreenshot,
-                  Bnoty,
-                  t,
-                  n,
-                  ++a
-                ),
-                300
-              );
+          if (10 >= a) {
+            global.runtime.sendMessage(
+              {
+                method: "update_url",
+                url: t,
+              },
+              function (e) {
+                (e && e.success) ||
+                  window.setTimeout(
+                    Function.prototype.bind.call(
+                      Bnoty.updateScreenshot,
+                      Bnoty,
+                      t,
+                      n,
+                      ++a
+                    ),
+                    300
+                  );
+              }
+            );
           }
-        );
-      }
-    },
+        },
   };
   return e_group;
 });
