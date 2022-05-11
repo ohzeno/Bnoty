@@ -764,7 +764,7 @@ var getCSSAnimationManager = function () {
             await e_group.initCanvas();
           }
         }
-      });
+      );
     },
     saveConfig: async function () {
       console.log("saveConfig");
@@ -2195,60 +2195,60 @@ var getCSSAnimationManager = function () {
         window_e.document.getElementById("saveBox").style.display = "none";
       }
     },
-    // 현재 화면 캡처
-    ScreencaptureStart: function () {
-      console.log("현재화면 캡처");
-      e_group.hideControlPanel();
-      window_e.setTimeout(function () {
-        chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
-          console.log(response.farewell);
-        });
-      }, 100);
-      window_e.setTimeout(function () {
-        e_group.showControlPanel();
-      }, 500);
-    },
-    // 전체 화면 캡처
-    FullcaptureStart: function () {
-      console.log("전체화면 캡처");
-      e_group.hideControlPanel();
-      window_e.setTimeout(function () {
-        chrome.runtime.sendMessage(
-          { method: "FullcaptureStart" },
-          (response) => {
-            console.log(response.farewell);
+        // 현재 화면 캡처
+        ScreencaptureStart: function () {
+          console.log("현재화면 캡처");
+          e_group.hideControlPanel();
+          window_e.setTimeout(function () {
+            chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
+              console.log(response.farewell);
+            });
+          }, 100);
+          window_e.setTimeout(function () {
+            e_group.showControlPanel();
+          }, 500);
+        },
+        // 전체 화면 캡처
+        FullcaptureStart: function () {
+          console.log("전체화면 캡처");
+          e_group.hideControlPanel();
+          window_e.setTimeout(function () {
+            chrome.runtime.sendMessage(
+              { method: "FullcaptureStart" },
+              (response) => {
+                console.log(response.farewell);
+              }
+            );
+          }, 100);
+        },
+        // 창 전환
+        updateScreenshot: function (t, n) {
+          var a = arguments[2];
+          if (a == null) {
+            a = 0;
           }
-        );
-      }, 100);
-    },
-    // 창 전환
-    updateScreenshot: function (t, n) {
-      var a = arguments[2];
-      if (a == null) {
-        a = 0;
-      }
-      if (10 >= a) {
-        global.runtime.sendMessage(
-          {
-            method: "update_url",
-            url: t,
-          },
-          function (e) {
-            (e && e.success) ||
-              window.setTimeout(
-                Function.prototype.bind.call(
-                  Bnoty.updateScreenshot,
-                  Bnoty,
-                  t,
-                  n,
-                  ++a
-                ),
-                300
-              );
+          if (10 >= a) {
+            global.runtime.sendMessage(
+              {
+                method: "update_url",
+                url: t,
+              },
+              function (e) {
+                (e && e.success) ||
+                  window.setTimeout(
+                    Function.prototype.bind.call(
+                      Bnoty.updateScreenshot,
+                      Bnoty,
+                      t,
+                      n,
+                      ++a
+                    ),
+                    300
+                  );
+              }
+            );
           }
-        );
-      }
-    },
+        },
   };
   return e_group;
 });
