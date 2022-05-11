@@ -279,6 +279,7 @@ var getCSSAnimationManager = function () {
                             this.lassoeY - this.lassosY
                         );
                     } else if (this.saveLasso[1] != null) {
+                        this.canvas.style.cursor = "crosshair";
                         this.lassosX = this.eX - (this.sX - this.lassosX);
                         this.lassosY = this.eY - (this.sY - this.lassosY);
                         (this.lassoeX = this.lassosX + this.saveLasso[1].width),
@@ -345,6 +346,7 @@ var getCSSAnimationManager = function () {
                         this.saveLasso[1] != null ||
                         this.saveLasso[0] != null
                     ) {
+                        this.canvas.style.cursor = "crosshair";
                         this.ctx.putImageData(
                             this.array[this.currentIndex],
                             0,
@@ -538,6 +540,7 @@ var getCSSAnimationManager = function () {
                 } else if (this.activate == "lasso") {
                     // 올가미
                     if (this.saveLasso[1] != null) {
+                      this.canvas.style.cursor = "move";
                         this.ctx.clearRect(
                             this.lassosubX,
                             this.lassosubY,
