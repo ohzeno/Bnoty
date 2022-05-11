@@ -1,13 +1,12 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyC4bhvgrZnBlZa63HOjr4YWb0vPUEy0TNs",
-    authDomain: "bnoty-ae856.firebaseapp.com",
-    databaseURL: "https://bnoty-ae856-default-rtdb.firebaseio.com",
-    projectId: "bnoty-ae856",
-    storageBucket: "bnoty-ae856.appspot.com",
-    messagingSenderId: "109988155599",
-    appId: "1:109988155599:web:24fc23b8766d44363a27ba",
-    measurementId: "G-J5849SYJY8"
-  };    
+  apiKey: "AIzaSyALSkDo_nYey6fbcEPNkTnzuMZsGuzF5oQ",
+  authDomain: "bnoty-1d9ee.firebaseapp.com",
+  projectId: "bnoty-1d9ee",
+  storageBucket: "bnoty-1d9ee.appspot.com",
+  messagingSenderId: "242015103962",
+  appId: "1:242015103962:web:6c56dad160e5232b64eee3",
+  measurementId: "G-90EW45MQ3N",
+};    
 
   firebase.initializeApp(firebaseConfig);
   console.log(firebase);
