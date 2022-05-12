@@ -2531,7 +2531,7 @@ var getCSSAnimationManager = function () {
       // 바꿔주기
       e_group.activate = "nothing";
     },
-    linkclickfuntion: function () {
+    linkclickfuntion: function (e) {
       // alert("클릭");
 
       // 링크 가져오기
@@ -2544,6 +2544,9 @@ var getCSSAnimationManager = function () {
       atag.setAttribute("href", goto);
       atag.setAttribute("linknumber", e_group.linknumber);
       // 우클릭시 삭제하기
+      atag.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+      });
       atag.addEventListener("contextmenu", function () {
         const deletenum = this.getAttribute("linknumber");
         const deleteindex = e_group.linkarr.findIndex(function (e) {
