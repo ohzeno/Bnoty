@@ -88,22 +88,22 @@ var getCSSAnimationManager = function () {
     drawOptions: [
       {
         type: "pen",
-        title: "Pencil - draw a custom line",
+        title: "Pencil - Draw a custom line",
       },
       {
         type: "lasso",
-        title: "Area lasso - Lasso a area",
+        title: "Area lasso - Lasso an area",
       },
       {
         type: "text",
         font: "Arial",
         minSize: 15,
         maxSize: 50,
-        title: "Text - insert text",
+        title: "Text - Insert text",
       },
       {
         type: "figure",
-        title: "Figure - draw a figure",
+        title: "Figure - Draw a figure",
       },
       {
         type: "image",
@@ -111,17 +111,17 @@ var getCSSAnimationManager = function () {
       },
       {
         type: "cursor",
-        title: "Cursor - interact with the web page",
+        title: "Cursor - Interact with the web page",
       },
       {
         type: "eraser",
-        title: "Eraser - erase part of your drawings",
+        title: "Eraser - Erase part of your drawings",
         width: 30,
         height: 30,
       },
       {
         type: "fill",
-        title: "Paint Bucket - fill an area",
+        title: "Paint Bucket - Fill an area",
       },
     ],
     selectedAlphaOption: null,
@@ -2066,7 +2066,7 @@ var getCSSAnimationManager = function () {
       });
 
       control_save.setAttribute("class", "bnoty_controls_control_option save");
-      control_save.setAttribute("title", "Save");
+      control_save.setAttribute("title", "Save your drawings");
       control_save.addEventListener("click", function () {
         if (
           window_e.document.getElementById("saveBox").style.display === "none"
@@ -2095,7 +2095,7 @@ var getCSSAnimationManager = function () {
       );
       control_hide.setAttribute(
         "title",
-        "Close control panel (Click the extension icon to re-open)"
+        "Hide control panel (Click the extension icon to re-open)"
       );
       p.setAttribute("class", "settingsBtn");
       p.setAttribute("title", "Settings");
