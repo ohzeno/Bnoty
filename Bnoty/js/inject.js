@@ -164,11 +164,13 @@ var getCSSAnimationManager = function () {
         linkX: null,
         linkY: null,
         linknumber: 0, // 링크저장용
-        linkarr : [],
+        linkarr: [],
         removeToast: null,
         toastElement: null,
         autoSave: null,
         top_box: null,
+        pageX: null,
+        pageY: null,
 
         startPainting: function (event) {
             event.preventDefault();
@@ -180,7 +182,6 @@ var getCSSAnimationManager = function () {
                     this.painting = false;
                     return;
                 }
-                // console.log("start들어옴");
                 this.painting = true;
                 this.sX = event.offsetX;
                 this.sY = event.offsetY;
@@ -246,7 +247,6 @@ var getCSSAnimationManager = function () {
             // 마우스 클릭 버튼 떔
             if (event.which === 1) {
                 //좌클릭 일 때만 그리기
-                // console.log("stop들어옴");
                 if (this.activate == "curve") {
                     // 커브면 끝좌표 초기화 or 갱신
                     if (this.mX == null && this.mY == null) {
@@ -404,15 +404,12 @@ var getCSSAnimationManager = function () {
             if (this.activate == "lasso" && this.lassosX == null) {
                 return;
             }
-            // console.log("좌표", x, y);
             if (!this.painting) {
-                // console.log("begin들어옴");
                 // this.ctx.globalCompositeOperation = "destination-atop"; // 이 줄 추가로 펜선 안겹침. 즉 투명하게 그릴 수 있음. 기존엔 투명도 설정해도 계속 겹쳐서 불투명하게 그려짐. + 부작용> 두번째 그릴때 이전에 그린거 초기화됨. restore, buffer캔버스 사용해야 할 듯...
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.eX, this.eY);
             } else {
                 //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
-                // console.log("stroke들어옴");
                 if (this.activate == "eraser") {
                     // 부분 지우기
                     // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
@@ -541,7 +538,7 @@ var getCSSAnimationManager = function () {
                 } else if (this.activate == "lasso") {
                     // 올가미
                     if (this.saveLasso[1] != null) {
-                      this.canvas.style.cursor = "move";
+                        this.canvas.style.cursor = "move";
                         this.ctx.clearRect(
                             this.lassosubX,
                             this.lassosubY,
@@ -598,12 +595,14 @@ var getCSSAnimationManager = function () {
                     this.handleMouseClick();
                 }
                 if (!this.hasInput) {
-                    this.addInput(event.offsetX, event.offsetY);
+                    this.addInput(event.clientX, event.clientY);
+                    e_group.pageX = event.offsetX;
+                    e_group.pageY = event.offsetY;
                 }
             }
         },
         addInput: function (x, y) {
-            var input = document.createElement("input");
+            var input = document.createElement("textarea");
 
             input.id = "textbox";
             input.type = "text";
@@ -611,9 +610,6 @@ var getCSSAnimationManager = function () {
             input.style.left = x + "px";
             input.style.top = y + "px";
             input.style.width = "500px";
-            // input.style.outline = "none";
-            // input.style.border = "none";
-            // input.style.backgroundColor = "transparent";
             input.style.opacity = "0.5";
             input.style.filter.opacity = "0.5";
             input.style.fontSize = e_group.size;
@@ -632,12 +628,17 @@ var getCSSAnimationManager = function () {
             // 공백문자인지 판단하는 패턴
             var blank_pattern = /^\s+|\s+$/g;
             var keyCode = event.keyCode;
-            if (keyCode === 13) {
-                e_group.drawText(
-                    this.value,
-                    parseInt(this.style.left, 10),
-                    parseInt(this.style.top, 10)
-                );
+            if (keyCode === 27) {
+                var textList = this.value.split("\n");
+                for (var i = 0; i < textList.length; i++) {
+                    e_group.drawText(
+                        textList[i],
+                        parseInt(e_group.pageX, 10),
+                        parseInt(e_group.pageY, 10) +
+                            e_group.size.replace("px", "") * i +
+                            5
+                    );
+                }
                 document.body.removeChild(this);
                 // 공백문자일 경우 저장안됨
                 if (this.value.replace(blank_pattern, "") != "") {
@@ -656,15 +657,18 @@ var getCSSAnimationManager = function () {
         handleMouseClick: function () {
             var inputs = document.getElementById("textbox");
             var blank_pattern = /^\s+|\s+$/g;
-
             if (inputs != null) {
                 if (inputs.value.replace(blank_pattern, "") != "") {
-                    console.log("value : " + inputs.value);
-                    e_group.drawText(
-                        inputs.value,
-                        parseInt(inputs.style.left, 10),
-                        parseInt(inputs.style.top, 10)
-                    );
+                    var textList = inputs.value.split("\n");
+                    for (var i = 0; i < textList.length; i++) {
+                        e_group.drawText(
+                            textList[i],
+                            parseInt(e_group.pageX, 10),
+                            parseInt(e_group.pageY, 10) +
+                                e_group.size.replace("px", "") * i +
+                                5
+                        );
+                    }
                     e_group.saveImage = e_group.ctx.getImageData(
                         0,
                         0,
@@ -875,7 +879,6 @@ var getCSSAnimationManager = function () {
             auto_save();
         },
         initCanvas: async function (t) {
-            console.log("inject.js e 내부 initCanvas");
             if (t) {
                 await this.handleResize(!0);
                 await this.ctx.drawImage(t, 0, 0);
@@ -893,7 +896,6 @@ var getCSSAnimationManager = function () {
             // this.storeHistory();
         },
         addMouseEventListener: function () {
-            console.log("inject.js e 내부 addMouseEventListener");
             var startPainting = Function.prototype.bind.call(
                 this.startPainting,
                 this
@@ -977,9 +979,7 @@ var getCSSAnimationManager = function () {
         },
         // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
         addHistory: function () {
-            console.log("addHistory");
             this.histories.add(this.saveImage);
-            console.log("addhistory : ", e_group.currentIndex);
             // var pageUrl = document.location.href;
             // chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
             //   console.log("[popup.js] chrome.runtime.sendMessage()");
@@ -988,13 +988,10 @@ var getCSSAnimationManager = function () {
             this.checkHistoryButtonStatus();
         },
         addHistory2: function () {
-            console.log("addHistory");
             this.histories.add(this.saveImage);
-            console.log("addhistory : ", e_group.currentIndex);
             // 여기서 버튼 디스에이블하는것도 해줘야함
         },
         setCtxProp: function () {
-            console.log("inject.js e 내부 setCtxProp");
             this.ctx.strokeStyle = this.strokeStyle; // 선 색
             this.ctx.fillStyle = this.strokeStyle; // 채우기 색
             this.ctx.globalAlpha = this.globalAlpha; // 투명도
@@ -1006,14 +1003,9 @@ var getCSSAnimationManager = function () {
             }
         },
         handlePanelAppearing: function (t) {
-            console.log("inject.js e 내부 handlePanelAppearing");
             t.target.style.opacity = 1;
         },
         hideControlPanel: function () {
-            console.log(
-                "inject.js e 내부 hideControlPanel",
-                this.panel.parentNode
-            );
             this.addClass(this.panel.parentNode, "hide");
             this.controlPanelHidden = !0;
             "undefined" != typeof unsafeWindow &&
@@ -1021,10 +1013,6 @@ var getCSSAnimationManager = function () {
                 (unsafeWindow.CTRL_HIDDEN = !0);
         },
         showControlPanel: function () {
-            console.log(
-                "inject.js e 내부 showControlPanel",
-                this.panel.parentNode
-            );
             this.removeClass(this.panel.parentNode, "hide");
             this.controlPanelHidden = !1;
             "undefined" != typeof unsafeWindow &&
@@ -1035,7 +1023,6 @@ var getCSSAnimationManager = function () {
             // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
             // store, restore는 아직 없어서 주석해둠.
             // paragraph는 아직 해석못함.
-            // console.log("resize");
             var e = !1,
                 i = window_e.pageYOffset || document.documentElement.scrollTop,
                 n =
@@ -1894,7 +1881,6 @@ var getCSSAnimationManager = function () {
                 e_group.setCtxProp();
             });
             this.alphaPicker.addEventListener("input", function (event) {
-                console.log("inject.js e 내부 onAlphaUpdate");
                 if (e_group.alphaPickerPreview) {
                     e_group.alphaPickerPreview.innerHTML =
                         Math.round(100 * event.currentTarget.value) + "%";
@@ -1913,10 +1899,8 @@ var getCSSAnimationManager = function () {
             this.linePicker.addEventListener("change", function (event) {
                 e_group.lineWidth = event.currentTarget.value;
                 e_group.setCtxProp();
-                console.log("굵기", event.currentTarget.value);
             });
             this.linePicker.addEventListener("input", function (event) {
-                console.log("inject.js e 내부 onLineUpdate");
                 if (e_group.linePickerPreview) {
                     e_group.linePickerPreview.innerHTML =
                         Math.round((event.currentTarget.value / 20) * 100) +
@@ -2143,7 +2127,6 @@ var getCSSAnimationManager = function () {
             );
         },
         matchOutlineColor: function (a, b, c, d) {
-            console.log("inject.js e 내부 matchOutlineColor");
             return 255 !== a && 255 !== b && 255 !== c && 0 !== d;
         },
         handleFill: function (x, y) {
@@ -2192,7 +2175,6 @@ var getCSSAnimationManager = function () {
             }
         },
         floodFill: function (x, y, option, i, image, a, s) {
-            console.log("inject.js e 내부 floodFill");
             var r,
                 h,
                 c,
@@ -2274,7 +2256,6 @@ var getCSSAnimationManager = function () {
             }
         },
         initDragging: function () {
-            console.log("inject.js e 내부 initDragging");
             this.top_box.addEventListener(
                 "mousedown",
                 this.handleDraggingStart
@@ -2293,7 +2274,6 @@ var getCSSAnimationManager = function () {
                 );
         },
         handleDraggingStart: function (t) {
-            console.log("inject.js e 내부 handleDraggingStart");
             e_group.pos_x =
                 this.getBoundingClientRect().left -
                 (void 0 === t.clientX ? t.touches[0].clientX : t.clientX);
@@ -2304,7 +2284,6 @@ var getCSSAnimationManager = function () {
             this.addEventListener("touchmove", e_group.handleDragging);
         },
         handleDragging: function (t) {
-            console.log("inject.js e 내부 handleDragging");
             if ("INPUT" !== t.target.nodeName.toUpperCase()) {
                 t.preventDefault();
                 this.style.top =
@@ -2318,7 +2297,6 @@ var getCSSAnimationManager = function () {
             }
         },
         handleDragDone: function (t) {
-            console.log("inject.js e 내부 handleDragDone");
             e_group.top_box.removeEventListener(
                 "mousemove",
                 e_group.handleDragging
@@ -2329,7 +2307,6 @@ var getCSSAnimationManager = function () {
             );
         },
         exit: function () {
-            console.log("inject.js e 내부 exit");
             e_group.deleteLink();
             e_group.clearLasso();
             e_group.handleMouseClick();
@@ -2499,12 +2476,10 @@ var getCSSAnimationManager = function () {
         },
         linkclickfuntion: function () {
             // alert("클릭");
-      
+
             // 링크 가져오기
             var goto = document.getElementById("linkinput").value;
-            // console.log(document.getElementById("linkinput").value);
-            console.log(goto);
-      
+
             // 이미지 생성
             var atag = window_e.document.createElement("a");
             atag.setAttribute("id", "linkobject");
@@ -2513,14 +2488,12 @@ var getCSSAnimationManager = function () {
             atag.setAttribute("linknumber", e_group.linknumber);
             // 우클릭시 삭제하기
             atag.addEventListener("contextmenu", function () {
-      
-              const deletenum = this.getAttribute('linknumber');
-              const deleteindex = e_group.linkarr.findIndex(function(e) { return e.num === deletenum });
-              e_group.linkarr.splice(deleteindex,1);
-              console.log("삭제완료");
-              // console.log(e_group.linkarr);
-              this.remove();
-      
+                const deletenum = this.getAttribute("linknumber");
+                const deleteindex = e_group.linkarr.findIndex(function (e) {
+                    return e.num === deletenum;
+                });
+                e_group.linkarr.splice(deleteindex, 1);
+                this.remove();
             });
             atag.style.position = "absolute";
             atag.style.width = 24 + "px";
@@ -2528,13 +2501,13 @@ var getCSSAnimationManager = function () {
             atag.style.left = e_group.linkX + "px";
             atag.style.top = e_group.linkY + "px";
             atag.style.zIndex = 2147483647;
-      
+
             var imgtag = window_e.document.createElement("img");
             imgtag.setAttribute(
-              "src",
-              "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAqRJREFUSEvFlU1sjFEUhp+DFklnusGKSBARNupnTVhq0x/aRtjMN9KdBaqNn0pJK7SNBYmFmG9sKuiQKbpVa0LYkDI2YlUrnSZCtUduvzvtnfHNTLto3N2999zznvO+55wrLPGSJfZPSQCluRKqGkHqgV3AehvQN+AtkIZsWhj6XSzQogCKdxjoAzaVzlK+gHQId5+E2f0DoDQvh8h14Mzi6NMB2NgpdM+470IAvIEC5+OgN0FHYPpz8LhyK3AI9CSwznHYL/gdRQEsLSnHYAiIC342LBvFiwA+cGT+XhqFRDq3n8sgEDTy0eF8CPxWAVVi9SCngD3BQ30Ny24IiWeKKRTvkQOSgeyOnPAOQKwV5IFFHge2mMgV7xrQWUSPq4J/QTkWhZUZYG1gJy1CwmQ/X6aKdx84aiO8KCR7beRz6YaDaJ2QfK54XcAVazMo+McLAcYAI55ZOwX/veK9BPaVqaZRwT+gxGtATW+YNSb42woAYlmQquB+VUS4Pam4Z0VhsoIftYJPWAYmhaQpAJeiPGfRgP8FAUwIfrXV4YcNY/asBEUzNcK9d0psFGR/GYpeCP7BBVDkiixdQqJHideBPi0NILVCYkSJXQK5XErkFuBhSJn2AueLVFCPkOxS2qrhjynTNVaDZiE527AFjRb9ALrZOkuB32IbrRbkNOje4E5egZhGGwkaLZYCabLvMrBiu3BnKg/AbJQTTTDz2Ik2Bb/iwqCtjvw8gsinfMe58dIgJIdzliHDLtYP0u64+g7cCobd6k/B+U/TLyYrM+wsLbPx9gmJvK4PAeheBl/NeDhbpnoKrqUPNpwrO65zr5R4A2i/mUllgDKg7S4trn2ZL7OtAqYNkPkyd4PaL1PMl/kGNA0VwzlBwwL5v5/+4jQIt/4LnsTlGQ5Eqh8AAAAASUVORK5CYII="
+                "src",
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAqRJREFUSEvFlU1sjFEUhp+DFklnusGKSBARNupnTVhq0x/aRtjMN9KdBaqNn0pJK7SNBYmFmG9sKuiQKbpVa0LYkDI2YlUrnSZCtUduvzvtnfHNTLto3N2999zznvO+55wrLPGSJfZPSQCluRKqGkHqgV3AehvQN+AtkIZsWhj6XSzQogCKdxjoAzaVzlK+gHQId5+E2f0DoDQvh8h14Mzi6NMB2NgpdM+470IAvIEC5+OgN0FHYPpz8LhyK3AI9CSwznHYL/gdRQEsLSnHYAiIC342LBvFiwA+cGT+XhqFRDq3n8sgEDTy0eF8CPxWAVVi9SCngD3BQ30Ny24IiWeKKRTvkQOSgeyOnPAOQKwV5IFFHge2mMgV7xrQWUSPq4J/QTkWhZUZYG1gJy1CwmQ/X6aKdx84aiO8KCR7beRz6YaDaJ2QfK54XcAVazMo+McLAcYAI55ZOwX/veK9BPaVqaZRwT+gxGtATW+YNSb42woAYlmQquB+VUS4Pam4Z0VhsoIftYJPWAYmhaQpAJeiPGfRgP8FAUwIfrXV4YcNY/asBEUzNcK9d0psFGR/GYpeCP7BBVDkiixdQqJHideBPi0NILVCYkSJXQK5XErkFuBhSJn2AueLVFCPkOxS2qrhjynTNVaDZiE527AFjRb9ALrZOkuB32IbrRbkNOje4E5egZhGGwkaLZYCabLvMrBiu3BnKg/AbJQTTTDz2Ik2Bb/iwqCtjvw8gsinfMe58dIgJIdzliHDLtYP0u64+g7cCobd6k/B+U/TLyYrM+wsLbPx9gmJvK4PAeheBl/NeDhbpnoKrqUPNpwrO65zr5R4A2i/mUllgDKg7S4trn2ZL7OtAqYNkPkyd4PaL1PMl/kGNA0VwzlBwwL5v5/+4jQIt/4LnsTlGQ5Eqh8AAAAASUVORK5CYII="
             );
-      
+
             // 저장용 문자열
             // var linkiconstr = e_group.linkX + " " + e_group.linkY + " " + goto;
             var linkiobject = {}; // 저장용 객체
@@ -2542,26 +2515,26 @@ var getCSSAnimationManager = function () {
             linkiobject.x = e_group.linkX;
             linkiobject.y = e_group.linkY;
             linkiobject.link = goto;
-            
+
             e_group.linkarr.push(linkiobject);
-            // console.error(linkiconstr); 
+            // console.error(linkiconstr);
             console.error(linkiobject);
             // console.error(e_group.linkarr);
-      
+
             imgtag.setAttribute("alt", "IU");
             imgtag.setAttribute("width", "24");
             imgtag.setAttribute("height", "24");
-      
+
             // 추가
             atag.appendChild(imgtag);
             document.body.appendChild(atag);
-      
+
             // 지워주기
             let target = document.getElementById("linkdiv");
             target.remove();
-      
+
             // 이미지 생성
-          },
+        },
         onPrintButtonClick: function () {
             // alert("프린터클릭");
             if (
@@ -2601,8 +2574,7 @@ var getCSSAnimationManager = function () {
         },
         // 현재 화면 캡처
         ScreencaptureStart: function () {
-            console.log("현재화면 캡처");
-            e_group.hideControlPanel();    
+            e_group.hideControlPanel();
             document.body.style.overflow = "hidden";
             window_e.setTimeout(function () {
                 chrome.runtime.sendMessage(
@@ -2619,7 +2591,6 @@ var getCSSAnimationManager = function () {
         },
         // 전체 화면 캡처
         FullcaptureStart: function () {
-            console.log("전체화면 캡처");
             e_group.hideControlPanel();
             window_e.setTimeout(function () {
                 chrome.runtime.sendMessage(
@@ -2659,20 +2630,17 @@ var getCSSAnimationManager = function () {
             }
         },
         // 닫기 눌렀을 때 링크 전부 삭제하기
-        deleteLink:function(){
-            while(true){
-            if (document.getElementById('linkobject')) {
-                document.getElementById('linkobject').remove();
-                // console.log("있음");
-            } else {
-                // console.log("없음");
-                break;
-            }
+        deleteLink: function () {
+            while (true) {
+                if (document.getElementById("linkobject")) {
+                    document.getElementById("linkobject").remove();
+                } else {
+                    break;
+                }
             }
             // 상후 TODO : 여기서 배열 저장해주면 됨
             console.log(e_group.linkarr);
         },
-
     };
     return e_group;
 });
