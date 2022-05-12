@@ -105,31 +105,6 @@ var getCSSAnimationManager = function () {
         type: "figure",
         title: "Figure - draw a figure",
       },
-      // {
-      //   type: "quadratic_curve",
-      //   title: "Quadratic curve - draw a quadratic curve",
-      //   iteration: 0,
-      //   initLoc: null,
-      //   lastLoc: null,
-      // },
-      // {
-      //   type: "bezier_curve",
-      //   title: "Bezier curve - draw a bezier curve",
-      //   iteration: 0,
-      //   initLoc: null,
-      //   firstPoint: null,
-      //   lastPoint: null,
-      // },
-      // {
-      //   type: "polygon",
-      //   title: "Polygon - draw a polygon",
-      //   initLoc: null,
-      //   lastLoc: null,
-      // },
-      // {
-      //   type: "circle",
-      //   title: "Ellipse - draw an ellipse or a circle",
-      // },
       {
         type: "image",
         title: "Image - Insert Image",
@@ -188,11 +163,14 @@ var getCSSAnimationManager = function () {
     //링크용함수
     linkX: null,
     linkY: null,
-    linkcount: 0, // 이건 저장해야함
+    linknumber: 0, // 링크저장용
+    linkarr: [],
     removeToast: null,
     toastElement: null,
     autoSave: null,
     top_box: null,
+    pageX: null,
+    pageY: null,
 
     startPainting: function (event) {
       event.preventDefault();
@@ -204,7 +182,6 @@ var getCSSAnimationManager = function () {
           this.painting = false;
           return;
         }
-        // console.log("start들어옴");
         this.painting = true;
         this.sX = event.offsetX;
         this.sY = event.offsetY;
@@ -264,75 +241,82 @@ var getCSSAnimationManager = function () {
     },
     stopPainting: function (event) {
       // 마우스 클릭 버튼 떔
-      // console.log("stop들어옴");
-      if (this.activate == "curve") {
-        // 커브면 끝좌표 초기화 or 갱신
-        if (this.mX == null && this.mY == null) {
-          this.mX = event.offsetX;
-          this.mY = event.offsetY;
-          return; // 여기서는 끝좌표만 갱신하고 리턴해줘야 다음작업 가능
+      if (event.which === 1) {
+        //좌클릭 일 때만 그리기
+        if (this.activate == "curve") {
+          // 커브면 끝좌표 초기화 or 갱신
+          if (this.mX == null && this.mY == null) {
+            this.mX = event.offsetX;
+            this.mY = event.offsetY;
+            return; // 여기서는 끝좌표만 갱신하고 리턴해줘야 다음작업 가능
+          }
+          this.mX = null;
+          this.mY = null;
+        } else if (this.activate == "lasso") {
+          if (this.lassosX > this.lassoeX) {
+            var tmp = this.lassosX;
+            this.lassosX = this.lassoeX;
+            this.lassoeX = tmp;
+            this.lassosubX = this.lassosX;
+          }
+          if (this.lassosY > this.lassoeY) {
+            var tmp = this.lassosY;
+            this.lassosY = this.lassoeY;
+            this.lassoeY = tmp;
+            this.lassosubY = this.lassosY;
+          }
+          if (this.saveLasso[1] == null && this.saveLasso[0] != null) {
+            this.saveLasso[1] = this.ctx.getImageData(
+              this.lassosX,
+              this.lassosY,
+              this.lassoeX - this.lassosX,
+              this.lassoeY - this.lassosY
+            );
+          } else if (this.saveLasso[1] != null) {
+            this.canvas.style.cursor = "crosshair";
+            this.lassosX = this.eX - (this.sX - this.lassosX);
+            this.lassosY = this.eY - (this.sY - this.lassosY);
+            (this.lassoeX = this.lassosX + this.saveLasso[1].width),
+              (this.lassoeY = this.lassosY + this.saveLasso[1].height);
+            this.ctx.putImageData(
+              this.saveLasso[1],
+              this.lassosX,
+              this.lassosY
+            );
+          }
         }
-        this.mX = null;
-        this.mY = null;
-      } else if (this.activate == "lasso") {
-        if (this.lassosX > this.lassoeX) {
-          var tmp = this.lassosX;
-          this.lassosX = this.lassoeX;
-          this.lassoeX = tmp;
-          this.lassosubX = this.lassosX;
+        if (this.activate != "lasso") {
+          (this.saveLasso[0] = null),
+            (this.saveLasso[1] = null),
+            (this.lassosX = null),
+            (this.lassosY = null),
+            (this.lassoeX = null),
+            (this.lassoeY = null),
+            (this.lassosubX = null),
+            (this.lassosubY = null);
         }
-        if (this.lassosY > this.lassoeY) {
-          var tmp = this.lassosY;
-          this.lassosY = this.lassoeY;
-          this.lassoeY = tmp;
-          this.lassosubY = this.lassosY;
-        }
-        if (this.saveLasso[1] == null && this.saveLasso[0] != null) {
-          this.saveLasso[1] = this.ctx.getImageData(
-            this.lassosX,
-            this.lassosY,
-            this.lassoeX - this.lassosX,
-            this.lassoeY - this.lassosY
-          );
-        } else if (this.saveLasso[1] != null) {
-          this.lassosX = this.eX - (this.sX - this.lassosX);
-          this.lassosY = this.eY - (this.sY - this.lassosY);
-          (this.lassoeX = this.lassosX + this.saveLasso[1].width),
-            (this.lassoeY = this.lassosY + this.saveLasso[1].height);
-          this.ctx.putImageData(this.saveLasso[1], this.lassosX, this.lassosY);
-        }
-      }
-      if (this.activate != "lasso") {
-        (this.saveLasso[0] = null),
-          (this.saveLasso[1] = null),
-          (this.lassosX = null),
-          (this.lassosY = null),
-          (this.lassoeX = null),
-          (this.lassoeY = null),
-          (this.lassosubX = null),
-          (this.lassosubY = null);
-      }
-      this.painting = false;
-      if (
-        this.activate != "text" &&
-        this.activate != "insert_link" &&
-        this.activate != "nothing" &&
-        this.saveLasso[0] == null
-      ) {
+        this.painting = false;
         if (
-          this.activate != "lasso" &&
-          this.activate != "fill" &&
-          this.sX == this.eX &&
-          this.sY == this.eY
-        )
-          return;
-        this.saveImage = this.ctx.getImageData(
-          0,
-          0,
-          this.canvas.width,
-          this.canvas.height
-        ); // 지금까지 그린 정보를 저장
-        this.addHistory();
+          this.activate != "text" &&
+          this.activate != "insert_link" &&
+          this.activate != "nothing" &&
+          this.saveLasso[0] == null
+        ) {
+          if (
+            this.activate != "lasso" &&
+            this.activate != "fill" &&
+            this.sX == this.eX &&
+            this.sY == this.eY
+          )
+            return;
+          this.saveImage = this.ctx.getImageData(
+            0,
+            0,
+            this.canvas.width,
+            this.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          this.addHistory();
+        }
       }
     },
     leaveStopPainting: function () {
@@ -352,6 +336,7 @@ var getCSSAnimationManager = function () {
             this.lassosubY = this.lassosY;
           }
           if (this.saveLasso[1] != null || this.saveLasso[0] != null) {
+            this.canvas.style.cursor = "crosshair";
             this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
             this.currentIndex--;
             (this.saveLasso[0] = null),
@@ -404,15 +389,12 @@ var getCSSAnimationManager = function () {
       if (this.activate == "lasso" && this.lassosX == null) {
         return;
       }
-      // console.log("좌표", x, y);
       if (!this.painting) {
-        // console.log("begin들어옴");
         // this.ctx.globalCompositeOperation = "destination-atop"; // 이 줄 추가로 펜선 안겹침. 즉 투명하게 그릴 수 있음. 기존엔 투명도 설정해도 계속 겹쳐서 불투명하게 그려짐. + 부작용> 두번째 그릴때 이전에 그린거 초기화됨. restore, buffer캔버스 사용해야 할 듯...
         this.ctx.beginPath();
         this.ctx.moveTo(this.eX, this.eY);
       } else {
         //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
-        // console.log("stroke들어옴");
         if (this.activate == "eraser") {
           // 부분 지우기
           // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
@@ -527,6 +509,7 @@ var getCSSAnimationManager = function () {
         } else if (this.activate == "lasso") {
           // 올가미
           if (this.saveLasso[1] != null) {
+            this.canvas.style.cursor = "move";
             this.ctx.clearRect(
               this.lassosubX,
               this.lassosubY,
@@ -583,12 +566,14 @@ var getCSSAnimationManager = function () {
           this.handleMouseClick();
         }
         if (!this.hasInput) {
-          this.addInput(event.offsetX, event.offsetY);
+          this.addInput(event.clientX, event.clientY);
+          e_group.pageX = event.offsetX;
+          e_group.pageY = event.offsetY;
         }
       }
     },
     addInput: function (x, y) {
-      var input = document.createElement("input");
+      var input = document.createElement("textarea");
 
       input.id = "textbox";
       input.type = "text";
@@ -596,9 +581,6 @@ var getCSSAnimationManager = function () {
       input.style.left = x + "px";
       input.style.top = y + "px";
       input.style.width = "500px";
-      // input.style.outline = "none";
-      // input.style.border = "none";
-      // input.style.backgroundColor = "transparent";
       input.style.opacity = "0.5";
       input.style.filter.opacity = "0.5";
       input.style.fontSize = e_group.size;
@@ -617,12 +599,15 @@ var getCSSAnimationManager = function () {
       // 공백문자인지 판단하는 패턴
       var blank_pattern = /^\s+|\s+$/g;
       var keyCode = event.keyCode;
-      if (keyCode === 13) {
-        e_group.drawText(
-          this.value,
-          parseInt(this.style.left, 10),
-          parseInt(this.style.top, 10)
-        );
+      if (keyCode === 27) {
+        var textList = this.value.split("\n");
+        for (var i = 0; i < textList.length; i++) {
+          e_group.drawText(
+            textList[i],
+            parseInt(e_group.pageX, 10),
+            parseInt(e_group.pageY, 10) + e_group.size.replace("px", "") * i + 5
+          );
+        }
         document.body.removeChild(this);
         // 공백문자일 경우 저장안됨
         if (this.value.replace(blank_pattern, "") != "") {
@@ -641,15 +626,18 @@ var getCSSAnimationManager = function () {
     handleMouseClick: function () {
       var inputs = document.getElementById("textbox");
       var blank_pattern = /^\s+|\s+$/g;
-
       if (inputs != null) {
         if (inputs.value.replace(blank_pattern, "") != "") {
-          console.log("value : " + inputs.value);
-          e_group.drawText(
-            inputs.value,
-            parseInt(inputs.style.left, 10),
-            parseInt(inputs.style.top, 10)
-          );
+          var textList = inputs.value.split("\n");
+          for (var i = 0; i < textList.length; i++) {
+            e_group.drawText(
+              textList[i],
+              parseInt(e_group.pageX, 10),
+              parseInt(e_group.pageY, 10) +
+                e_group.size.replace("px", "") * i +
+                5
+            );
+          }
           e_group.saveImage = e_group.ctx.getImageData(
             0,
             0,
@@ -799,7 +787,7 @@ var getCSSAnimationManager = function () {
         e_group.canvas.height
       ); // 지금까지 그린 정보를 저장
       await chrome.storage.local.clear();
-      // await e_group.addHistory2();
+      //await e_group.addHistory2();
     },
     get_time: async function () {
       let today = new Date();
@@ -842,13 +830,12 @@ var getCSSAnimationManager = function () {
               console.log("[popup.js] chrome.runtime.sendMessage()");
             }
           );
-          e_group.toast("저장");
-        }, 10000);
+          e_group.toast("자동 저장");
+        }, 30000);
       }
       auto_save();
     },
     initCanvas: async function (t) {
-      console.log("inject.js e 내부 initCanvas");
       if (t) {
         await this.handleResize(!0);
         await this.ctx.drawImage(t, 0, 0);
@@ -866,7 +853,6 @@ var getCSSAnimationManager = function () {
       // this.storeHistory();
     },
     addMouseEventListener: function () {
-      console.log("inject.js e 내부 addMouseEventListener");
       var startPainting = Function.prototype.bind.call(
         this.startPainting,
         this
@@ -941,27 +927,19 @@ var getCSSAnimationManager = function () {
     },
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
-      console.log("addHistory");
       this.histories.add(this.saveImage);
-      console.log("addhistory : ", e_group.currentIndex);
-      var pageUrl = document.location.href;
-      chrome.runtime.sendMessage(
-        { method: "save", config: e_group.canvas.toDataURL(), url: pageUrl },
-        (response) => {
-          console.log("[popup.js] chrome.runtime.sendMessage()");
-        }
-      );
+      // var pageUrl = document.location.href;
+      // chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
+      //   console.log("[popup.js] chrome.runtime.sendMessage()");
+      // });
       // 여기서 버튼 디스에이블하는것도 해줘야함
       this.checkHistoryButtonStatus();
     },
     addHistory2: function () {
-      console.log("addHistory");
       this.histories.add(this.saveImage);
-      console.log("addhistory : ", e_group.currentIndex);
       // 여기서 버튼 디스에이블하는것도 해줘야함
     },
     setCtxProp: function () {
-      console.log("inject.js e 내부 setCtxProp");
       this.ctx.strokeStyle = this.strokeStyle; // 선 색
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
@@ -973,11 +951,9 @@ var getCSSAnimationManager = function () {
       }
     },
     handlePanelAppearing: function (t) {
-      console.log("inject.js e 내부 handlePanelAppearing");
       t.target.style.opacity = 1;
     },
     hideControlPanel: function () {
-      console.log("inject.js e 내부 hideControlPanel", this.panel.parentNode);
       this.addClass(this.panel.parentNode, "hide");
       this.controlPanelHidden = !0;
       "undefined" != typeof unsafeWindow &&
@@ -985,7 +961,6 @@ var getCSSAnimationManager = function () {
         (unsafeWindow.CTRL_HIDDEN = !0);
     },
     showControlPanel: function () {
-      console.log("inject.js e 내부 showControlPanel", this.panel.parentNode);
       this.removeClass(this.panel.parentNode, "hide");
       this.controlPanelHidden = !1;
       "undefined" != typeof unsafeWindow &&
@@ -996,7 +971,6 @@ var getCSSAnimationManager = function () {
       // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
       // store, restore는 아직 없어서 주석해둠.
       // paragraph는 아직 해석못함.
-      // console.log("resize");
       var e = !1,
         i = window_e.pageYOffset || document.documentElement.scrollTop,
         n =
@@ -1082,7 +1056,7 @@ var getCSSAnimationManager = function () {
       penBox.setAttribute("class", "pen_box");
       penBox.setAttribute("id", "penBox");
       var textBox = window_e.document.createElement("div"); // text
-      textBox.setAttribute("class", "pen_box");
+      textBox.setAttribute("class", "text_box");
       textBox.setAttribute("id", "textBox");
       var figureBox = window_e.document.createElement("div"); // figure
       figureBox.setAttribute("class", "pen_box");
@@ -1142,7 +1116,9 @@ var getCSSAnimationManager = function () {
           box.appendChild(textBox);
           var text = window_e.document.createElement("div"),
             boldText = window_e.document.createElement("div"),
-            italicText = window_e.document.createElement("div");
+            italicText = window_e.document.createElement("div"),
+            fontText = window_e.document.createElement("div"),
+            fontSize = window_e.document.createElement("div");
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
@@ -1172,9 +1148,69 @@ var getCSSAnimationManager = function () {
             }
             e_group.removeClass(e_group.canvas, "cursor");
           });
+
+          fontSize.setAttribute("class", "fontSize");
+          fontSize.setAttribute("id", "fontSize");
+          fontSize.setAttribute("title", "FontSize");
+
+          var input = window.document.createElement("input");
+          input.setAttribute("id", "jsFontSize");
+          input.setAttribute("type", "number");
+          input.setAttribute("value", "20");
+          input.style.width = "80px";
+          // window.document.body.appendChild(input);
+          // input.style = `position: absolute; top: 60px; left: 380px; z-index: 2147483647;`;
+          fontSize.appendChild(input);
+          input.addEventListener("input", function () {
+            e_group.size = document.getElementById("jsFontSize").value + "px";
+          });
+
+          fontText.setAttribute("class", "fontText");
+          fontText.setAttribute("id", "fontText");
+          fontText.setAttribute("title", "Font");
+
+          var select = window.document.createElement("select");
+          select.setAttribute("id", "jsFont");
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "sans-serif");
+          var optText = window.document.createTextNode("고딕체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "monospace");
+          var optText = window.document.createTextNode("바탕체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "serif");
+          var optText = window.document.createTextNode("명조체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "cursive");
+          var optText = window.document.createTextNode("손글씨");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "fantasy");
+          var optText = window.document.createTextNode("화려체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          window.document.body.appendChild(select);
+          select.style.width = "80px";
+
+          select.addEventListener("input", function () {
+            e_group.font = document.getElementById("jsFont").value;
+          });
+          // select.style = `position: absolute; top: 60px; left: 600px; z-index: 2147483647;`;
+
+          fontText.appendChild(select);
+
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
+          textBox.appendChild(fontSize);
+          textBox.appendChild(fontText);
           window_e.document.getElementById("textBox").style.display = "none";
         }
 
@@ -1341,9 +1377,11 @@ var getCSSAnimationManager = function () {
 
           screen_capture_btn.setAttribute("class", "screen_capture_btn");
           screen_capture_btn.setAttribute("id", "screen_capture_btn");
+          screen_capture_btn.setAttribute("title", "Capture current screen");
 
           full_capture_btn.setAttribute("class", "full_capture_btn");
           full_capture_btn.setAttribute("id", "full_capture_btn");
+          full_capture_btn.setAttribute("title", "Capture entire web page");
 
           captureBox.appendChild(screen_capture_btn);
           captureBox.appendChild(full_capture_btn);
@@ -1636,7 +1674,6 @@ var getCSSAnimationManager = function () {
         e_group.setCtxProp();
       });
       this.alphaPicker.addEventListener("input", function (event) {
-        console.log("inject.js e 내부 onAlphaUpdate");
         if (e_group.alphaPickerPreview) {
           e_group.alphaPickerPreview.innerHTML =
             Math.round(100 * event.currentTarget.value) + "%";
@@ -1655,10 +1692,8 @@ var getCSSAnimationManager = function () {
       this.linePicker.addEventListener("change", function (event) {
         e_group.lineWidth = event.currentTarget.value;
         e_group.setCtxProp();
-        console.log("굵기", event.currentTarget.value);
       });
       this.linePicker.addEventListener("input", function (event) {
-        console.log("inject.js e 내부 onLineUpdate");
         if (e_group.linePickerPreview) {
           e_group.linePickerPreview.innerHTML =
             Math.round((event.currentTarget.value / 20) * 100) + "%";
@@ -1675,18 +1710,18 @@ var getCSSAnimationManager = function () {
       this.linePickerPreview.innerHTML =
         Math.round((this.ctx.lineWidth / 20) * 100) + "%";
       // this.updatePaintStyle();
-      var c = window_e.document.createElement("div"),
-        l = window_e.document.createElement("div"),
+      var captureBtn = window_e.document.createElement("div"),
+        exitBtn = window_e.document.createElement("div"),
         control_save = window_e.document.createElement("div"),
         control_hide = window_e.document.createElement("div"),
         p = window_e.document.createElement("div");
-      c.setAttribute("class", "bnoty_controls_control_option prtBtn");
-      c.setAttribute(
+      captureBtn.setAttribute("class", "bnoty_controls_control_option prtBtn");
+      captureBtn.setAttribute(
         "title",
         "Take a screenshot of the current web page with your drawings"
       );
-      l.setAttribute("class", "bnoty_controls_control_option exitBtn");
-      l.setAttribute("title", "Quit");
+      exitBtn.setAttribute("class", "bnoty_controls_control_option exitBtn");
+      exitBtn.setAttribute("title", "Quit");
       this.backBtn.setAttribute(
         "class",
         "bnoty_controls_control_option backBtn"
@@ -1730,6 +1765,21 @@ var getCSSAnimationManager = function () {
         window_e.document.getElementById("saveBox").style.display = "none";
       }
 
+      save.addEventListener("click", function () {
+        var pageUrl = document.location.href;
+        chrome.runtime.sendMessage(
+          {
+            method: "save",
+            config: e_group.canvas.toDataURL(),
+            url: pageUrl,
+          },
+          (response) => {
+            console.log("[popup.js] chrome.runtime.sendMessage()");
+          }
+        );
+        e_group.toast("저장");
+      });
+
       control_save.setAttribute("class", "bnoty_controls_control_option save");
       control_save.setAttribute("title", "Save");
       control_save.addEventListener("click", function () {
@@ -1764,11 +1814,11 @@ var getCSSAnimationManager = function () {
       );
       p.setAttribute("class", "settingsBtn");
       p.setAttribute("title", "Settings");
-      c.addEventListener(
+      captureBtn.addEventListener(
         "click",
         Function.prototype.bind.call(this.onPrintButtonClick, this)
       );
-      l.addEventListener(
+      exitBtn.addEventListener(
         "click",
         Function.prototype.bind.call(this.exit, this)
       );
@@ -1792,9 +1842,9 @@ var getCSSAnimationManager = function () {
       controls.appendChild(this.backBtn);
       controls.appendChild(this.nextBtn);
       controls.appendChild(control_save);
-      controls.appendChild(c);
+      controls.appendChild(captureBtn);
       controls.appendChild(control_hide);
-      controls.appendChild(l);
+      controls.appendChild(exitBtn);
       controls.appendChild(p);
       this.checkHistoryButtonStatus(); //이전 다음 버튼 활성화 비활성화 체크
       this.CSSAnimationManager.supported
@@ -1824,7 +1874,6 @@ var getCSSAnimationManager = function () {
       t.className = t.className.replace(new RegExp("\\b" + e + "\\b", "g"), "");
     },
     matchOutlineColor: function (a, b, c, d) {
-      console.log("inject.js e 내부 matchOutlineColor");
       return 255 !== a && 255 !== b && 255 !== c && 0 !== d;
     },
     handleFill: function (x, y) {
@@ -1873,7 +1922,6 @@ var getCSSAnimationManager = function () {
       }
     },
     floodFill: function (x, y, option, i, image, a, s) {
-      console.log("inject.js e 내부 floodFill");
       var r,
         h,
         c,
@@ -1954,14 +2002,12 @@ var getCSSAnimationManager = function () {
       }
     },
     initDragging: function () {
-      console.log("inject.js e 내부 initDragging");
       this.top_box.addEventListener("mousedown", this.handleDraggingStart),
         this.top_box.addEventListener("touchstart", this.handleDraggingStart),
         window_e.document.addEventListener("mouseup", this.handleDragDone),
         window_e.document.addEventListener("touchend", this.handleDragDone);
     },
     handleDraggingStart: function (t) {
-      console.log("inject.js e 내부 handleDraggingStart");
       e_group.pos_x =
         this.getBoundingClientRect().left -
         (void 0 === t.clientX ? t.touches[0].clientX : t.clientX);
@@ -1972,7 +2018,6 @@ var getCSSAnimationManager = function () {
       this.addEventListener("touchmove", e_group.handleDragging);
     },
     handleDragging: function (t) {
-      console.log("inject.js e 내부 handleDragging");
       if ("INPUT" !== t.target.nodeName.toUpperCase()) {
         t.preventDefault();
         this.style.top =
@@ -1986,12 +2031,11 @@ var getCSSAnimationManager = function () {
       }
     },
     handleDragDone: function (t) {
-      console.log("inject.js e 내부 handleDragDone");
       e_group.top_box.removeEventListener("mousemove", e_group.handleDragging);
       e_group.top_box.removeEventListener("touchmove", e_group.handleDragging);
     },
     exit: function () {
-      console.log("inject.js e 내부 exit");
+      e_group.deleteLink();
       e_group.clearLasso();
       e_group.handleMouseClick();
       this.canvas.parentNode.removeChild(this.canvas);
@@ -2046,6 +2090,8 @@ var getCSSAnimationManager = function () {
       clearInterval(this.autoSave);
       this.autoSave = null;
       this.top_box = null;
+      this.linkarr = [];
+      this.linknumber = 0;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
         ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
@@ -2154,14 +2200,20 @@ var getCSSAnimationManager = function () {
 
       // 링크 가져오기
       var goto = document.getElementById("linkinput").value;
-      // console.log(document.getElementById("linkinput").value);
-      console.log(goto);
 
       // 이미지 생성
       var atag = window_e.document.createElement("a");
+      atag.setAttribute("id", "linkobject");
       atag.setAttribute("target", "”_blank”");
       atag.setAttribute("href", goto);
+      atag.setAttribute("linknumber", e_group.linknumber);
+      // 우클릭시 삭제하기
       atag.addEventListener("contextmenu", function () {
+        const deletenum = this.getAttribute("linknumber");
+        const deleteindex = e_group.linkarr.findIndex(function (e) {
+          return e.num === deletenum;
+        });
+        e_group.linkarr.splice(deleteindex, 1);
         this.remove();
       });
       atag.style.position = "absolute";
@@ -2174,8 +2226,22 @@ var getCSSAnimationManager = function () {
       var imgtag = window_e.document.createElement("img");
       imgtag.setAttribute(
         "src",
-        "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png"
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAqRJREFUSEvFlU1sjFEUhp+DFklnusGKSBARNupnTVhq0x/aRtjMN9KdBaqNn0pJK7SNBYmFmG9sKuiQKbpVa0LYkDI2YlUrnSZCtUduvzvtnfHNTLto3N2999zznvO+55wrLPGSJfZPSQCluRKqGkHqgV3AehvQN+AtkIZsWhj6XSzQogCKdxjoAzaVzlK+gHQId5+E2f0DoDQvh8h14Mzi6NMB2NgpdM+470IAvIEC5+OgN0FHYPpz8LhyK3AI9CSwznHYL/gdRQEsLSnHYAiIC342LBvFiwA+cGT+XhqFRDq3n8sgEDTy0eF8CPxWAVVi9SCngD3BQ30Ny24IiWeKKRTvkQOSgeyOnPAOQKwV5IFFHge2mMgV7xrQWUSPq4J/QTkWhZUZYG1gJy1CwmQ/X6aKdx84aiO8KCR7beRz6YaDaJ2QfK54XcAVazMo+McLAcYAI55ZOwX/veK9BPaVqaZRwT+gxGtATW+YNSb42woAYlmQquB+VUS4Pam4Z0VhsoIftYJPWAYmhaQpAJeiPGfRgP8FAUwIfrXV4YcNY/asBEUzNcK9d0psFGR/GYpeCP7BBVDkiixdQqJHideBPi0NILVCYkSJXQK5XErkFuBhSJn2AueLVFCPkOxS2qrhjynTNVaDZiE527AFjRb9ALrZOkuB32IbrRbkNOje4E5egZhGGwkaLZYCabLvMrBiu3BnKg/AbJQTTTDz2Ik2Bb/iwqCtjvw8gsinfMe58dIgJIdzliHDLtYP0u64+g7cCobd6k/B+U/TLyYrM+wsLbPx9gmJvK4PAeheBl/NeDhbpnoKrqUPNpwrO65zr5R4A2i/mUllgDKg7S4trn2ZL7OtAqYNkPkyd4PaL1PMl/kGNA0VwzlBwwL5v5/+4jQIt/4LnsTlGQ5Eqh8AAAAASUVORK5CYII="
       );
+
+      // 저장용 문자열
+      // var linkiconstr = e_group.linkX + " " + e_group.linkY + " " + goto;
+      var linkiobject = {}; // 저장용 객체
+      linkiobject.num = e_group.linknumber++;
+      linkiobject.x = e_group.linkX;
+      linkiobject.y = e_group.linkY;
+      linkiobject.link = goto;
+
+      e_group.linkarr.push(linkiobject);
+      // console.error(linkiconstr);
+      console.error(linkiobject);
+      // console.error(e_group.linkarr);
+
       imgtag.setAttribute("alt", "IU");
       imgtag.setAttribute("width", "24");
       imgtag.setAttribute("height", "24");
@@ -2214,8 +2280,8 @@ var getCSSAnimationManager = function () {
     },
     // 현재 화면 캡처
     ScreencaptureStart: function () {
-      console.log("현재화면 캡처");
       e_group.hideControlPanel();
+      document.body.style.overflow = "hidden";
       window_e.setTimeout(function () {
         chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
           console.log(response.farewell);
@@ -2223,11 +2289,11 @@ var getCSSAnimationManager = function () {
       }, 100);
       window_e.setTimeout(function () {
         e_group.showControlPanel();
+        document.body.style.overflow = "";
       }, 500);
     },
     // 전체 화면 캡처
     FullcaptureStart: function () {
-      console.log("전체화면 캡처");
       e_group.hideControlPanel();
       window_e.setTimeout(function () {
         chrome.runtime.sendMessage(
@@ -2265,6 +2331,18 @@ var getCSSAnimationManager = function () {
           }
         );
       }
+    },
+    // 닫기 눌렀을 때 링크 전부 삭제하기
+    deleteLink: function () {
+      while (true) {
+        if (document.getElementById("linkobject")) {
+          document.getElementById("linkobject").remove();
+        } else {
+          break;
+        }
+      }
+      // 상후 TODO : 여기서 배열 저장해주면 됨
+      console.log(e_group.linkarr);
     },
   };
   return e_group;
