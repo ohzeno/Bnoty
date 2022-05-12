@@ -169,6 +169,8 @@ var getCSSAnimationManager = function () {
     toastElement: null,
     autoSave: null,
     top_box: null,
+    pageX: null,
+    pageY: null,
 
     startPainting: function (event) {
       event.preventDefault();
@@ -569,12 +571,14 @@ var getCSSAnimationManager = function () {
           this.handleMouseClick();
         }
         if (!this.hasInput) {
-          this.addInput(event.offsetX, event.offsetY);
+          this.addInput(event.clientX, event.clientY);
+          e_group.pageX = event.offsetX;
+          e_group.pageY = event.offsetY;
         }
       }
     },
     addInput: function (x, y) {
-      var input = document.createElement("input");
+      var input = document.createElement("textarea");
 
       input.id = "textbox";
       input.type = "text";
@@ -603,12 +607,15 @@ var getCSSAnimationManager = function () {
       // 공백문자인지 판단하는 패턴
       var blank_pattern = /^\s+|\s+$/g;
       var keyCode = event.keyCode;
-      if (keyCode === 13) {
-        e_group.drawText(
-          this.value,
-          parseInt(this.style.left, 10),
-          parseInt(this.style.top, 10)
-        );
+      if (keyCode === 27) {
+        var textList = this.value.split("\n");
+        for (var i = 0; i < textList.length; i++) {
+          e_group.drawText(
+            textList[i],
+            parseInt(e_group.pageX, 10),
+            parseInt(e_group.pageY, 10) + e_group.size.replace("px", "") * i + 5
+          );
+        }
         document.body.removeChild(this);
         // 공백문자일 경우 저장안됨
         if (this.value.replace(blank_pattern, "") != "") {
@@ -627,15 +634,18 @@ var getCSSAnimationManager = function () {
     handleMouseClick: function () {
       var inputs = document.getElementById("textbox");
       var blank_pattern = /^\s+|\s+$/g;
-
       if (inputs != null) {
         if (inputs.value.replace(blank_pattern, "") != "") {
-          console.log("value : " + inputs.value);
-          e_group.drawText(
-            inputs.value,
-            parseInt(inputs.style.left, 10),
-            parseInt(inputs.style.top, 10)
-          );
+          var textList = inputs.value.split("\n");
+          for (var i = 0; i < textList.length; i++) {
+            e_group.drawText(
+              textList[i],
+              parseInt(e_group.pageX, 10),
+              parseInt(e_group.pageY, 10) +
+                e_group.size.replace("px", "") * i +
+                5
+            );
+          }
           e_group.saveImage = e_group.ctx.getImageData(
             0,
             0,
@@ -1781,7 +1791,6 @@ var getCSSAnimationManager = function () {
         e_group.setCtxProp();
       });
       this.alphaPicker.addEventListener("input", function (event) {
-        console.log("inject.js e 내부 onAlphaUpdate");
         if (e_group.alphaPickerPreview) {
           e_group.alphaPickerPreview.innerHTML =
             Math.round(100 * event.currentTarget.value) + "%";
@@ -1800,10 +1809,8 @@ var getCSSAnimationManager = function () {
       this.linePicker.addEventListener("change", function (event) {
         e_group.lineWidth = event.currentTarget.value;
         e_group.setCtxProp();
-        console.log("굵기", event.currentTarget.value);
       });
       this.linePicker.addEventListener("input", function (event) {
-        console.log("inject.js e 내부 onLineUpdate");
         if (e_group.linePickerPreview) {
           e_group.linePickerPreview.innerHTML =
             Math.round((event.currentTarget.value / 20) * 100) + "%";
@@ -1987,7 +1994,6 @@ var getCSSAnimationManager = function () {
       t.className = t.className.replace(new RegExp("\\b" + e + "\\b", "g"), "");
     },
     matchOutlineColor: function (a, b, c, d) {
-      console.log("inject.js e 내부 matchOutlineColor");
       return 255 !== a && 255 !== b && 255 !== c && 0 !== d;
     },
     handleFill: function (x, y) {
@@ -2036,7 +2042,6 @@ var getCSSAnimationManager = function () {
       }
     },
     floodFill: function (x, y, option, i, image, a, s) {
-      console.log("inject.js e 내부 floodFill");
       var r,
         h,
         c,
@@ -2117,14 +2122,12 @@ var getCSSAnimationManager = function () {
       }
     },
     initDragging: function () {
-      console.log("inject.js e 내부 initDragging");
       this.top_box.addEventListener("mousedown", this.handleDraggingStart),
         this.top_box.addEventListener("touchstart", this.handleDraggingStart),
         window_e.document.addEventListener("mouseup", this.handleDragDone),
         window_e.document.addEventListener("touchend", this.handleDragDone);
     },
     handleDraggingStart: function (t) {
-      console.log("inject.js e 내부 handleDraggingStart");
       e_group.pos_x =
         this.getBoundingClientRect().left -
         (void 0 === t.clientX ? t.touches[0].clientX : t.clientX);
@@ -2135,7 +2138,6 @@ var getCSSAnimationManager = function () {
       this.addEventListener("touchmove", e_group.handleDragging);
     },
     handleDragging: function (t) {
-      console.log("inject.js e 내부 handleDragging");
       if ("INPUT" !== t.target.nodeName.toUpperCase()) {
         t.preventDefault();
         this.style.top =
@@ -2149,12 +2151,10 @@ var getCSSAnimationManager = function () {
       }
     },
     handleDragDone: function (t) {
-      console.log("inject.js e 내부 handleDragDone");
       e_group.top_box.removeEventListener("mousemove", e_group.handleDragging);
       e_group.top_box.removeEventListener("touchmove", e_group.handleDragging);
     },
     exit: function () {
-      console.log("inject.js e 내부 exit");
       e_group.deleteLink();
       e_group.clearLasso();
       e_group.handleMouseClick();
@@ -2320,8 +2320,6 @@ var getCSSAnimationManager = function () {
 
       // 링크 가져오기
       var goto = document.getElementById("linkinput").value;
-      // console.log(document.getElementById("linkinput").value);
-      console.log(goto);
 
       // 이미지 생성
       var atag = window_e.document.createElement("a");
@@ -2336,8 +2334,6 @@ var getCSSAnimationManager = function () {
           return e.num === deletenum;
         });
         e_group.linkarr.splice(deleteindex, 1);
-        console.log("삭제완료");
-        // console.log(e_group.linkarr);
         this.remove();
       });
       atag.style.position = "absolute";
@@ -2404,8 +2400,8 @@ var getCSSAnimationManager = function () {
     },
     // 현재 화면 캡처
     ScreencaptureStart: function () {
-      console.log("현재화면 캡처");
       e_group.hideControlPanel();
+      document.body.style.overflow = "hidden";
       window_e.setTimeout(function () {
         chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
           console.log(response.farewell);
@@ -2413,11 +2409,11 @@ var getCSSAnimationManager = function () {
       }, 100);
       window_e.setTimeout(function () {
         e_group.showControlPanel();
+        document.body.style.overflow = "";
       }, 500);
     },
     // 전체 화면 캡처
     FullcaptureStart: function () {
-      console.log("전체화면 캡처");
       e_group.hideControlPanel();
       window_e.setTimeout(function () {
         chrome.runtime.sendMessage(
@@ -2461,9 +2457,7 @@ var getCSSAnimationManager = function () {
       while (true) {
         if (document.getElementById("linkobject")) {
           document.getElementById("linkobject").remove();
-          // console.log("있음");
         } else {
-          // console.log("없음");
           break;
         }
       }
