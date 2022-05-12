@@ -2183,14 +2183,14 @@ var getCSSAnimationManager = function () {
           "bnoty_controls_draw_option fill"
         );
 
-      pen.item(0).style.backgroundColor = "#fff2b7";
-      lasso.item(0).style.backgroundColor = "#fff2b7";
-      text.item(0).style.backgroundColor = "#fff2b7";
-      figure.item(0).style.backgroundColor = "#fff2b7";
-      image.item(0).style.backgroundColor = "#fff2b7";
-      cursor.item(0).style.backgroundColor = "#fff2b7";
-      eraser.item(0).style.backgroundColor = "#fff2b7";
-      fill.item(0).style.backgroundColor = "#fff2b7";
+      pen.item(0).style.backgroundColor = "#fffbe5";
+      lasso.item(0).style.backgroundColor = "#fffbe5";
+      text.item(0).style.backgroundColor = "#fffbe5";
+      figure.item(0).style.backgroundColor = "#fffbe5";
+      image.item(0).style.backgroundColor = "#fffbe5";
+      cursor.item(0).style.backgroundColor = "#fffbe5";
+      eraser.item(0).style.backgroundColor = "#fffbe5";
+      fill.item(0).style.backgroundColor = "#fffbe5";
     },
     checkHistoryButtonStatus: function () {
       // 이전 다음 버튼 활성화 비활성화 체크
