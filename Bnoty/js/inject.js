@@ -1710,7 +1710,7 @@ var getCSSAnimationManager = function () {
             e_group.clearLasso();
             e_group.handleMouseClick();
             if (
-              window_e.document.getElementById("eraserBox").style.display ===
+              window_e.document.getElementById("imageBox").style.display ===
               "none"
             ) {
               window_e.document.getElementById("penBox").style.display = "none";
@@ -1761,6 +1761,169 @@ var getCSSAnimationManager = function () {
           // this.triggerClick(r);
         }
       }
+
+      var pen = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option pen"
+        ),
+        lasso = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option lasso"
+        ),
+        text1 = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option text"
+        ),
+        figure = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option figure"
+        ),
+        image = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option image"
+        ),
+        cursor = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option cursor"
+        ),
+        eraser1 = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option eraser"
+        ),
+        fill = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option fill"
+        );
+
+      pen.item(0).addEventListener("click", function () {
+        e_group.nonSelected();
+        pen.item(0).style.backgroundColor = "#dabb2f";
+        var nomal_pen1 = window_e.document.getElementsByClassName("linePen"),
+          highlighter_pen1 =
+            window_e.document.getElementsByClassName("highlighterPen");
+        nomal_pen1.item(0).addEventListener("click", function () {
+          highlighter_pen1.item(0).style.backgroundColor = "#fff2b7";
+          nomal_pen1.item(0).style.backgroundColor = "#dabb2f";
+        });
+        highlighter_pen1.item(0).addEventListener("click", function () {
+          nomal_pen1.item(0).style.backgroundColor = "#fff2b7";
+          highlighter_pen1.item(0).style.backgroundColor = "#dabb2f";
+        });
+      });
+      lasso.item(0).addEventListener("click", function () {
+        e_group.nonSelected();
+        lasso.item(0).style.backgroundColor = "#dabb2f";
+      });
+      text1.item(0).addEventListener("click", function () {
+        e_group.nonSelected();
+        text1.item(0).style.backgroundColor = "#dabb2f";
+        var nomal_text = window_e.document.getElementById("text"),
+          boldText = window_e.document.getElementsByClassName("boldText"),
+          italicText = window_e.document.getElementsByClassName("italicText");
+        nomal_text.addEventListener("click", function () {
+          nomal_text.style.backgroundColor = "#dabb2f";
+          boldText.item(0).style.backgroundColor = "#fff2b7";
+          italicText.item(0).style.backgroundColor = "#fff2b7";
+        });
+        boldText.item(0).addEventListener("click", function () {
+          nomal_text.style.backgroundColor = "#fff2b7";
+          boldText.item(0).style.backgroundColor = "#dabb2f";
+          italicText.item(0).style.backgroundColor = "#fff2b7";
+        });
+        italicText.item(0).addEventListener("click", function () {
+          nomal_text.style.backgroundColor = "#fff2b7";
+          boldText.item(0).style.backgroundColor = "#fff2b7";
+          italicText.item(0).style.backgroundColor = "#dabb2f";
+        });
+      });
+      figure.item(0).addEventListener("click", function () {
+        e_group.nonSelected();
+        figure.item(0).style.backgroundColor = "#dabb2f";
+        var square = window_e.document.getElementById("square"),
+          triangle = window_e.document.getElementById("triangle"),
+          circle = window_e.document.getElementById("circle"),
+          line = window_e.document.getElementById("line"),
+          curve = window_e.document.getElementById("curve"),
+          arrow = window_e.document.getElementById("arrow");
+
+        square.addEventListener("click", function () {
+          square.style.backgroundColor = "#dabb2f";
+          triangle.style.backgroundColor = "#fff2b7";
+          circle.style.backgroundColor = "#fff2b7";
+          line.style.backgroundColor = "#fff2b7";
+          curve.style.backgroundColor = "#fff2b7";
+          arrow.style.backgroundColor = "#fff2b7";
+        });
+        triangle.addEventListener("click", function () {
+          square.style.backgroundColor = "#fff2b7";
+          triangle.style.backgroundColor = "#dabb2f";
+          circle.style.backgroundColor = "#fff2b7";
+          line.style.backgroundColor = "#fff2b7";
+          curve.style.backgroundColor = "#fff2b7";
+          arrow.style.backgroundColor = "#fff2b7";
+        });
+        circle.addEventListener("click", function () {
+          square.style.backgroundColor = "#fff2b7";
+          triangle.style.backgroundColor = "#fff2b7";
+          circle.style.backgroundColor = "#dabb2f";
+          line.style.backgroundColor = "#fff2b7";
+          curve.style.backgroundColor = "#fff2b7";
+          arrow.style.backgroundColor = "#fff2b7";
+        });
+        line.addEventListener("click", function () {
+          square.style.backgroundColor = "#fff2b7";
+          triangle.style.backgroundColor = "#fff2b7";
+          circle.style.backgroundColor = "#fff2b7";
+          line.style.backgroundColor = "#dabb2f";
+          curve.style.backgroundColor = "#fff2b7";
+          arrow.style.backgroundColor = "#fff2b7";
+        });
+        curve.addEventListener("click", function () {
+          square.style.backgroundColor = "#fff2b7";
+          triangle.style.backgroundColor = "#fff2b7";
+          circle.style.backgroundColor = "#fff2b7";
+          line.style.backgroundColor = "#fff2b7";
+          curve.style.backgroundColor = "#dabb2f";
+          arrow.style.backgroundColor = "#fff2b7";
+        });
+        arrow.addEventListener("click", function () {
+          square.style.backgroundColor = "#fff2b7";
+          triangle.style.backgroundColor = "#fff2b7";
+          circle.style.backgroundColor = "#fff2b7";
+          line.style.backgroundColor = "#fff2b7";
+          curve.style.backgroundColor = "#fff2b7";
+          arrow.style.backgroundColor = "#dabb2f";
+        });
+      });
+      image.item(0).addEventListener("click", function () {
+        e_group.nonSelected();
+        image.item(0).style.backgroundColor = "#dabb2f";
+        var image1 = window_e.document.getElementById("insert_image"),
+          link1 = window_e.document.getElementById("insert_link");
+        image1.addEventListener("click", function () {
+          image1.style.backgroundColor = "#dabb2f";
+          link1.style.backgroundColor = "#fff2b7";
+        });
+        link1.addEventListener("click", function () {
+          image1.style.backgroundColor = "#fff2b7";
+          link1.style.backgroundColor = "#dabb2f";
+        });
+      });
+      cursor.item(0).addEventListener("click", function () {
+        e_group.nonSelected();
+        cursor.item(0).style.backgroundColor = "#dabb2f";
+      });
+      eraser1.item(0).addEventListener("click", function () {
+        e_group.nonSelected();
+        eraser1.item(0).style.backgroundColor = "#dabb2f";
+        var nomal_eraser = window_e.document.getElementById("nomal_eraser"),
+          all_eraser = window_e.document.getElementById("all_eraser");
+        nomal_eraser.addEventListener("click", function () {
+          nomal_eraser.style.backgroundColor = "#dabb2f";
+          all_eraser.style.backgroundColor = "#fff2b7";
+        });
+        all_eraser.addEventListener("click", function () {
+          nomal_eraser.style.backgroundColor = "#fff2b7";
+          all_eraser.style.backgroundColor = "#dabb2f";
+        });
+      });
+      fill.item(0).addEventListener("click", function () {
+        e_group.nonSelected();
+        fill.item(0).style.backgroundColor = "#dabb2f";
+      });
+
       this.colorPicker = window_e.document.createElement("input");
       this.colorPicker.setAttribute("type", "color");
       this.colorPicker.value = this.config.color || "#000000";
@@ -1975,6 +2138,41 @@ var getCSSAnimationManager = function () {
           )
         : (this.panel.style.opacity = 1);
       e_group.setCtxProp();
+    },
+    nonSelected: function () {
+      var pen = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option pen"
+        ),
+        lasso = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option lasso"
+        ),
+        text = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option text"
+        ),
+        figure = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option figure"
+        ),
+        image = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option image"
+        ),
+        cursor = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option cursor"
+        ),
+        eraser = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option eraser"
+        ),
+        fill = window_e.document.getElementsByClassName(
+          "bnoty_controls_draw_option fill"
+        );
+
+      pen.item(0).style.backgroundColor = "#fff2b7";
+      lasso.item(0).style.backgroundColor = "#fff2b7";
+      text.item(0).style.backgroundColor = "#fff2b7";
+      figure.item(0).style.backgroundColor = "#fff2b7";
+      image.item(0).style.backgroundColor = "#fff2b7";
+      cursor.item(0).style.backgroundColor = "#fff2b7";
+      eraser.item(0).style.backgroundColor = "#fff2b7";
+      fill.item(0).style.backgroundColor = "#fff2b7";
     },
     checkHistoryButtonStatus: function () {
       // 이전 다음 버튼 활성화 비활성화 체크
