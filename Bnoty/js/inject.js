@@ -1808,6 +1808,9 @@ var getCSSAnimationManager = function () {
         e_group.nonSelected();
         lasso.item(0).style.backgroundColor = "#dabb2f";
       });
+      var nomal_text_flag = false;
+      var boldText_flag = false;
+      var italicText_flag = false;
       text1.item(0).addEventListener("click", function () {
         e_group.nonSelected();
         text1.item(0).style.backgroundColor = "#dabb2f";
@@ -1815,19 +1818,32 @@ var getCSSAnimationManager = function () {
           boldText = window_e.document.getElementsByClassName("boldText"),
           italicText = window_e.document.getElementsByClassName("italicText");
         nomal_text.addEventListener("click", function () {
-          nomal_text.style.backgroundColor = "#dabb2f";
-          boldText.item(0).style.backgroundColor = "#fff2b7";
-          italicText.item(0).style.backgroundColor = "#fff2b7";
+          if(nomal_text_flag){
+            nomal_text.style.backgroundColor = "#fff2b7";
+            nomal_text_flag = false;
+          }
+          else {
+            nomal_text.style.backgroundColor = "#dabb2f";
+            nomal_text_flag = true;
+          }
         });
         boldText.item(0).addEventListener("click", function () {
-          nomal_text.style.backgroundColor = "#fff2b7";
-          boldText.item(0).style.backgroundColor = "#dabb2f";
-          italicText.item(0).style.backgroundColor = "#fff2b7";
+          if(boldText_flag){
+            boldText.item(0).style.backgroundColor = "#fff2b7";
+            boldText_flag = false;
+          }else {
+            boldText.item(0).style.backgroundColor = "#dabb2f";
+            boldText_flag = true;
+          }
         });
         italicText.item(0).addEventListener("click", function () {
-          nomal_text.style.backgroundColor = "#fff2b7";
-          boldText.item(0).style.backgroundColor = "#fff2b7";
-          italicText.item(0).style.backgroundColor = "#dabb2f";
+          if(italicText_flag){
+            italicText.item(0).style.backgroundColor = "#fff2b7";
+            italicText_flag = false;
+          }else {
+            italicText.item(0).style.backgroundColor = "#dabb2f";
+            italicText_flag = true;
+          }
         });
       });
       figure.item(0).addEventListener("click", function () {
