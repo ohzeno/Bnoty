@@ -96,7 +96,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -110,7 +110,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -124,7 +124,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -138,7 +138,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -152,7 +152,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -166,7 +166,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -180,7 +180,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -194,7 +194,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -208,7 +208,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -222,7 +222,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -236,7 +236,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -250,7 +250,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -264,7 +264,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -278,7 +278,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -337,7 +337,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
@@ -532,8 +532,10 @@
   display: none;
 }
 #bnoty.pen {
-  cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAA/UlEQVR42q2VPwrCMBhHvw4KguDYzQO4ibMODqJ4CF29gTfwCN7AK4h/FwUHQTdnB3EVcRER9ReSQCitbZIv8IaE8l4IJQmIfxTAE3zFJGAUl8AEtMEV9MGKK5ADIZiBilq7gDJHQOx8DsZgCtYq8gFF34CWH8GA5LmHKnIGXZ9AnFz4emAJHuDuGkiSi2Oqgjp4Ebn9RWnylti5/tg2YCW3DVjLbQJO8qwBZ3mWgJc8LeAt/xdgkScF2ORxAVZ5NMAuNwN5sOGWm4EmyceiAXZccjMwAkMl6pC8cr3lZmAPamr+BgcOuQ6I87+BE8mHYgG2pO5zjgCpCIswOn5C/GkjK7gzqwAAAABJRU5ErkJggg==)
-      2 7,
+  cursor: url(
+    data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAFxGAABcRgEUlENBAAAAG3RFWHRTb2Z0d2FyZQBDZWxzeXMgU3R1ZGlvIFRvb2zBp+F8AAAC9UlEQVRo3tXXXUhTYRjA8f+7nSkaYeYsi6BBN3UTTCqwLDQQCokguir6EpKuvKibLrqq226CiiAQKhmBRLBIVkJa0KLUwrqyD1NkONDRRU5dbnu7OIsz88xtx23n3Xtz4NnzHM5vz3k/jgAmgFNSyiBlOARwFOgDksAT4LyUcr5sAFJKhBAJwJGKJZr27nwc7Lt5EXf7QrkARoDGf0GXSyMWeooQYhDowN3+U3WAQ9Oc8WRSipPHDvDo7hUqKrT0vNfAOdztk0oCALo6j5/t6X31YGbMh9PhMMuNAsOpjowrB2D2uTPy63e8rnb9avmSyAvB/NdWvIFBtQA6YgBoMcnTJ3l8LsGsX2MpAjAIXMAbmFAJ0AIMmP3xTN3Rr8vHBNBqJ2I5YGUXlpBJDYHQAabDVoQZYHkXQvchuZjtPrYhVgKMLjSDdDB125HjvWxBmAMAxrpGmf+22+S9VwqRGfDpSIYJrRYiM0BHZFpWlUFkA3hSXfCoilgdUAaI7ADFEbkBFEbkDlAUkR9AQUT+AMUQ1gAKIawDDMQ7oMEuxNoACiDWDjAQQWBLqRGFARiIt8DWUiIKBzAQQ4DbQnUIaM4XUViAgRgBNlqongH25YMoPMBADAN1Fqqngf25IooDMBB9wC4L1VPAoVwQxQMYkB7gdLE6UXyAjpi2uE+E8Aa22Q/QERGLE/s70JapE6UD6IgYUFHIfaK0AB0xa3F1MkWUHqAjFoFKC5UfgT14A9JegI74A7jSInFAy1KVAJrwBobsB+iIOWBdLqlSIq/5a4TvQ/XkwpJ4BlwN93dH7QXoiChQnS3tcu8GfEPV6d26Hu7vvqECwAO8Bzalh2NxQaWmP1tnTy3+z1X/VyaBw/YDsnxPtN2q50vIpcBGlh1RB7yU0ChSoRP33ATHK2w+C+WH2B6Li3GXUzou+Wrxj1bZeBq1OBraOjw76uO+HzNak73H6bVDHgJnsq2uygJSiDCwOcPPUaBGaUAK8QY4aPbw4f7uxF9DoLslgW0q+gAAAABJRU5ErkJggg==
+    )
+       2 7,
     auto;
 }
 #bnoty.cross {
