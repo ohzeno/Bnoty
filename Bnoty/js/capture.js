@@ -224,7 +224,10 @@
         window.print();
         }),
         copyToClipboard.addEventListener("click", function () {
-        B(instruction, "visible");
+            var imgdata = document.getElementById("target").toDataURL();
+            console.log(imgdata);
+            navigator.clipboard.writeText(imgdata);
+            alert("이미지 URL을 복사했습니다! 이미지파일은 화면에서 복사하세요!");
         }),
         boxclose.addEventListener("click", function () {
         k(instruction, "visible");
