@@ -351,7 +351,7 @@
   height: 24px;
   z-index: 2147483647;
   /* right: 106px; */
-  border: 2px solid #eeeeee;
+  border: 1px solid #eeeeee;
   border-radius: 3px;
   display: inline-block;
   cursor: pointer;
