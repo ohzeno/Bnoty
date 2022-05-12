@@ -163,7 +163,8 @@ var getCSSAnimationManager = function () {
     //링크용함수
     linkX: null,
     linkY: null,
-    linkcount: 0, // 이건 저장해야함
+    linknumber: 0, // 링크저장용
+    linkarr: [],
     removeToast: null,
     toastElement: null,
     autoSave: null,
@@ -239,75 +240,83 @@ var getCSSAnimationManager = function () {
     },
     stopPainting: function (event) {
       // 마우스 클릭 버튼 떔
-      // console.log("stop들어옴");
-      if (this.activate == "curve") {
-        // 커브면 끝좌표 초기화 or 갱신
-        if (this.mX == null && this.mY == null) {
-          this.mX = event.offsetX;
-          this.mY = event.offsetY;
-          return; // 여기서는 끝좌표만 갱신하고 리턴해줘야 다음작업 가능
+      if (event.which === 1) {
+        //좌클릭 일 때만 그리기
+        // console.log("stop들어옴");
+        if (this.activate == "curve") {
+          // 커브면 끝좌표 초기화 or 갱신
+          if (this.mX == null && this.mY == null) {
+            this.mX = event.offsetX;
+            this.mY = event.offsetY;
+            return; // 여기서는 끝좌표만 갱신하고 리턴해줘야 다음작업 가능
+          }
+          this.mX = null;
+          this.mY = null;
+        } else if (this.activate == "lasso") {
+          if (this.lassosX > this.lassoeX) {
+            var tmp = this.lassosX;
+            this.lassosX = this.lassoeX;
+            this.lassoeX = tmp;
+            this.lassosubX = this.lassosX;
+          }
+          if (this.lassosY > this.lassoeY) {
+            var tmp = this.lassosY;
+            this.lassosY = this.lassoeY;
+            this.lassoeY = tmp;
+            this.lassosubY = this.lassosY;
+          }
+          if (this.saveLasso[1] == null && this.saveLasso[0] != null) {
+            this.saveLasso[1] = this.ctx.getImageData(
+              this.lassosX,
+              this.lassosY,
+              this.lassoeX - this.lassosX,
+              this.lassoeY - this.lassosY
+            );
+          } else if (this.saveLasso[1] != null) {
+            this.canvas.style.cursor = "crosshair";
+            this.lassosX = this.eX - (this.sX - this.lassosX);
+            this.lassosY = this.eY - (this.sY - this.lassosY);
+            (this.lassoeX = this.lassosX + this.saveLasso[1].width),
+              (this.lassoeY = this.lassosY + this.saveLasso[1].height);
+            this.ctx.putImageData(
+              this.saveLasso[1],
+              this.lassosX,
+              this.lassosY
+            );
+          }
         }
-        this.mX = null;
-        this.mY = null;
-      } else if (this.activate == "lasso") {
-        if (this.lassosX > this.lassoeX) {
-          var tmp = this.lassosX;
-          this.lassosX = this.lassoeX;
-          this.lassoeX = tmp;
-          this.lassosubX = this.lassosX;
+        if (this.activate != "lasso") {
+          (this.saveLasso[0] = null),
+            (this.saveLasso[1] = null),
+            (this.lassosX = null),
+            (this.lassosY = null),
+            (this.lassoeX = null),
+            (this.lassoeY = null),
+            (this.lassosubX = null),
+            (this.lassosubY = null);
         }
-        if (this.lassosY > this.lassoeY) {
-          var tmp = this.lassosY;
-          this.lassosY = this.lassoeY;
-          this.lassoeY = tmp;
-          this.lassosubY = this.lassosY;
-        }
-        if (this.saveLasso[1] == null && this.saveLasso[0] != null) {
-          this.saveLasso[1] = this.ctx.getImageData(
-            this.lassosX,
-            this.lassosY,
-            this.lassoeX - this.lassosX,
-            this.lassoeY - this.lassosY
-          );
-        } else if (this.saveLasso[1] != null) {
-          this.lassosX = this.eX - (this.sX - this.lassosX);
-          this.lassosY = this.eY - (this.sY - this.lassosY);
-          (this.lassoeX = this.lassosX + this.saveLasso[1].width),
-            (this.lassoeY = this.lassosY + this.saveLasso[1].height);
-          this.ctx.putImageData(this.saveLasso[1], this.lassosX, this.lassosY);
-        }
-      }
-      if (this.activate != "lasso") {
-        (this.saveLasso[0] = null),
-          (this.saveLasso[1] = null),
-          (this.lassosX = null),
-          (this.lassosY = null),
-          (this.lassoeX = null),
-          (this.lassoeY = null),
-          (this.lassosubX = null),
-          (this.lassosubY = null);
-      }
-      this.painting = false;
-      if (
-        this.activate != "text" &&
-        this.activate != "insert_link" &&
-        this.activate != "nothing" &&
-        this.saveLasso[0] == null
-      ) {
+        this.painting = false;
         if (
-          this.activate != "lasso" &&
-          this.activate != "fill" &&
-          this.sX == this.eX &&
-          this.sY == this.eY
-        )
-          return;
-        this.saveImage = this.ctx.getImageData(
-          0,
-          0,
-          this.canvas.width,
-          this.canvas.height
-        ); // 지금까지 그린 정보를 저장
-        this.addHistory();
+          this.activate != "text" &&
+          this.activate != "insert_link" &&
+          this.activate != "nothing" &&
+          this.saveLasso[0] == null
+        ) {
+          if (
+            this.activate != "lasso" &&
+            this.activate != "fill" &&
+            this.sX == this.eX &&
+            this.sY == this.eY
+          )
+            return;
+          this.saveImage = this.ctx.getImageData(
+            0,
+            0,
+            this.canvas.width,
+            this.canvas.height
+          ); // 지금까지 그린 정보를 저장
+          this.addHistory();
+        }
       }
     },
     leaveStopPainting: function () {
@@ -327,6 +336,7 @@ var getCSSAnimationManager = function () {
             this.lassosubY = this.lassosY;
           }
           if (this.saveLasso[1] != null || this.saveLasso[0] != null) {
+            this.canvas.style.cursor = "crosshair";
             this.ctx.putImageData(this.array[this.currentIndex], 0, 0);
             this.currentIndex--;
             (this.saveLasso[0] = null),
@@ -502,6 +512,7 @@ var getCSSAnimationManager = function () {
         } else if (this.activate == "lasso") {
           // 올가미
           if (this.saveLasso[1] != null) {
+            this.canvas.style.cursor = "move";
             this.ctx.clearRect(
               this.lassosubX,
               this.lassosubY,
@@ -725,8 +736,8 @@ var getCSSAnimationManager = function () {
 
       chrome.storage.onChanged.addListener(this.loadCanvasBinded);
     },
-    toast: function(string) {
-        const toast = document.getElementById("toast");
+    toast: function (string) {
+      const toast = document.getElementById("toast");
 
       toast.classList.contains("reveal")
         ? (clearTimeout(removeToast),
@@ -738,13 +749,94 @@ var getCSSAnimationManager = function () {
           }, 1000));
       toast.classList.add("reveal"), (toast.innerText = string);
     },
-    getConfig: async function() {
+    addLink: function (linkarray) {
+      linkarray.forEach((element) => {
+        // 링크 가져오기
+        var goto = element.link;
+        // 이미지 생성
+        var atag = window_e.document.createElement("a");
+        atag.setAttribute("id", "linkobject");
+        atag.setAttribute("target", "”_blank”");
+        atag.setAttribute("href", goto);
+        atag.setAttribute("linknumber", e_group.linknumber);
+        // 우클릭시 삭제하기
+        atag.addEventListener("contextmenu", function () {
+          const deletenum = this.getAttribute("linknumber");
+          const deleteindex = e_group.linkarr.findIndex(function (e) {
+            return e.num === deletenum;
+          });
+          e_group.linkarr.splice(deleteindex, 1);
+          console.log("삭제완료");
+          // console.log(e_group.linkarr);
+          this.remove();
+        });
+        atag.style.position = "absolute";
+        atag.style.width = 24 + "px";
+        atag.style.height = 24 + "px";
+        atag.style.left = element.x + "px";
+        atag.style.top = element.y + "px";
+        atag.style.zIndex = 2147483647;
 
+        var imgtag = window_e.document.createElement("img");
+        imgtag.setAttribute(
+          "src",
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAqRJREFUSEvFlU1sjFEUhp+DFklnusGKSBARNupnTVhq0x/aRtjMN9KdBaqNn0pJK7SNBYmFmG9sKuiQKbpVa0LYkDI2YlUrnSZCtUduvzvtnfHNTLto3N2999zznvO+55wrLPGSJfZPSQCluRKqGkHqgV3AehvQN+AtkIZsWhj6XSzQogCKdxjoAzaVzlK+gHQId5+E2f0DoDQvh8h14Mzi6NMB2NgpdM+470IAvIEC5+OgN0FHYPpz8LhyK3AI9CSwznHYL/gdRQEsLSnHYAiIC342LBvFiwA+cGT+XhqFRDq3n8sgEDTy0eF8CPxWAVVi9SCngD3BQ30Ny24IiWeKKRTvkQOSgeyOnPAOQKwV5IFFHge2mMgV7xrQWUSPq4J/QTkWhZUZYG1gJy1CwmQ/X6aKdx84aiO8KCR7beRz6YaDaJ2QfK54XcAVazMo+McLAcYAI55ZOwX/veK9BPaVqaZRwT+gxGtATW+YNSb42woAYlmQquB+VUS4Pam4Z0VhsoIftYJPWAYmhaQpAJeiPGfRgP8FAUwIfrXV4YcNY/asBEUzNcK9d0psFGR/GYpeCP7BBVDkiixdQqJHideBPi0NILVCYkSJXQK5XErkFuBhSJn2AueLVFCPkOxS2qrhjynTNVaDZiE527AFjRb9ALrZOkuB32IbrRbkNOje4E5egZhGGwkaLZYCabLvMrBiu3BnKg/AbJQTTTDz2Ik2Bb/iwqCtjvw8gsinfMe58dIgJIdzliHDLtYP0u64+g7cCobd6k/B+U/TLyYrM+wsLbPx9gmJvK4PAeheBl/NeDhbpnoKrqUPNpwrO65zr5R4A2i/mUllgDKg7S4trn2ZL7OtAqYNkPkyd4PaL1PMl/kGNA0VwzlBwwL5v5/+4jQIt/4LnsTlGQ5Eqh8AAAAASUVORK5CYII="
+        );
+
+        // 저장용 문자열
+        // var linkiconstr = e_group.linkX + " " + e_group.linkY + " " + goto;
+        var linkiobject = {}; // 저장용 객체
+        linkiobject.num = e_group.linknumber++;
+        linkiobject.x = element.x;
+        linkiobject.y = element.y;
+        linkiobject.link = goto;
+
+        e_group.linkarr.push(linkiobject);
+        //  console.error(linkiobject);
+
+        imgtag.setAttribute("alt", "IU");
+        imgtag.setAttribute("width", "24");
+        imgtag.setAttribute("height", "24");
+
+        // 추가
+        atag.appendChild(imgtag);
+        document.body.appendChild(atag);
+      });
+    },
+    getTime: function () {
+      let today = new Date();
+      let year = today.getFullYear();
+      let month = today.getMonth() + 1;
+      let date = today.getDate();
+      let day = today.getDay();
+      let hours = today.getHours();
+      let minutes = today.getMinutes();
+      let seconds = today.getSeconds();
+      let milliseconds = today.getMilliseconds();
+      return (
+        "" +
+        year +
+        month +
+        date +
+        day +
+        hours +
+        minutes +
+        seconds +
+        milliseconds
+      );
+    },
+    getConfig: async function () {
       var pageUrl = document.location.href;
+      await chrome.storage.local.get(["link" + pageUrl], function (result) {
+        console.log("linkarr :  ", result["link" + pageUrl]);
+        e_group.addLink(result["link" + pageUrl]);
+      });
+
       await chrome.storage.local.get(
         ["key" + pageUrl],
         async function (result) {
           var t = result["key" + pageUrl];
+          console.log("t : ", t);
           if (t) {
             var subt = t.substring(0, 30);
           }
@@ -775,7 +867,7 @@ var getCSSAnimationManager = function () {
         e_group.canvas.height
       ); // 지금까지 그린 정보를 저장
       await chrome.storage.local.clear();
-     //await e_group.addHistory2();
+      //await e_group.addHistory2();
     },
     get_time: async function () {
       let today = new Date();
@@ -808,18 +900,21 @@ var getCSSAnimationManager = function () {
       function auto_save() {
         e_group.autoSave = setInterval(() => {
           this.pageUrl = document.location.href;
+          var time = e_group.getTime();
           chrome.runtime.sendMessage(
             {
               method: "save",
               config: e_group.canvas.toDataURL(),
               url: this.pageUrl,
+              link: e_group.linkarr,
+              time: time,
             },
             (response) => {
               console.log("[popup.js] chrome.runtime.sendMessage()");
             }
           );
           e_group.toast("자동 저장");
-        }, 30000);
+        }, 180000);
       }
       auto_save();
     },
@@ -920,19 +1015,29 @@ var getCSSAnimationManager = function () {
       console.log("addHistory");
       this.histories.add(this.saveImage);
       console.log("addhistory : ", e_group.currentIndex);
-      // var pageUrl = document.location.href;
-      // chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
-      //   console.log("[popup.js] chrome.runtime.sendMessage()");
-      // });
-      // 여기서 버튼 디스에이블하는것도 해줘야함
+      var pageUrl = document.location.href;
+      var time = e_group.getTime();
+      chrome.runtime.sendMessage(
+        {
+          method: "localSave",
+          config: e_group.canvas.toDataURL(),
+          url: pageUrl,
+          link: e_group.linkarr,
+          time: time,
+        },
+        (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage()");
+        }
+      );
+      //여기서 버튼 디스에이블하는것도 해줘야함
       this.checkHistoryButtonStatus();
     },
-    addHistory2: function () {
-      console.log("addHistory");
-      this.histories.add(this.saveImage);
-      console.log("addhistory : ", e_group.currentIndex);
-      // 여기서 버튼 디스에이블하는것도 해줘야함
-    },
+    // addHistory2: function () {
+    //   console.log("addHistory");
+    //   this.histories.add(this.saveImage);
+    //   console.log("addhistory : ", e_group.currentIndex);
+    //   // 여기서 버튼 디스에이블하는것도 해줘야함
+    // },
     setCtxProp: function () {
       console.log("inject.js e 내부 setCtxProp");
       this.ctx.strokeStyle = this.strokeStyle; // 선 색
@@ -1057,7 +1162,7 @@ var getCSSAnimationManager = function () {
       penBox.setAttribute("class", "pen_box");
       penBox.setAttribute("id", "penBox");
       var textBox = window_e.document.createElement("div"); // text
-      textBox.setAttribute("class", "pen_box");
+      textBox.setAttribute("class", "text_box");
       textBox.setAttribute("id", "textBox");
       var figureBox = window_e.document.createElement("div"); // figure
       figureBox.setAttribute("class", "pen_box");
@@ -1118,7 +1223,9 @@ var getCSSAnimationManager = function () {
           box.appendChild(textBox);
           var text = window_e.document.createElement("div"),
             boldText = window_e.document.createElement("div"),
-            italicText = window_e.document.createElement("div");
+            italicText = window_e.document.createElement("div"),
+            fontText = window_e.document.createElement("div"),
+            fontSize = window_e.document.createElement("div");
           text.setAttribute("class", "text");
           text.setAttribute("id", "text");
           text.setAttribute("title", "Input Text");
@@ -1148,9 +1255,69 @@ var getCSSAnimationManager = function () {
             }
             e_group.removeClass(e_group.canvas, "cursor");
           });
+
+          fontSize.setAttribute("class", "fontSize");
+          fontSize.setAttribute("id", "fontSize");
+          fontSize.setAttribute("title", "FontSize");
+
+          var input = window.document.createElement("input");
+          input.setAttribute("id", "jsFontSize");
+          input.setAttribute("type", "number");
+          input.setAttribute("value", "20");
+          input.style.width = "80px";
+          // window.document.body.appendChild(input);
+          // input.style = `position: absolute; top: 60px; left: 380px; z-index: 2147483647;`;
+          fontSize.appendChild(input);
+          input.addEventListener("input", function () {
+            e_group.size = document.getElementById("jsFontSize").value + "px";
+          });
+
+          fontText.setAttribute("class", "fontText");
+          fontText.setAttribute("id", "fontText");
+          fontText.setAttribute("title", "Font");
+
+          var select = window.document.createElement("select");
+          select.setAttribute("id", "jsFont");
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "sans-serif");
+          var optText = window.document.createTextNode("고딕체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "monospace");
+          var optText = window.document.createTextNode("바탕체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "serif");
+          var optText = window.document.createTextNode("명조체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "cursive");
+          var optText = window.document.createTextNode("손글씨");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          var opt = window.document.createElement("option");
+          opt.setAttribute("value", "fantasy");
+          var optText = window.document.createTextNode("화려체");
+          opt.appendChild(optText);
+          select.appendChild(opt);
+          window.document.body.appendChild(select);
+          select.style.width = "80px";
+
+          select.addEventListener("input", function () {
+            e_group.font = document.getElementById("jsFont").value;
+          });
+          // select.style = `position: absolute; top: 60px; left: 600px; z-index: 2147483647;`;
+
+          fontText.appendChild(select);
+
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
+          textBox.appendChild(fontSize);
+          textBox.appendChild(fontText);
           window_e.document.getElementById("textBox").style.display = "none";
         }
 
@@ -1710,9 +1877,19 @@ var getCSSAnimationManager = function () {
 
       save.addEventListener("click", function () {
         var pageUrl = document.location.href;
-        chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
-          console.log("[popup.js] chrome.runtime.sendMessage()");
-        });
+        var time = e_group.getTime();
+        chrome.runtime.sendMessage(
+          {
+            method: "save",
+            config: e_group.canvas.toDataURL(),
+            url: pageUrl,
+            link: e_group.linkarr,
+            time: time,
+          },
+          (response) => {
+            console.log("[popup.js] chrome.runtime.sendMessage()");
+          }
+        );
         e_group.toast("저장");
       });
 
@@ -1978,6 +2155,7 @@ var getCSSAnimationManager = function () {
     },
     exit: function () {
       console.log("inject.js e 내부 exit");
+      e_group.deleteLink();
       e_group.clearLasso();
       e_group.handleMouseClick();
       this.canvas.parentNode.removeChild(this.canvas);
@@ -2032,6 +2210,8 @@ var getCSSAnimationManager = function () {
       clearInterval(this.autoSave);
       this.autoSave = null;
       this.top_box = null;
+      this.linkarr = [];
+      this.linknumber = 0;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
         ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
@@ -2145,9 +2325,19 @@ var getCSSAnimationManager = function () {
 
       // 이미지 생성
       var atag = window_e.document.createElement("a");
+      atag.setAttribute("id", "linkobject");
       atag.setAttribute("target", "”_blank”");
       atag.setAttribute("href", goto);
+      atag.setAttribute("linknumber", e_group.linknumber);
+      // 우클릭시 삭제하기
       atag.addEventListener("contextmenu", function () {
+        const deletenum = this.getAttribute("linknumber");
+        const deleteindex = e_group.linkarr.findIndex(function (e) {
+          return e.num === deletenum;
+        });
+        e_group.linkarr.splice(deleteindex, 1);
+        console.log("삭제완료");
+        // console.log(e_group.linkarr);
         this.remove();
       });
       atag.style.position = "absolute";
@@ -2160,8 +2350,22 @@ var getCSSAnimationManager = function () {
       var imgtag = window_e.document.createElement("img");
       imgtag.setAttribute(
         "src",
-        "https://media.discordapp.net/attachments/962708703277096990/971929994261573632/points.png"
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAqRJREFUSEvFlU1sjFEUhp+DFklnusGKSBARNupnTVhq0x/aRtjMN9KdBaqNn0pJK7SNBYmFmG9sKuiQKbpVa0LYkDI2YlUrnSZCtUduvzvtnfHNTLto3N2999zznvO+55wrLPGSJfZPSQCluRKqGkHqgV3AehvQN+AtkIZsWhj6XSzQogCKdxjoAzaVzlK+gHQId5+E2f0DoDQvh8h14Mzi6NMB2NgpdM+470IAvIEC5+OgN0FHYPpz8LhyK3AI9CSwznHYL/gdRQEsLSnHYAiIC342LBvFiwA+cGT+XhqFRDq3n8sgEDTy0eF8CPxWAVVi9SCngD3BQ30Ny24IiWeKKRTvkQOSgeyOnPAOQKwV5IFFHge2mMgV7xrQWUSPq4J/QTkWhZUZYG1gJy1CwmQ/X6aKdx84aiO8KCR7beRz6YaDaJ2QfK54XcAVazMo+McLAcYAI55ZOwX/veK9BPaVqaZRwT+gxGtATW+YNSb42woAYlmQquB+VUS4Pam4Z0VhsoIftYJPWAYmhaQpAJeiPGfRgP8FAUwIfrXV4YcNY/asBEUzNcK9d0psFGR/GYpeCP7BBVDkiixdQqJHideBPi0NILVCYkSJXQK5XErkFuBhSJn2AueLVFCPkOxS2qrhjynTNVaDZiE527AFjRb9ALrZOkuB32IbrRbkNOje4E5egZhGGwkaLZYCabLvMrBiu3BnKg/AbJQTTTDz2Ik2Bb/iwqCtjvw8gsinfMe58dIgJIdzliHDLtYP0u64+g7cCobd6k/B+U/TLyYrM+wsLbPx9gmJvK4PAeheBl/NeDhbpnoKrqUPNpwrO65zr5R4A2i/mUllgDKg7S4trn2ZL7OtAqYNkPkyd4PaL1PMl/kGNA0VwzlBwwL5v5/+4jQIt/4LnsTlGQ5Eqh8AAAAASUVORK5CYII="
       );
+
+      // 저장용 문자열
+      // var linkiconstr = e_group.linkX + " " + e_group.linkY + " " + goto;
+      var linkiobject = {}; // 저장용 객체
+      linkiobject.num = e_group.linknumber++;
+      linkiobject.x = e_group.linkX;
+      linkiobject.y = e_group.linkY;
+      linkiobject.link = goto;
+
+      e_group.linkarr.push(linkiobject);
+      // console.error(linkiconstr);
+      console.error(linkiobject);
+      // console.error(e_group.linkarr);
+
       imgtag.setAttribute("alt", "IU");
       imgtag.setAttribute("width", "24");
       imgtag.setAttribute("height", "24");
@@ -2198,60 +2402,74 @@ var getCSSAnimationManager = function () {
         window_e.document.getElementById("saveBox").style.display = "none";
       }
     },
-        // 현재 화면 캡처
-        ScreencaptureStart: function () {
-          console.log("현재화면 캡처");
-          e_group.hideControlPanel();
-          window_e.setTimeout(function () {
-            chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
-              console.log(response.farewell);
-            });
-          }, 100);
-          window_e.setTimeout(function () {
-            e_group.showControlPanel();
-          }, 500);
-        },
-        // 전체 화면 캡처
-        FullcaptureStart: function () {
-          console.log("전체화면 캡처");
-          e_group.hideControlPanel();
-          window_e.setTimeout(function () {
-            chrome.runtime.sendMessage(
-              { method: "FullcaptureStart" },
-              (response) => {
-                console.log(response.farewell);
-              }
-            );
-          }, 100);
-        },
-        // 창 전환
-        updateScreenshot: function (t, n) {
-          var a = arguments[2];
-          if (a == null) {
-            a = 0;
+    // 현재 화면 캡처
+    ScreencaptureStart: function () {
+      console.log("현재화면 캡처");
+      e_group.hideControlPanel();
+      window_e.setTimeout(function () {
+        chrome.runtime.sendMessage({ method: "ShowCapture" }, (response) => {
+          console.log(response.farewell);
+        });
+      }, 100);
+      window_e.setTimeout(function () {
+        e_group.showControlPanel();
+      }, 500);
+    },
+    // 전체 화면 캡처
+    FullcaptureStart: function () {
+      console.log("전체화면 캡처");
+      e_group.hideControlPanel();
+      window_e.setTimeout(function () {
+        chrome.runtime.sendMessage(
+          { method: "FullcaptureStart" },
+          (response) => {
+            console.log(response.farewell);
           }
-          if (10 >= a) {
-            global.runtime.sendMessage(
-              {
-                method: "update_url",
-                url: t,
-              },
-              function (e) {
-                (e && e.success) ||
-                  window.setTimeout(
-                    Function.prototype.bind.call(
-                      Bnoty.updateScreenshot,
-                      Bnoty,
-                      t,
-                      n,
-                      ++a
-                    ),
-                    300
-                  );
-              }
-            );
+        );
+      }, 100);
+    },
+    // 창 전환
+    updateScreenshot: function (t, n) {
+      var a = arguments[2];
+      if (a == null) {
+        a = 0;
+      }
+      if (10 >= a) {
+        global.runtime.sendMessage(
+          {
+            method: "update_url",
+            url: t,
+          },
+          function (e) {
+            (e && e.success) ||
+              window.setTimeout(
+                Function.prototype.bind.call(
+                  Bnoty.updateScreenshot,
+                  Bnoty,
+                  t,
+                  n,
+                  ++a
+                ),
+                300
+              );
           }
-        },
+        );
+      }
+    },
+    // 닫기 눌렀을 때 링크 전부 삭제하기
+    deleteLink: function () {
+      while (true) {
+        if (document.getElementById("linkobject")) {
+          document.getElementById("linkobject").remove();
+          // console.log("있음");
+        } else {
+          // console.log("없음");
+          break;
+        }
+      }
+      // 상후 TODO : 여기서 배열 저장해주면 됨
+      console.log(e_group.linkarr);
+    },
   };
   return e_group;
 });
