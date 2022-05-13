@@ -107,7 +107,8 @@ async function timeCompare(res, urlMessage) {
   var localLa = window.localStorage.getItem("link" + urlMessage);
   var localT = window.localStorage.getItem("time" + urlMessage);
   console.log("time : ", time, " localTs : ", localT);
-  console.log("localLinkarr : ", localLa);
+  console.log("localLinkarr : ", JSON.parse(localLa));
+  console.log("FBLinkarr : ", linkarr);
   if (parseInt(time) >= parseInt(localT)) {
     await chrome.storage.local.set(
       {
@@ -121,11 +122,10 @@ async function timeCompare(res, urlMessage) {
       }
     );
   } else {
-    linkarr = localLa;
     await chrome.storage.local.set(
       {
         ["key" + urlMessage]: localTs,
-        ["link" + urlMessage]: linkarr,
+        ["link" + urlMessage]: JSON.parse(localLa),
         ["userVol" + urlMessage]: 0,
         ["preVol" + urlMessage]: 0,
       },
@@ -158,9 +158,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
         console.log(info);
       }
     );
-    msg.link.forEach(function (x, y, link) {
-      console.log(x, y, link);
-    });
 
     if (email === "" || overVolume) {
       window.localStorage.setItem("key" + msg.url, msg.config);
