@@ -1,6 +1,6 @@
 var global;
 
-// global에 브라우저 할당
+// global is browser
 if ("undefined" != typeof chrome) {
   global = chrome;
 } else {
@@ -13,7 +13,7 @@ if ("undefined" != typeof chrome) {
 
 Bnoty = {
   init: function () {
-    // 크롬 익스텐션 아이콘 클릭되면 Bnoty.inject 실행
+    // Bnoty.inject execute when broswer cliked
     global.browserAction.onClicked.addListener(this.inject);
     global.runtime.onMessage.addListener(function (
       request,
@@ -21,13 +21,9 @@ Bnoty = {
       sendResponse
     ) {
       if (request.method === "ShowCapture") {
-        console.log("now page capture");
         Bnoty.screenShot(sendResponse);
         sendResponse({ farewell: "screenShot funcion is called" });
       } else if (request.method === "sendimg") {
-        console.log("~~~~~~sendimg print~~~ ");
-        // Bnoty.screenshot_full( sendResponse, request.dataUUU);
-        // console.error(request.dataUUU);
         var img = request.dataUUU;
         var o = chrome.extension.getURL("capture.html");
         chrome.tabs.query({}, function (e) {
@@ -71,9 +67,8 @@ Bnoty = {
           { active: true, currentWindow: true },
           function (tabs) {
             var tab = tabs[0];
-            currentTab = tab; // 탭 정보를 얻기 위해 나중에 호출할 때 사용됨
+            currentTab = tab; // For current tab information
             var filename = getFilename(tab.url);
-            console.log("filename : " + filename);
             CaptureAPI.captureToFiles(
               tab,
               filename,
@@ -98,20 +93,19 @@ Bnoty = {
           global.extension.lastError.message;
           try {
             alert(
-              "We are sorry, but the page you are viewing is not supported. Please try another page."
+              "Please try another page. we can't capture this page.."
             );
           } catch (e) {}
         }
-        // 현재 탭에 inject.js 삽입. activeTab 권한 있어야함.
+        // inject.js injection to current page / 
         global.tabs.executeScript(null, {
-          file: "/js/inject.js", // 상위폴더 background.html에서 실행되는거라 /js/ 붙음.
+          file: "/js/inject.js", 
         });
       }
     );
   },
-  // 현재 화면 캡처 함수 2
+  // capture function
   screenShot: function (i) {
-    console.log("[Background] ShowCapture");
     global.tabs.captureVisibleTab(function (img) {
       var o = global.extension.getURL("capture.html");
       global.tabs.query({}, function (e) {
@@ -122,10 +116,7 @@ Bnoty = {
               t = e[n];
               break;
             }
-
-        // 이미지 테스트
-        // var aa = "https://i2.tcafe2a.com/220427/cf582f5c59a78ed65decb42dcbee2883_1651006214_2591.jpg";
-
+        
         if (t) {
           global.tabs.update(
             t.id,
@@ -155,7 +146,7 @@ Bnoty = {
       });
     });
   },
-  // 창 전환
+  // update page function
   updateScreenshot: function (t, n) {
     var a = arguments[2];
     if (a == null) {
@@ -212,7 +203,6 @@ Bnoty = {
     });
   },
   showPanel: function () {
-    console.log("showPanel", global.tabs);
     global.tabs.executeScript({
       code: `console.log("hereis", window);window.bnoty.showControlPanel();`,
     });
@@ -221,10 +211,10 @@ Bnoty = {
 
 Bnoty.init();
 
-// 설정 메소드
-var currentTab; // 현재 활성 탭의 chrome.tabs.query 결과
-var resultWindowId; // 결과 이미지를 넣을 창 ID
-// 유틸
+// methods, variable 
+var currentTab; // current tab (chrome.tabs.query) 
+var resultWindowId; // tab id
+// util
 function $(id) {
   return document.getElementById(id);
 }
@@ -235,10 +225,8 @@ function hide(id) {
   $(id).style.display = "none";
 }
 
-// 현재 uRL 받아서 그냥 파일명만 바꿔주는 함수
+// change file name function
 function getFilename(contentURL) {
-  console.log("[popup.js] 2. getFilename (현재URL) ");
-  console.log(contentURL);
   var name = contentURL.split("?")[0].split("#")[0];
   if (name) {
     name = name
@@ -254,12 +242,10 @@ function getFilename(contentURL) {
   return "screencapture" + name + "-" + Date.now() + ".png";
 }
 
-//
 // Capture Handlers
 function displayCaptures(filenames) {
   if (!filenames || !filenames.length) {
     alert("Full Capture Error!");
-    // show('uh-oh');
     return;
   }
 
@@ -267,8 +253,6 @@ function displayCaptures(filenames) {
 }
 
 function _displayCapture(filenames, index) {
-  console.log("popup.js : _displayCapture ");
-  // console.log("완성된URL 이미지가아님 : " + filename);
   index = index || 0;
   var last = index === filenames.length - 1;
   if (!last) {
@@ -277,20 +261,18 @@ function _displayCapture(filenames, index) {
 }
 
 function errorHandler(reason) {
-  show("uh-oh"); // TODO - extra uh-oh info?
+  show("uh-oh"); 
 }
 
-// 로딩바
+// Loading bar 
 function progress(complete) {
   if (complete === 0) {
-    // Page capture has just been initiated.
     show("loading");
   } else {
     $("bar").style.width = parseInt(complete * 100, 10) + "%";
   }
 }
 
-// 이미지 분해
 function splitnotifier() {
   show("split-image");
 }
