@@ -223,7 +223,7 @@
       var imgdata = document.getElementById("target").toBlob(function (blob) {
         navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       });
-      alert("이미지를 복사했습니다!");
+      alert("COPY IMAGE!");
     }),
     boxclose.addEventListener("click", function () {
       k(instruction, "visible");
