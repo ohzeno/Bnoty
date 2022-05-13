@@ -839,7 +839,14 @@ var getCSSAnimationManager = function () {
       let minutes = today.getMinutes();
       let seconds = today.getSeconds();
       // let milliseconds = today.getMilliseconds();
-      return "" + year + month + date + hours + minutes + seconds;
+      var format =
+        year +
+        ("00" + month.toString()).slice(-2) +
+        ("00" + date.toString()).slice(-2) +
+        ("00" + hours.toString()).slice(-2) +
+        ("00" + minutes.toString()).slice(-2) +
+        ("00" + seconds.toString()).slice(-2);
+      return "" + format;
     },
     getConfig: async function () {
       var pageUrl = document.location.href;
