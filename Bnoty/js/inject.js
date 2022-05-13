@@ -171,6 +171,9 @@ var getCSSAnimationManager = function () {
     top_box: null,
     pageX: null,
     pageY: null,
+    userVol: null,
+    preVol: null,
+    calVol: null,
 
     startPainting: function (event) {
       event.preventDefault();
@@ -759,6 +762,20 @@ var getCSSAnimationManager = function () {
           }, 1000));
       toast.classList.add("reveal"), (toast.innerText = string);
     },
+    getVolume: function (str) {
+      const getByteLengthOfString = function (s, b, i, c) {
+        for (
+          b = i = 0;
+          (c = s.charCodeAt(i++));
+          b += c >> 11 ? 3 : c >> 7 ? 2 : 1
+        );
+        return b;
+      };
+
+      let vol = getByteLengthOfString(str);
+
+      return Math.ceil(vol / 1000); // 컴퓨터는 1024대신 1000을 사용
+    },
     addLink: function (linkarray) {
       linkarray.forEach((element) => {
         // 링크 가져오기
@@ -818,28 +835,35 @@ var getCSSAnimationManager = function () {
       let year = today.getFullYear();
       let month = today.getMonth() + 1;
       let date = today.getDate();
-      let day = today.getDay();
       let hours = today.getHours();
       let minutes = today.getMinutes();
       let seconds = today.getSeconds();
-      let milliseconds = today.getMilliseconds();
-      return (
-        "" +
-        year +
-        month +
-        date +
-        day +
-        hours +
-        minutes +
-        seconds +
-        milliseconds
-      );
+      // let milliseconds = today.getMilliseconds();
+      return "" + year + month + date + hours + minutes + seconds;
     },
     getConfig: async function () {
       var pageUrl = document.location.href;
       await chrome.storage.local.get(["link" + pageUrl], function (result) {
         console.log("linkarr :  ", result["link" + pageUrl]);
         e_group.addLink(result["link" + pageUrl]);
+      });
+
+      await chrome.storage.local.get(["userVol" + pageUrl], function (result) {
+        console.log("userVol :  ", result["userVol" + pageUrl]);
+        e_group.userVol = parseInt(result["userVol" + pageUrl]);
+        if (e_group.userVol != 0) {
+          e_group.calVol = Math.ceil(e_group.userVol / 100000);
+          window_e.document.getElementById("volume_percent").innerHTML =
+            e_group.calVol + "%";
+        } else {
+          window_e.document.getElementById("volume_percent").innerHTML =
+            "로컬 저장소";
+        }
+      });
+
+      await chrome.storage.local.get(["preVol" + pageUrl], function (result) {
+        console.log("preVol :  ", result["preVol" + pageUrl]);
+        e_group.preVol = result["preVol" + pageUrl];
       });
 
       await chrome.storage.local.get(
@@ -924,6 +948,17 @@ var getCSSAnimationManager = function () {
             }
           );
           e_group.toast("자동 저장");
+          if (e_group.userVol != 0) {
+            curVol = parseInt(e_group.getVolume(e_group.canvas.toDataURL()));
+            e_group.calVol = Math.ceil(
+              e_group.userVol - e_group.preVol + curVol / 100000
+            );
+            window_e.document.getElementById("volume_percent").innerHTML =
+              e_group.calVol + "%";
+          } else {
+            window_e.document.getElementById("volume_percent").innerHTML =
+              "로컬 저장소";
+          }
         }, 180000);
       }
       auto_save();
@@ -1155,8 +1190,10 @@ var getCSSAnimationManager = function () {
         controls = window_e.document.createElement("div"),
         transparency = window_e.document.createElement("div"),
         size_control = window_e.document.createElement("div"),
-        volumeReader = window_e.document.createElement("div");
+        volumeReader = window_e.document.createElement("div"),
+        volumePercent = window_e.document.createElement("div");
       this.panel.setAttribute("id", "bnoty_controls");
+      volumePercent.setAttribute("id", "volume_percent");
       tools.setAttribute("class", "bnoty_controls_draw");
       color.setAttribute("class", "bnoty_controls_color");
       controls.setAttribute("class", "bnoty_controls_control");
@@ -1193,7 +1230,9 @@ var getCSSAnimationManager = function () {
       this.panel.appendChild(transparency);
       this.panel.appendChild(size_control);
       this.panel.appendChild(volumeReader);
+      this.panel.appendChild(volumePercent);
       this.panel.appendChild(controls);
+
       for (var o = 0; o < this.drawOptions.length; o++) {
         var a = this.drawOptions[o],
           r = window_e.document.createElement("div");
@@ -1898,6 +1937,17 @@ var getCSSAnimationManager = function () {
           }
         );
         e_group.toast("저장");
+        if (e_group.userVol != 0) {
+          curVol = parseInt(e_group.getVolume(e_group.canvas.toDataURL()));
+          e_group.calVol = Math.ceil(
+            e_group.userVol - e_group.preVol + curVol / 100000
+          );
+          window_e.document.getElementById("volume_percent").innerHTML =
+            e_group.calVol + "%";
+        } else {
+          window_e.document.getElementById("volume_percent").innerHTML =
+            "로컬 저장소";
+        }
       });
 
       control_save.setAttribute("class", "bnoty_controls_control_option save");

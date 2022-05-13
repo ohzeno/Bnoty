@@ -24,6 +24,7 @@ console.log(firebase);
 let url;
 let email;
 let userVol;
+let pageVol;
 let overVolume = false;
 let linkarr = [];
 let time;
@@ -33,6 +34,7 @@ chrome.identity.getProfileUserInfo({ accountStatus: "ANY" }, function (info) {
   email = info.email;
   check = false;
   db.collection("Users")
+    .where("email", "==", email)
     .get()
     .then((response) => {
       response.forEach((doc) => {
@@ -88,12 +90,14 @@ async function getConfig(urlMessage) {
       linkarr = doc.get("link");
       testString = doc.get("config");
       time = doc.get("time");
+      pageVol = doc.get("volume");
     } // urlCheck end
   } else {
     console.log("로컬 파일 불러오기");
     testString = window.localStorage.getItem("key" + urlMessage);
     linkarr = window.localStorage.getItem("link" + urlMessage);
     time = window.localStorage.getItem("time" + urlMessage);
+    userVol = 0;
   }
   return testString;
 }
@@ -104,11 +108,13 @@ async function timeCompare(res, urlMessage) {
   var localT = window.localStorage.getItem("time" + urlMessage);
   console.log("time : ", time, " localTs : ", localT);
   console.log("localLinkarr : ", localLa);
-  if (time > localT) {
+  if (parseInt(time) > parseInt(localT)) {
     await chrome.storage.local.set(
       {
         ["key" + urlMessage]: res,
         ["link" + urlMessage]: linkarr,
+        ["userVol" + urlMessage]: userVol,
+        ["preVol" + urlMessage]: pageVol,
       },
       function () {
         console.log("chrome local set by FB: ", res);
@@ -120,6 +126,8 @@ async function timeCompare(res, urlMessage) {
       {
         ["key" + urlMessage]: localTs,
         ["link" + urlMessage]: linkarr,
+        ["userVol" + urlMessage]: 0,
+        ["preVol" + urlMessage]: 0,
       },
       function () {
         console.log("chrome local set by local: ", localTs);
@@ -163,6 +171,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
       url = msg.url;
       linkarr = msg.link;
       db.collection("Users")
+        .where("email", "==", email)
         .get()
         .then((response) => {
           response.forEach(async (doc) => {
@@ -242,7 +251,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                   console.log("uv : " + userVol);
                 } // urlcheck end
               } // overVolume end
-              return true;
+              return false;
             } // if email end
           });
         });
