@@ -1082,3 +1082,11 @@
   visibility: visible;
   transform: translate(-50%, 0);
 }
+
+#volume_percent {
+  display: block;
+  text-align: center;
+  font-size: 15px;
+  color: black;
+  padding-bottom: 5px;
+}

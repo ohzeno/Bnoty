@@ -182,6 +182,7 @@ var getCSSAnimationManager = function () {
           this.painting = false;
           return;
         }
+        // console.log("start들어옴");
         this.painting = true;
         this.sX = event.offsetX;
         this.sY = event.offsetY;
@@ -243,6 +244,7 @@ var getCSSAnimationManager = function () {
       // 마우스 클릭 버튼 떔
       if (event.which === 1) {
         //좌클릭 일 때만 그리기
+        // console.log("stop들어옴");
         if (this.activate == "curve") {
           // 커브면 끝좌표 초기화 or 갱신
           if (this.mX == null && this.mY == null) {
@@ -389,12 +391,15 @@ var getCSSAnimationManager = function () {
       if (this.activate == "lasso" && this.lassosX == null) {
         return;
       }
+      // console.log("좌표", x, y);
       if (!this.painting) {
+        // console.log("begin들어옴");
         // this.ctx.globalCompositeOperation = "destination-atop"; // 이 줄 추가로 펜선 안겹침. 즉 투명하게 그릴 수 있음. 기존엔 투명도 설정해도 계속 겹쳐서 불투명하게 그려짐. + 부작용> 두번째 그릴때 이전에 그린거 초기화됨. restore, buffer캔버스 사용해야 할 듯...
         this.ctx.beginPath();
         this.ctx.moveTo(this.eX, this.eY);
       } else {
         //그냥 else하면 filling 상태일 때 클릭하고 드래그하면 선 그려짐
+        // console.log("stroke들어옴");
         if (this.activate == "eraser") {
           // 부분 지우기
           // this.ctx.strokeRect(this.eX-this.ctx.lineWidth*1.49, this.eY-this.ctx.lineWidth*1.49, this.ctx.lineWidth*2.9, this.ctx.lineWidth*2.9);
@@ -581,6 +586,9 @@ var getCSSAnimationManager = function () {
       input.style.left = x + "px";
       input.style.top = y + "px";
       input.style.width = "500px";
+      // input.style.outline = "none";
+      // input.style.border = "none";
+      // input.style.backgroundColor = "transparent";
       input.style.opacity = "0.5";
       input.style.filter.opacity = "0.5";
       input.style.fontSize = e_group.size;
@@ -751,12 +759,94 @@ var getCSSAnimationManager = function () {
           }, 1000));
       toast.classList.add("reveal"), (toast.innerText = string);
     },
+    addLink: function (linkarray) {
+      linkarray.forEach((element) => {
+        // 링크 가져오기
+        var goto = element.link;
+        // 이미지 생성
+        var atag = window_e.document.createElement("a");
+        atag.setAttribute("id", "linkobject");
+        atag.setAttribute("target", "”_blank”");
+        atag.setAttribute("href", goto);
+        atag.setAttribute("linknumber", e_group.linknumber);
+        // 우클릭시 삭제하기
+        atag.addEventListener("contextmenu", function () {
+          const deletenum = this.getAttribute("linknumber");
+          const deleteindex = e_group.linkarr.findIndex(function (e) {
+            return e.num === deletenum;
+          });
+          e_group.linkarr.splice(deleteindex, 1);
+          console.log("삭제완료");
+          // console.log(e_group.linkarr);
+          this.remove();
+        });
+        atag.style.position = "absolute";
+        atag.style.width = 24 + "px";
+        atag.style.height = 24 + "px";
+        atag.style.left = element.x + "px";
+        atag.style.top = element.y + "px";
+        atag.style.zIndex = 2147483647;
+
+        var imgtag = window_e.document.createElement("img");
+        imgtag.setAttribute(
+          "src",
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAqRJREFUSEvFlU1sjFEUhp+DFklnusGKSBARNupnTVhq0x/aRtjMN9KdBaqNn0pJK7SNBYmFmG9sKuiQKbpVa0LYkDI2YlUrnSZCtUduvzvtnfHNTLto3N2999zznvO+55wrLPGSJfZPSQCluRKqGkHqgV3AehvQN+AtkIZsWhj6XSzQogCKdxjoAzaVzlK+gHQId5+E2f0DoDQvh8h14Mzi6NMB2NgpdM+470IAvIEC5+OgN0FHYPpz8LhyK3AI9CSwznHYL/gdRQEsLSnHYAiIC342LBvFiwA+cGT+XhqFRDq3n8sgEDTy0eF8CPxWAVVi9SCngD3BQ30Ny24IiWeKKRTvkQOSgeyOnPAOQKwV5IFFHge2mMgV7xrQWUSPq4J/QTkWhZUZYG1gJy1CwmQ/X6aKdx84aiO8KCR7beRz6YaDaJ2QfK54XcAVazMo+McLAcYAI55ZOwX/veK9BPaVqaZRwT+gxGtATW+YNSb42woAYlmQquB+VUS4Pam4Z0VhsoIftYJPWAYmhaQpAJeiPGfRgP8FAUwIfrXV4YcNY/asBEUzNcK9d0psFGR/GYpeCP7BBVDkiixdQqJHideBPi0NILVCYkSJXQK5XErkFuBhSJn2AueLVFCPkOxS2qrhjynTNVaDZiE527AFjRb9ALrZOkuB32IbrRbkNOje4E5egZhGGwkaLZYCabLvMrBiu3BnKg/AbJQTTTDz2Ik2Bb/iwqCtjvw8gsinfMe58dIgJIdzliHDLtYP0u64+g7cCobd6k/B+U/TLyYrM+wsLbPx9gmJvK4PAeheBl/NeDhbpnoKrqUPNpwrO65zr5R4A2i/mUllgDKg7S4trn2ZL7OtAqYNkPkyd4PaL1PMl/kGNA0VwzlBwwL5v5/+4jQIt/4LnsTlGQ5Eqh8AAAAASUVORK5CYII="
+        );
+
+        // 저장용 문자열
+        // var linkiconstr = e_group.linkX + " " + e_group.linkY + " " + goto;
+        var linkiobject = {}; // 저장용 객체
+        linkiobject.num = e_group.linknumber++;
+        linkiobject.x = element.x;
+        linkiobject.y = element.y;
+        linkiobject.link = goto;
+
+        e_group.linkarr.push(linkiobject);
+        //  console.error(linkiobject);
+
+        imgtag.setAttribute("alt", "IU");
+        imgtag.setAttribute("width", "24");
+        imgtag.setAttribute("height", "24");
+
+        // 추가
+        atag.appendChild(imgtag);
+        document.body.appendChild(atag);
+      });
+    },
+    getTime: function () {
+      let today = new Date();
+      let year = today.getFullYear();
+      let month = today.getMonth() + 1;
+      let date = today.getDate();
+      let day = today.getDay();
+      let hours = today.getHours();
+      let minutes = today.getMinutes();
+      let seconds = today.getSeconds();
+      let milliseconds = today.getMilliseconds();
+      return (
+        "" +
+        year +
+        month +
+        date +
+        day +
+        hours +
+        minutes +
+        seconds +
+        milliseconds
+      );
+    },
     getConfig: async function () {
       var pageUrl = document.location.href;
+      await chrome.storage.local.get(["link" + pageUrl], function (result) {
+        console.log("linkarr :  ", result["link" + pageUrl]);
+        e_group.addLink(result["link" + pageUrl]);
+      });
+
       await chrome.storage.local.get(
         ["key" + pageUrl],
         async function (result) {
           var t = result["key" + pageUrl];
+          console.log("t : ", t);
           if (t) {
             var subt = t.substring(0, 30);
           }
@@ -820,22 +910,26 @@ var getCSSAnimationManager = function () {
       function auto_save() {
         e_group.autoSave = setInterval(() => {
           this.pageUrl = document.location.href;
+          var time = e_group.getTime();
           chrome.runtime.sendMessage(
             {
               method: "save",
               config: e_group.canvas.toDataURL(),
               url: this.pageUrl,
+              link: e_group.linkarr,
+              time: time,
             },
             (response) => {
               console.log("[popup.js] chrome.runtime.sendMessage()");
             }
           );
           e_group.toast("자동 저장");
-        }, 30000);
+        }, 180000);
       }
       auto_save();
     },
     initCanvas: async function (t) {
+      console.log("inject.js e 내부 initCanvas");
       if (t) {
         await this.handleResize(!0);
         await this.ctx.drawImage(t, 0, 0);
@@ -853,6 +947,7 @@ var getCSSAnimationManager = function () {
       // this.storeHistory();
     },
     addMouseEventListener: function () {
+      console.log("inject.js e 내부 addMouseEventListener");
       var startPainting = Function.prototype.bind.call(
         this.startPainting,
         this
@@ -927,19 +1022,34 @@ var getCSSAnimationManager = function () {
     },
     // 작업마다 저장한거 관리하는 부분 종료 -----------------------------
     addHistory: function () {
+      console.log("addHistory");
       this.histories.add(this.saveImage);
-      // var pageUrl = document.location.href;
-      // chrome.runtime.sendMessage( { method : 'save', config : e_group.canvas.toDataURL(), url : pageUrl}, (response) => {
-      //   console.log("[popup.js] chrome.runtime.sendMessage()");
-      // });
-      // 여기서 버튼 디스에이블하는것도 해줘야함
+      console.log("addhistory : ", e_group.currentIndex);
+      var pageUrl = document.location.href;
+      var time = e_group.getTime();
+      chrome.runtime.sendMessage(
+        {
+          method: "localSave",
+          config: e_group.canvas.toDataURL(),
+          url: pageUrl,
+          link: e_group.linkarr,
+          time: time,
+        },
+        (response) => {
+          console.log("[popup.js] chrome.runtime.sendMessage()");
+        }
+      );
+      //여기서 버튼 디스에이블하는것도 해줘야함
       this.checkHistoryButtonStatus();
     },
-    addHistory2: function () {
-      this.histories.add(this.saveImage);
-      // 여기서 버튼 디스에이블하는것도 해줘야함
-    },
+    // addHistory2: function () {
+    //   console.log("addHistory");
+    //   this.histories.add(this.saveImage);
+    //   console.log("addhistory : ", e_group.currentIndex);
+    //   // 여기서 버튼 디스에이블하는것도 해줘야함
+    // },
     setCtxProp: function () {
+      console.log("inject.js e 내부 setCtxProp");
       this.ctx.strokeStyle = this.strokeStyle; // 선 색
       this.ctx.fillStyle = this.strokeStyle; // 채우기 색
       this.ctx.globalAlpha = this.globalAlpha; // 투명도
@@ -951,9 +1061,11 @@ var getCSSAnimationManager = function () {
       }
     },
     handlePanelAppearing: function (t) {
+      console.log("inject.js e 내부 handlePanelAppearing");
       t.target.style.opacity = 1;
     },
     hideControlPanel: function () {
+      console.log("inject.js e 내부 hideControlPanel", this.panel.parentNode);
       this.addClass(this.panel.parentNode, "hide");
       this.controlPanelHidden = !0;
       "undefined" != typeof unsafeWindow &&
@@ -961,6 +1073,7 @@ var getCSSAnimationManager = function () {
         (unsafeWindow.CTRL_HIDDEN = !0);
     },
     showControlPanel: function () {
+      console.log("inject.js e 내부 showControlPanel", this.panel.parentNode);
       this.removeClass(this.panel.parentNode, "hide");
       this.controlPanelHidden = !1;
       "undefined" != typeof unsafeWindow &&
@@ -971,6 +1084,7 @@ var getCSSAnimationManager = function () {
       // 사이즈조절. 삼항, 콤마> if문으로 어느정도 변경
       // store, restore는 아직 없어서 주석해둠.
       // paragraph는 아직 해석못함.
+      // console.log("resize");
       var e = !1,
         i = window_e.pageYOffset || document.documentElement.scrollTop,
         n =
@@ -1040,13 +1154,15 @@ var getCSSAnimationManager = function () {
         color = window_e.document.createElement("div"),
         controls = window_e.document.createElement("div"),
         transparency = window_e.document.createElement("div"),
-        size_control = window_e.document.createElement("div");
+        size_control = window_e.document.createElement("div"),
+        volumeReader = window_e.document.createElement("div");
       this.panel.setAttribute("id", "bnoty_controls");
       tools.setAttribute("class", "bnoty_controls_draw");
       color.setAttribute("class", "bnoty_controls_color");
       controls.setAttribute("class", "bnoty_controls_control");
       transparency.setAttribute("class", "bnoty_controls_range alpha_control");
       size_control.setAttribute("class", "bnoty_controls_range size_control");
+      volumeReader.setAttribute("class", "bnoty_controls_range volume_control");
 
       var box = window_e.document.createElement("div");
       box.setAttribute("class", "top_box");
@@ -1076,6 +1192,7 @@ var getCSSAnimationManager = function () {
       this.panel.appendChild(color);
       this.panel.appendChild(transparency);
       this.panel.appendChild(size_control);
+      this.panel.appendChild(volumeReader);
       this.panel.appendChild(controls);
       for (var o = 0; o < this.drawOptions.length; o++) {
         var a = this.drawOptions[o],
@@ -1767,11 +1884,14 @@ var getCSSAnimationManager = function () {
 
       save.addEventListener("click", function () {
         var pageUrl = document.location.href;
+        var time = e_group.getTime();
         chrome.runtime.sendMessage(
           {
             method: "save",
             config: e_group.canvas.toDataURL(),
             url: pageUrl,
+            link: e_group.linkarr,
+            time: time,
           },
           (response) => {
             console.log("[popup.js] chrome.runtime.sendMessage()");
