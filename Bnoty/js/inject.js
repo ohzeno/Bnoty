@@ -168,9 +168,10 @@ var getCSSAnimationManager = function () {
     top_box: null,
     pageX: null,
     pageY: null,
-    userVol: null,
-    preVol: null,
-    calVol: null,
+    nomal_text_flag: Boolean(false),
+    boldText_flag: Boolean(false),
+    italicText_flag: Boolean(false),
+    nomal_text: null,
 
     startPainting: function (event) {
       event.preventDefault();
@@ -1197,6 +1198,17 @@ var getCSSAnimationManager = function () {
             e_group.activate = "text";
             e_group.canvas.style.cursor = "default";
             e_group.removeClass(e_group.canvas, "cursor");
+
+            var nomal_text = window_e.document.getElementById("text");
+            if(e_group.nomal_text_flag){
+              nomal_text.style.backgroundColor = "#fff2b7";
+              e_group.nomal_text_flag = Boolean(false);
+              console.log("눌리기는 하냐1", e_group.nomal_text_flag);
+            }else {
+              nomal_text.style.backgroundColor = "#dabb2f";
+              e_group.nomal_text_flag = Boolean(true);
+              console.log("눌리기는 하냐2", e_group.nomal_text_flag);
+            }
           });
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
@@ -1208,6 +1220,14 @@ var getCSSAnimationManager = function () {
               e_group.boldtext = "bold";
             }
             e_group.removeClass(e_group.canvas, "cursor");
+            var boldText = window_e.document.getElementsByClassName("boldText");
+            if(e_group.boldText_flag){
+              boldText.item(0).style.backgroundColor = "#fff2b7";
+              e_group.boldText_flag = Boolean(false);
+            }else {
+              boldText.item(0).style.backgroundColor = "#dabb2f";
+              e_group.boldText_flag = Boolean(true);
+            }
           });
           italicText.setAttribute("class", "italicText");
           italicText.setAttribute("id", "italicText");
@@ -1219,6 +1239,15 @@ var getCSSAnimationManager = function () {
               e_group.italictext = "italic";
             }
             e_group.removeClass(e_group.canvas, "cursor");
+
+            var italicText = window_e.document.getElementsByClassName("italicText");
+            if(e_group.italicText_flag){
+              italicText.item(0).style.backgroundColor = "#fff2b7";
+              e_group.italicText_flag = Boolean(false);
+            }else {
+              italicText.item(0).style.backgroundColor = "#dabb2f";
+              e_group.italicText_flag = Boolean(true);
+            }
           });
 
           fontSize.setAttribute("class", "fontSize");
@@ -1753,42 +1782,9 @@ var getCSSAnimationManager = function () {
         e_group.nonSelected();
         lasso.item(0).style.backgroundColor = "#dabb2f";
       });
-      var nomal_text_flag = false;
-      var boldText_flag = false;
-      var italicText_flag = false;
       text1.item(0).addEventListener("click", function () {
         e_group.nonSelected();
         text1.item(0).style.backgroundColor = "#dabb2f";
-        var nomal_text = window_e.document.getElementById("text"),
-          boldText = window_e.document.getElementsByClassName("boldText"),
-          italicText = window_e.document.getElementsByClassName("italicText");
-        nomal_text.addEventListener("click", function () {
-          if (nomal_text_flag) {
-            nomal_text.style.backgroundColor = "#fff2b7";
-            nomal_text_flag = false;
-          } else {
-            nomal_text.style.backgroundColor = "#dabb2f";
-            nomal_text_flag = true;
-          }
-        });
-        boldText.item(0).addEventListener("click", function () {
-          if (boldText_flag) {
-            boldText.item(0).style.backgroundColor = "#fff2b7";
-            boldText_flag = false;
-          } else {
-            boldText.item(0).style.backgroundColor = "#dabb2f";
-            boldText_flag = true;
-          }
-        });
-        italicText.item(0).addEventListener("click", function () {
-          if (italicText_flag) {
-            italicText.item(0).style.backgroundColor = "#fff2b7";
-            italicText_flag = false;
-          } else {
-            italicText.item(0).style.backgroundColor = "#dabb2f";
-            italicText_flag = true;
-          }
-        });
       });
       figure.item(0).addEventListener("click", function () {
         e_group.nonSelected();
@@ -2092,6 +2088,17 @@ var getCSSAnimationManager = function () {
         : (this.panel.style.opacity = 1);
       e_group.setCtxProp();
     },
+    textClick: function () {
+      if(e_group.nomal_text_flag){
+        e_group.nomal_text.style.backgroundColor = "#fff2b7";
+        e_group.nomal_text_flag = Boolean(false);
+        console.log("눌리기는 하냐1", e_group.nomal_text_flag);
+      }else {
+        nomal_text.style.backgroundColor = "#dabb2f";
+        e_group.nomal_text_flag = Boolean(true);
+        console.log("눌리기는 하냐2", e_group.nomal_text_flag);
+      }
+    },
     nonSelected: function () {
       var pen = window_e.document.getElementsByClassName(
           "bnoty_controls_draw_option pen"
@@ -2386,6 +2393,27 @@ var getCSSAnimationManager = function () {
     init: function () {
       (this.CSSAnimationManager = getCSSAnimationManager()),
         (this.renderBinded = Function.prototype.bind.call(this.render, this)),
+        // (this.handlePostMessageResponseBinded = Function.prototype.bind.call(
+        //   this.handlePostMessageResponse,
+        //   this
+        // )), // 이건 this에 handlePostMessageResponseBinded 속성을 새로 선언하면서 그 속성에 this.handlePostMessageResponse를 할당하는데, handlePostMessageResponse 내부의 this에 call의 두번째 인자가 할당됨. 즉 앞으로 this.handlePostMessageResponseBinded(xxx)를 사용하면 handlePostMessageResponse(xxx)랑 같음. call 두번째 인자도 this 됐으니까. this.handlePostMessageResponseBinded가 어디서 호출된건 안보이는데, e를 리턴해주니까 그쪽에서 쓰겠지 뭐...
+        // (this.keydownBinded = Function.prototype.bind.call(
+        //   this.handleKeyDown,
+        //   this
+        // )),
+        // (this.keypressBinded = Function.prototype.bind.call(
+        //   this.handleKeyPress,
+        //   this
+        // )),
+        // (this.handleHotKeysDownBinded = Function.prototype.bind.call(
+        //   this.handleHotKeysDown,
+        //   this
+        // )),
+        // (this.persistLocalStorageBinded = Function.prototype.bind.call(
+        //   this.persistLocalStorage,
+        //   this
+        // )),
+        (this.textClick = Function.prototype.bind.call(this.textClick, this)),
         (this.resizeBinded = Function.prototype.bind.call(function () {
           this.resizeTimeoutID &&
             (this.resizeTimeoutID = window_e.clearTimeout(
