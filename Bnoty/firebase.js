@@ -108,7 +108,7 @@ async function timeCompare(res, urlMessage) {
   var localT = window.localStorage.getItem("time" + urlMessage);
   console.log("time : ", time, " localTs : ", localT);
   console.log("localLinkarr : ", localLa);
-  if (parseInt(time) > parseInt(localT)) {
+  if (parseInt(time) >= parseInt(localT)) {
     await chrome.storage.local.set(
       {
         ["key" + urlMessage]: res,
