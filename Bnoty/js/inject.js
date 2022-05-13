@@ -792,6 +792,9 @@ var getCSSAnimationManager = function () {
                 atag.setAttribute("target", "”_blank”");
                 atag.setAttribute("href", goto);
                 atag.setAttribute("linknumber", e_group.linknumber);
+                atag.addEventListener("contextmenu", function (e) {
+                    e.preventDefault();
+                });
                 atag.addEventListener("contextmenu", function () {
                     const deletenum = this.getAttribute("linknumber");
                     const deleteindex = e_group.linkarr.findIndex(function (e) {
@@ -2177,8 +2180,7 @@ var getCSSAnimationManager = function () {
             var captureBtn = window_e.document.createElement("div"),
                 exitBtn = window_e.document.createElement("div"),
                 control_save = window_e.document.createElement("div"),
-                control_hide = window_e.document.createElement("div"),
-                p = window_e.document.createElement("div");
+                control_hide = window_e.document.createElement("div");
             captureBtn.setAttribute(
                 "class",
                 "bnoty_controls_control_option prtBtn"
@@ -2332,8 +2334,6 @@ var getCSSAnimationManager = function () {
                 "title",
                 "Hide control panel (Click the extension icon to re-open)"
             );
-            p.setAttribute("class", "settingsBtn");
-            p.setAttribute("title", "Settings");
             captureBtn.addEventListener(
                 "click",
                 Function.prototype.bind.call(this.onPrintButtonClick, this)
@@ -2352,7 +2352,6 @@ var getCSSAnimationManager = function () {
             controls.appendChild(captureBtn);
             controls.appendChild(control_hide);
             controls.appendChild(exitBtn);
-            controls.appendChild(p);
             this.checkHistoryButtonStatus(); 
             this.CSSAnimationManager.supported
                 ? this.panel.addEventListener(
