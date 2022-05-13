@@ -1281,6 +1281,7 @@ var getCSSAnimationManager = function () {
           text.setAttribute("title", "Input Text");
           text.addEventListener("click", function () {
             e_group.activate = "text";
+            e_group.canvas.style.cursor = "default";
             e_group.removeClass(e_group.canvas, "cursor");
           });
           boldText.setAttribute("class", "boldText");
