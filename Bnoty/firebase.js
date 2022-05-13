@@ -19,7 +19,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-console.log(firebase);
+// console.log(firebase);
 
 let url;
 let email;
@@ -52,13 +52,6 @@ chrome.identity.getProfileUserInfo({ accountStatus: "ANY" }, function (info) {
     });
   console.log(info);
 });
-
-// async function getUrl(){
-//   await chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-//     url = tabs[0].url;
-//     console.log(url);
-//   })
-// };
 
 async function getConfig(urlMessage) {
   console.log("urlMessage : ", urlMessage);
@@ -144,7 +137,7 @@ async function getVolume(str) {
 
   let vol = getByteLengthOfString(str);
 
-  return Math.ceil(vol / 1000); // 컴퓨터는 1024대신 1000을 사용
+  return Math.ceil(vol / 1000); // 
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
@@ -213,7 +206,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                       user.update({
                         volume: configVol + userVol,
                       });
-                      // alert("자동저장")
                     })
                     .catch(function (error) {
                       console.error("Error writing document: ", error);
@@ -238,7 +230,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                       user.update({
                         volume: configVol + userVol - previousVol,
                       });
-                      // alert("자동저장")
                     })
                     .catch(function (error) {
                       console.error("Error writing document: ", error);
