@@ -1,7 +1,3 @@
-// /**
-//  * Copyright Liang Zhou
-//  * All rights reserved.
-//  */
 !(function () {
   var e =
       "undefined" != typeof chrome

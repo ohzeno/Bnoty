@@ -1,7 +1,3 @@
-/**
- * Copyright Liang Zhou
- * All rights reserved.
- */
 !(function () {
   var e = localStorage.getItem("config"),
     i = document.getElementsByTagName("input"),
