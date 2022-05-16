@@ -1952,13 +1952,13 @@ var getCSSAnimationManager = function () {
       this.backBtn.addEventListener("click", function () {
         if (e_group.histories.hasPrevious()) {
           e_group.ctx.putImageData(e_group.histories.previous(), 0, 0);
-          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
+          e_group.checkHistoryButtonStatus();
         }
       });
       this.nextBtn.addEventListener("click", function () {
         if (e_group.histories.hasNext()) {
           e_group.ctx.putImageData(e_group.histories.next(), 0, 0);
-          e_group.checkHistoryButtonStatus(); // 이전 다음 버튼 활성화 비활성화 체크
+          e_group.checkHistoryButtonStatus();
         }
       });
 
@@ -2344,26 +2344,6 @@ var getCSSAnimationManager = function () {
     init: function () {
       (this.CSSAnimationManager = getCSSAnimationManager()),
         (this.renderBinded = Function.prototype.bind.call(this.render, this)),
-        // (this.handlePostMessageResponseBinded = Function.prototype.bind.call(
-        //   this.handlePostMessageResponse,
-        //   this
-        // )), // 이건 this에 handlePostMessageResponseBinded 속성을 새로 선언하면서 그 속성에 this.handlePostMessageResponse를 할당하는데, handlePostMessageResponse 내부의 this에 call의 두번째 인자가 할당됨. 즉 앞으로 this.handlePostMessageResponseBinded(xxx)를 사용하면 handlePostMessageResponse(xxx)랑 같음. call 두번째 인자도 this 됐으니까. this.handlePostMessageResponseBinded가 어디서 호출된건 안보이는데, e를 리턴해주니까 그쪽에서 쓰겠지 뭐...
-        // (this.keydownBinded = Function.prototype.bind.call(
-        //   this.handleKeyDown,
-        //   this
-        // )),
-        // (this.keypressBinded = Function.prototype.bind.call(
-        //   this.handleKeyPress,
-        //   this
-        // )),
-        // (this.handleHotKeysDownBinded = Function.prototype.bind.call(
-        //   this.handleHotKeysDown,
-        //   this
-        // )),
-        // (this.persistLocalStorageBinded = Function.prototype.bind.call(
-        //   this.persistLocalStorage,
-        //   this
-        // )),
         (this.resizeBinded = Function.prototype.bind.call(function () {
           this.resizeTimeoutID &&
             (this.resizeTimeoutID = window_e.clearTimeout(
@@ -2390,18 +2370,18 @@ var getCSSAnimationManager = function () {
       atag.style.position = "absolute";
       atag.style.width = 280 + "px";
       atag.style.left = x + "px";
-      atag.style.top = y + "px";
+      atag.style.top = (y - 10) + "px";
       atag.style.zIndex = 2147483647;
       e_group.linkX = x;
-      e_group.linkY = y;
+      e_group.linkY = (y - 10);
       var input1 = window_e.document.createElement("input");
       input1.setAttribute("id", "linkinput");
       input1.setAttribute("type", "text");
-      input1.setAttribute("placeholder", "링크입력");
+      input1.setAttribute("placeholder", "PASTE LINK");
 
       var input2 = window_e.document.createElement("input");
       input2.setAttribute("type", "button");
-      input2.setAttribute("value", "확인");
+      input2.setAttribute("value", "Confirm");
       input2.addEventListener("click", this.linkclickfuntion);
 
       atag.appendChild(input1);
@@ -2443,7 +2423,7 @@ var getCSSAnimationManager = function () {
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAqRJREFUSEvFlU1sjFEUhp+DFklnusGKSBARNupnTVhq0x/aRtjMN9KdBaqNn0pJK7SNBYmFmG9sKuiQKbpVa0LYkDI2YlUrnSZCtUduvzvtnfHNTLto3N2999zznvO+55wrLPGSJfZPSQCluRKqGkHqgV3AehvQN+AtkIZsWhj6XSzQogCKdxjoAzaVzlK+gHQId5+E2f0DoDQvh8h14Mzi6NMB2NgpdM+470IAvIEC5+OgN0FHYPpz8LhyK3AI9CSwznHYL/gdRQEsLSnHYAiIC342LBvFiwA+cGT+XhqFRDq3n8sgEDTy0eF8CPxWAVVi9SCngD3BQ30Ny24IiWeKKRTvkQOSgeyOnPAOQKwV5IFFHge2mMgV7xrQWUSPq4J/QTkWhZUZYG1gJy1CwmQ/X6aKdx84aiO8KCR7beRz6YaDaJ2QfK54XcAVazMo+McLAcYAI55ZOwX/veK9BPaVqaZRwT+gxGtATW+YNSb42woAYlmQquB+VUS4Pam4Z0VhsoIftYJPWAYmhaQpAJeiPGfRgP8FAUwIfrXV4YcNY/asBEUzNcK9d0psFGR/GYpeCP7BBVDkiixdQqJHideBPi0NILVCYkSJXQK5XErkFuBhSJn2AueLVFCPkOxS2qrhjynTNVaDZiE527AFjRb9ALrZOkuB32IbrRbkNOje4E5egZhGGwkaLZYCabLvMrBiu3BnKg/AbJQTTTDz2Ik2Bb/iwqCtjvw8gsinfMe58dIgJIdzliHDLtYP0u64+g7cCobd6k/B+U/TLyYrM+wsLbPx9gmJvK4PAeheBl/NeDhbpnoKrqUPNpwrO65zr5R4A2i/mUllgDKg7S4trn2ZL7OtAqYNkPkyd4PaL1PMl/kGNA0VwzlBwwL5v5/+4jQIt/4LnsTlGQ5Eqh8AAAAASUVORK5CYII="
       );
 
-      var linkiobject = {}; // 저장용 객체
+      var linkiobject = {}; // 
       linkiobject.num = e_group.linknumber++;
       linkiobject.x = e_group.linkX;
       linkiobject.y = e_group.linkY;
