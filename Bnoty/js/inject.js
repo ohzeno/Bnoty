@@ -558,18 +558,17 @@ var getCSSAnimationManager = function () {
         if (!this.hasInput) {
           this.addInput(event.clientX, event.clientY);
           e_group.pageX = event.offsetX;
-          e_group.pageY = event.offsetY;
+          e_group.pageY = event.offsetY-Math.floor(e_group.size.replace("px", "")/2);
         }
       }
     },
     addInput: function (x, y) {
       var input = document.createElement("textarea");
-
       input.id = "textbox";
       input.type = "text";
       input.style.position = "fixed";
       input.style.left = x + "px";
-      input.style.top = y + "px";
+      input.style.top = y-Math.floor(e_group.size.replace("px", "")/2) + "px";
       input.style.width = "500px";
       input.style.opacity = "0.5";
       input.style.filter.opacity = "0.5";
