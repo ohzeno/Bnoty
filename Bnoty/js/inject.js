@@ -1187,7 +1187,8 @@ var getCSSAnimationManager = function () {
           });
           penBox.appendChild(tmp_pen);
           penBox.appendChild(highlighterPen);
-          window_e.document.getElementById("penBox").style.display = "none";
+          window_e.document.getElementById("penBox").style.display = "block";
+          tmp_pen.style.backgroundColor = "#dabb2f";
         }
 
         if (!window_e.document.getElementById("textBox")) {
