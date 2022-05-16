@@ -1170,11 +1170,17 @@ var getCSSAnimationManager = function () {
             e_group.activate = "pen";
             e_group.canvas.style.cursor = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAFxGAABcRgEUlENBAAAAG3RFWHRTb2Z0d2FyZQBDZWxzeXMgU3R1ZGlvIFRvb2zBp+F8AAAC9UlEQVRo3tXXXUhTYRjA8f+7nSkaYeYsi6BBN3UTTCqwLDQQCokguir6EpKuvKibLrqq226CiiAQKhmBRLBIVkJa0KLUwrqyD1NkONDRRU5dbnu7OIsz88xtx23n3Xtz4NnzHM5vz3k/jgAmgFNSyiBlOARwFOgDksAT4LyUcr5sAFJKhBAJwJGKJZr27nwc7Lt5EXf7QrkARoDGf0GXSyMWeooQYhDowN3+U3WAQ9Oc8WRSipPHDvDo7hUqKrT0vNfAOdztk0oCALo6j5/t6X31YGbMh9PhMMuNAsOpjowrB2D2uTPy63e8rnb9avmSyAvB/NdWvIFBtQA6YgBoMcnTJ3l8LsGsX2MpAjAIXMAbmFAJ0AIMmP3xTN3Rr8vHBNBqJ2I5YGUXlpBJDYHQAabDVoQZYHkXQvchuZjtPrYhVgKMLjSDdDB125HjvWxBmAMAxrpGmf+22+S9VwqRGfDpSIYJrRYiM0BHZFpWlUFkA3hSXfCoilgdUAaI7ADFEbkBFEbkDlAUkR9AQUT+AMUQ1gAKIawDDMQ7oMEuxNoACiDWDjAQQWBLqRGFARiIt8DWUiIKBzAQQ4DbQnUIaM4XUViAgRgBNlqongH25YMoPMBADAN1Fqqngf25IooDMBB9wC4L1VPAoVwQxQMYkB7gdLE6UXyAjpi2uE+E8Aa22Q/QERGLE/s70JapE6UD6IgYUFHIfaK0AB0xa3F1MkWUHqAjFoFKC5UfgT14A9JegI74A7jSInFAy1KVAJrwBobsB+iIOWBdLqlSIq/5a4TvQ/XkwpJ4BlwN93dH7QXoiChQnS3tcu8GfEPV6d26Hu7vvqECwAO8Bzalh2NxQaWmP1tnTy3+z1X/VyaBw/YDsnxPtN2q50vIpcBGlh1RB7yU0ChSoRP33ATHK2w+C+WH2B6Li3GXUzou+Wrxj1bZeBq1OBraOjw76uO+HzNak73H6bVDHgJnsq2uygJSiDCwOcPPUaBGaUAK8QY4aPbw4f7uxF9DoLslgW0q+gAAAABJRU5ErkJggg=="), auto`;
             e_group.removeClass(e_group.canvas, "cursor");
+            
+            highlighterPen.style.backgroundColor = "#fff2b7";
+            tmp_pen.style.backgroundColor = "#dabb2f";
           });
           highlighterPen.addEventListener("click", function () {
             e_group.activate = "highlighter";
             e_group.canvas.style.cursor = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAFxGAABcRgEUlENBAAAAG3RFWHRTb2Z0d2FyZQBDZWxzeXMgU3R1ZGlvIFRvb2zBp+F8AAADVklEQVRo3tXZT2wUVRzA8e+b6bIWS6Clspt4aSPQlIuOpLZYbLYxDVCjGDBQ/pQqWAuJ6UUPeBAOkKBRD1ojSaFrjEeNYiLxNXtojQaIkpBAagBDuk0lbDfVtnTbbrvdPg5T3Q0p0Kk7f/bdZt6838xn3m9+7yUjlFIAMN2rgMv4Q1XkURNKKZjuLQP65899iT90MN8APUAo63wH/lB7fgCSPZXAHwv0DQNrAA1/KO1lwDbgBeC9Bfrj4R+vN73f+XsxIG93d016NYWeBd4C2rI7f+uL8+pRiRAiDfQB3wIf3e7uSnoNEAB04AzQCDA4lKCm9XulFEIIEAIA9VTpbPznd4YqMOSYdwBmGV0OlAI/DQ4lNjz35ncoBbomWKYrFFCgweG6BO823I0D672AyABMhDY4lCh6vu1cdG5OFQMIzLf/mE9x7KUx9lZNoGsAXAM2YsiUdwDz7ckth34Fav89Lnl8jvb6cVo3J+6/VAI7MeSk1wAdwNtCgE9TfLBjlN0bH/iM54EmDJnwEuAV4Aefrjjx8hjNNROPinMBeBFDJj0BAAjtb7m0Ppiq7tz3z2JjxYA6DPmnJwCb9rSUnDsy/ElgRfp1C/FmgbUYcsB1AABXthYCXwM7LcbdhSG/cR9gIlYCZ4HXLMZeiyFvuQ8wEauA00CThdhR4Bm7F7vFAUxE8fxWw2o6VWLI6+4DMjPxKXDAwj2SQABD3nUfkPkmPgf2Wxg1AazDkHfcB5iIZUCXRYQCinK97VgaIJNOnwHNFkbdAGox5N/uAzIz8QVwyGJ1qseQUfcBJsIHdAP1biD+P8BErACuAmVOI3IDMBFB4KLTiNwBTEQZ0OMkIrcAFxC5BziMsAfgIMI+gEMIewEOIOwH2IxwBmAjwjmATQhnATYgnAfkGOEOIIcI9wBLRAyO6FSdCpTHIuGo+wCLiPi4NtXY8UThX6N6FKiPRcJR9wGLRCRTIvb0yUBwbEr7L51ikXC5NwCPQCRTIrbuWHB1Ki183qhCD0d8BdRlp031h4HCqRnhgYVscQh/Ks0EoPt0qDgeJCtt8gAADP/SqCuYqft4jTYyqXlgM7eEVrn9jeUjk2IA889p/gEAgg0HH1ad0rFIuMDTgCxE/wJdFbFI+OY9d67SZnmubAAAAAAASUVORK5CYII="), auto`;
             e_group.removeClass(e_group.canvas, "cursor");
+            
+            tmp_pen.style.backgroundColor = "#fff2b7";
+            highlighterPen.style.backgroundColor = "#dabb2f";
           });
           penBox.appendChild(tmp_pen);
           penBox.appendChild(highlighterPen);
@@ -1324,6 +1330,13 @@ var getCSSAnimationManager = function () {
             e_group.activate = "rectangle";
             e_group.canvas.style.cursor = "crosshair";
             e_group.removeClass(e_group.canvas, "cursor");
+
+            square.style.backgroundColor = "#dabb2f";
+            triangle.style.backgroundColor = "#fff2b7";
+            circle.style.backgroundColor = "#fff2b7";
+            line.style.backgroundColor = "#fff2b7";
+            curve.style.backgroundColor = "#fff2b7";
+            arrow.style.backgroundColor = "#fff2b7";
           });
           triangle.setAttribute("class", "triangle");
           triangle.setAttribute("id", "triangle");
@@ -1332,6 +1345,13 @@ var getCSSAnimationManager = function () {
             e_group.activate = "triangle";
             e_group.canvas.style.cursor = "crosshair";
             e_group.removeClass(e_group.canvas, "cursor");
+
+            square.style.backgroundColor = "#fff2b7";
+            triangle.style.backgroundColor = "#dabb2f";
+            circle.style.backgroundColor = "#fff2b7";
+            line.style.backgroundColor = "#fff2b7";
+            curve.style.backgroundColor = "#fff2b7";
+            arrow.style.backgroundColor = "#fff2b7";
           });
           circle.setAttribute("class", "circle");
           circle.setAttribute("id", "circle");
@@ -1340,6 +1360,13 @@ var getCSSAnimationManager = function () {
             e_group.activate = "circle";
             e_group.canvas.style.cursor = "crosshair";
             e_group.removeClass(e_group.canvas, "cursor");
+
+            square.style.backgroundColor = "#fff2b7";
+            triangle.style.backgroundColor = "#fff2b7";
+            circle.style.backgroundColor = "#dabb2f";
+            line.style.backgroundColor = "#fff2b7";
+            curve.style.backgroundColor = "#fff2b7";
+            arrow.style.backgroundColor = "#fff2b7";
           });
           line.setAttribute("class", "line");
           line.setAttribute("id", "line");
@@ -1348,6 +1375,13 @@ var getCSSAnimationManager = function () {
             e_group.activate = "line";
             e_group.canvas.style.cursor = "crosshair";
             e_group.removeClass(e_group.canvas, "cursor");
+
+            square.style.backgroundColor = "#fff2b7";
+            triangle.style.backgroundColor = "#fff2b7";
+            circle.style.backgroundColor = "#fff2b7";
+            line.style.backgroundColor = "#dabb2f";
+            curve.style.backgroundColor = "#fff2b7";
+            arrow.style.backgroundColor = "#fff2b7";
           });
           curve.setAttribute("class", "curve");
           curve.setAttribute("id", "curve");
@@ -1356,6 +1390,13 @@ var getCSSAnimationManager = function () {
             e_group.activate = "curve";
             e_group.canvas.style.cursor = "crosshair";
             e_group.removeClass(e_group.canvas, "cursor");
+
+            square.style.backgroundColor = "#fff2b7";
+            triangle.style.backgroundColor = "#fff2b7";
+            circle.style.backgroundColor = "#fff2b7";
+            line.style.backgroundColor = "#fff2b7";
+            curve.style.backgroundColor = "#dabb2f";
+            arrow.style.backgroundColor = "#fff2b7";
           });
           arrow.setAttribute("class", "arrow");
           arrow.setAttribute("id", "arrow");
@@ -1364,6 +1405,13 @@ var getCSSAnimationManager = function () {
             e_group.activate = "arrow";
             e_group.canvas.style.cursor = "crosshair";
             e_group.removeClass(e_group.canvas, "cursor");
+
+            square.style.backgroundColor = "#fff2b7";
+            triangle.style.backgroundColor = "#fff2b7";
+            circle.style.backgroundColor = "#fff2b7";
+            line.style.backgroundColor = "#fff2b7";
+            curve.style.backgroundColor = "#fff2b7";
+            arrow.style.backgroundColor = "#dabb2f";
           });
           figureBox.appendChild(square);
           figureBox.appendChild(triangle);
@@ -1384,6 +1432,7 @@ var getCSSAnimationManager = function () {
           all_eraser.setAttribute("class", "all_eraser");
           all_eraser.setAttribute("id", "all_eraser");
           all_eraser.setAttribute("title", "all_eraser");
+
           eraser.addEventListener("click", function () {
             e_group.activate = "eraser";
             e_group.canvas.style.cursor = "crosshair";
@@ -1392,6 +1441,9 @@ var getCSSAnimationManager = function () {
             e_group.linePickerPreview.innerHTML =
               Math.round((e_group.linePicker.value / 20) * 100) + "%";
             e_group.removeClass(e_group.canvas, "cursor");
+
+            eraser.style.backgroundColor = "#dabb2f";
+            all_eraser.style.backgroundColor = "#fff2b7";
           });
           all_eraser.addEventListener("click", function () {
             e_group.ctx.clearRect(
@@ -1408,6 +1460,9 @@ var getCSSAnimationManager = function () {
             );
             e_group.addHistory();
             e_group.removeClass(e_group.canvas, "cursor");
+
+            eraser.style.backgroundColor = "#fff2b7";
+            all_eraser.style.backgroundColor = "#dabb2f";
           });
           eraserBox.appendChild(eraser);
           eraserBox.appendChild(all_eraser);
@@ -1429,10 +1484,13 @@ var getCSSAnimationManager = function () {
           insert_link.setAttribute("class", "insert_link");
           insert_link.setAttribute("id", "insert_link");
           insert_link.setAttribute("title", "insert_link");
+
           insert_image.addEventListener("click", function () {
             e_group.activate = "insert_image";
             e_group.removeClass(e_group.canvas, "cursor");
             fileChange.click();
+            insert_image.style.backgroundColor = "#dabb2f";
+            insert_link.style.backgroundColor = "#fff2b7";
           });
           fileChange.addEventListener("change", function (event) {
             let reader = new FileReader();
@@ -1446,6 +1504,9 @@ var getCSSAnimationManager = function () {
             e_group.activate = "insert_link";
             e_group.canvas.style.cursor = `url("data:image/png;base64,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"), auto`;
             e_group.removeClass(e_group.canvas, "cursor");
+            
+            insert_image.style.backgroundColor = "#fff2b7";
+            insert_link.style.backgroundColor = "#dabb2f";
           });
           imageBox.appendChild(insert_image);
           imageBox.appendChild(insert_link);
@@ -1744,14 +1805,6 @@ var getCSSAnimationManager = function () {
             window_e.document.getElementsByClassName("highlighterPen");
           highlighter_pen1.item(0).style.backgroundColor = "#fff2b7";
           nomal_pen1.item(0).style.backgroundColor = "#dabb2f";
-        nomal_pen1.item(0).addEventListener("click", function () {
-          highlighter_pen1.item(0).style.backgroundColor = "#fff2b7";
-          nomal_pen1.item(0).style.backgroundColor = "#dabb2f";
-        });
-        highlighter_pen1.item(0).addEventListener("click", function () {
-          nomal_pen1.item(0).style.backgroundColor = "#fff2b7";
-          highlighter_pen1.item(0).style.backgroundColor = "#dabb2f";
-        });
       });
       lasso.item(0).addEventListener("click", function () {
         e_group.nonSelected();
@@ -1760,6 +1813,9 @@ var getCSSAnimationManager = function () {
       text1.item(0).addEventListener("click", function () {
         e_group.nonSelected();
         text1.item(0).style.backgroundColor = "#dabb2f";
+
+        var nomal_text = window_e.document.getElementById("text");
+        nomal_text.style.backgroundColor = "#dabb2f";
       });
       figure.item(0).addEventListener("click", function () {
         e_group.nonSelected();
@@ -1771,68 +1827,21 @@ var getCSSAnimationManager = function () {
           curve = window_e.document.getElementById("curve"),
           arrow = window_e.document.getElementById("arrow");
 
-        square.addEventListener("click", function () {
           square.style.backgroundColor = "#dabb2f";
           triangle.style.backgroundColor = "#fff2b7";
           circle.style.backgroundColor = "#fff2b7";
           line.style.backgroundColor = "#fff2b7";
           curve.style.backgroundColor = "#fff2b7";
           arrow.style.backgroundColor = "#fff2b7";
-        });
-        triangle.addEventListener("click", function () {
-          square.style.backgroundColor = "#fff2b7";
-          triangle.style.backgroundColor = "#dabb2f";
-          circle.style.backgroundColor = "#fff2b7";
-          line.style.backgroundColor = "#fff2b7";
-          curve.style.backgroundColor = "#fff2b7";
-          arrow.style.backgroundColor = "#fff2b7";
-        });
-        circle.addEventListener("click", function () {
-          square.style.backgroundColor = "#fff2b7";
-          triangle.style.backgroundColor = "#fff2b7";
-          circle.style.backgroundColor = "#dabb2f";
-          line.style.backgroundColor = "#fff2b7";
-          curve.style.backgroundColor = "#fff2b7";
-          arrow.style.backgroundColor = "#fff2b7";
-        });
-        line.addEventListener("click", function () {
-          square.style.backgroundColor = "#fff2b7";
-          triangle.style.backgroundColor = "#fff2b7";
-          circle.style.backgroundColor = "#fff2b7";
-          line.style.backgroundColor = "#dabb2f";
-          curve.style.backgroundColor = "#fff2b7";
-          arrow.style.backgroundColor = "#fff2b7";
-        });
-        curve.addEventListener("click", function () {
-          square.style.backgroundColor = "#fff2b7";
-          triangle.style.backgroundColor = "#fff2b7";
-          circle.style.backgroundColor = "#fff2b7";
-          line.style.backgroundColor = "#fff2b7";
-          curve.style.backgroundColor = "#dabb2f";
-          arrow.style.backgroundColor = "#fff2b7";
-        });
-        arrow.addEventListener("click", function () {
-          square.style.backgroundColor = "#fff2b7";
-          triangle.style.backgroundColor = "#fff2b7";
-          circle.style.backgroundColor = "#fff2b7";
-          line.style.backgroundColor = "#fff2b7";
-          curve.style.backgroundColor = "#fff2b7";
-          arrow.style.backgroundColor = "#dabb2f";
-        });
       });
       image.item(0).addEventListener("click", function () {
         e_group.nonSelected();
         image.item(0).style.backgroundColor = "#dabb2f";
         var image1 = window_e.document.getElementById("insert_image"),
           link1 = window_e.document.getElementById("insert_link");
-        image1.addEventListener("click", function () {
-          image1.style.backgroundColor = "#dabb2f";
-          link1.style.backgroundColor = "#fff2b7";
-        });
-        link1.addEventListener("click", function () {
-          image1.style.backgroundColor = "#fff2b7";
-          link1.style.backgroundColor = "#dabb2f";
-        });
+        
+        image1.style.backgroundColor = "#fff2b7";
+        link1.style.backgroundColor = "#fff2b7";
       });
       cursor.item(0).addEventListener("click", function () {
         e_group.nonSelected();
@@ -1843,14 +1852,9 @@ var getCSSAnimationManager = function () {
         eraser1.item(0).style.backgroundColor = "#dabb2f";
         var nomal_eraser = window_e.document.getElementById("nomal_eraser"),
           all_eraser = window_e.document.getElementById("all_eraser");
-        nomal_eraser.addEventListener("click", function () {
-          nomal_eraser.style.backgroundColor = "#dabb2f";
-          all_eraser.style.backgroundColor = "#fff2b7";
-        });
-        all_eraser.addEventListener("click", function () {
-          nomal_eraser.style.backgroundColor = "#fff2b7";
-          all_eraser.style.backgroundColor = "#dabb2f";
-        });
+          
+        nomal_eraser.style.backgroundColor = "#dabb2f";
+        all_eraser.style.backgroundColor = "#fff2b7";
       });
       fill.item(0).addEventListener("click", function () {
         e_group.nonSelected();
