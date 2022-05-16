@@ -1196,7 +1196,7 @@ var getCSSAnimationManager = function () {
           text.setAttribute("title", "Input Text");
           text.addEventListener("click", function () {
             e_group.activate = "text";
-            e_group.canvas.style.cursor = "default";
+            e_group.canvas.style.cursor = "Text";
             e_group.removeClass(e_group.canvas, "cursor");
 
             var nomal_text = window_e.document.getElementById("text");
@@ -1535,6 +1535,7 @@ var getCSSAnimationManager = function () {
         } else if (a.type == "text") {
           r.addEventListener("click", function () {
             e_group.activate = "text";
+            e_group.canvas.style.cursor = "Text";
             e_group.clearLasso();
             if (
               window_e.document.getElementById("textBox").style.display ===
