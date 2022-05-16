@@ -1143,12 +1143,23 @@ var getCSSAnimationManager = function () {
       captureBox.setAttribute("class", "pen_box");
       captureBox.setAttribute("id", "captureBox");
       box.appendChild(this.panel);
+      var line1 = window_e.document.createElement("hr");
+      var line2 = window_e.document.createElement("hr");
+      var line3 = window_e.document.createElement("hr");
+      var line4 = window_e.document.createElement("hr");
+      var line5 = window_e.document.createElement("hr");
+
       this.panel.appendChild(tools);
+      this.panel.appendChild(line2);
       this.panel.appendChild(color);
+      this.panel.appendChild(line3);
       this.panel.appendChild(transparency);
+      this.panel.appendChild(line4);
       this.panel.appendChild(size_control);
+      this.panel.appendChild(line5);
       this.panel.appendChild(volumeReader);
       this.panel.appendChild(volumePercent);
+      this.panel.appendChild(line1);
       this.panel.appendChild(controls);
 
       for (var o = 0; o < this.drawOptions.length; o++) {
