@@ -168,6 +168,9 @@ var getCSSAnimationManager = function () {
     top_box: null,
     pageX: null,
     pageY: null,
+    userVol: null,
+    preVol: null,
+    calVol: null,
     nomal_text_flag: Boolean(false),
     boldText_flag: Boolean(false),
     italicText_flag: Boolean(false),
@@ -907,7 +910,7 @@ var getCSSAnimationManager = function () {
           if (e_group.userVol != 0) {
             curVol = parseInt(e_group.getVolume(e_group.canvas.toDataURL()));
             e_group.calVol = Math.ceil(
-              e_group.userVol - e_group.preVol + curVol / 100000
+              (e_group.userVol - e_group.preVol + curVol) / 100000
             );
             window_e.document.getElementById("volume_percent").innerHTML =
               e_group.calVol + "%";
@@ -1983,7 +1986,7 @@ var getCSSAnimationManager = function () {
         if (e_group.userVol != 0) {
           curVol = parseInt(e_group.getVolume(e_group.canvas.toDataURL()));
           e_group.calVol = Math.ceil(
-            e_group.userVol - e_group.preVol + curVol / 100000
+            (e_group.userVol - e_group.preVol + curVol) / 100000
           );
           window_e.document.getElementById("volume_percent").innerHTML =
             e_group.calVol + "%";
@@ -2297,6 +2300,11 @@ var getCSSAnimationManager = function () {
       this.top_box = null;
       this.linkarr = [];
       this.linknumber = 0;
+      this.pageX = null;
+      this.pageY = null;
+      this.userVol = null;
+      this.preVol = null;
+      this.calVol = null;
       "undefined" != typeof unsafeWindow &&
         null !== unsafeWindow &&
         ((unsafeWindow.bnoty_INIT = !1), (unsafeWindow.CTRL_HIDDEN = !1));
