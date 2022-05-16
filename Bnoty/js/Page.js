@@ -3,10 +3,6 @@ function onMessage(data, sender, callback) {
     if (data.msg === 'scrollPage') {
         getPositions(callback);
         return true;
-    } else if (data.msg == 'logMessage') {
-        console.log('[POPUP LOG]', data.data);
-    } else {
-        console.error('Unknown message received. : ' + data.msg);
     }
 }
 
@@ -85,8 +81,6 @@ function getPositions(callback) {
     // full capture start!
     var arText = [];
     arrangements.forEach(function(x) { arText.push('['+x.join(',')+']'); });
-    // console.log('arrangements', arText.join(', '));
-    
 
     numArrangements = arrangements.length;
 
@@ -123,7 +117,6 @@ function getPositions(callback) {
             devicePixelRatio: window.devicePixelRatio
         };
 
-        // console.log('>> DATA', JSON.stringify(data, null, 4));
 
         window.setTimeout(function() {
             var cleanUpTimeout = window.setTimeout(cleanUp, 1250);
