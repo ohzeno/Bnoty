@@ -2460,9 +2460,10 @@ var getCSSAnimationManager = function () {
 
       let target = document.getElementById("linkdiv");
       target.remove();
+      
+      e_group.activate = "insert_link";
     },
     onPrintButtonClick: function () {
-      // alert("프린터클릭");
       if (
         window_e.document.getElementById("captureBox").style.display === "none"
       ) {
