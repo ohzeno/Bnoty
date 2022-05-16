@@ -1203,11 +1203,9 @@ var getCSSAnimationManager = function () {
             if(e_group.nomal_text_flag){
               nomal_text.style.backgroundColor = "#fff2b7";
               e_group.nomal_text_flag = Boolean(false);
-              console.log("눌리기는 하냐1", e_group.nomal_text_flag);
             }else {
               nomal_text.style.backgroundColor = "#dabb2f";
               e_group.nomal_text_flag = Boolean(true);
-              console.log("눌리기는 하냐2", e_group.nomal_text_flag);
             }
           });
           boldText.setAttribute("class", "boldText");
@@ -1769,6 +1767,8 @@ var getCSSAnimationManager = function () {
         var nomal_pen1 = window_e.document.getElementsByClassName("linePen"),
           highlighter_pen1 =
             window_e.document.getElementsByClassName("highlighterPen");
+          highlighter_pen1.item(0).style.backgroundColor = "#fff2b7";
+          nomal_pen1.item(0).style.backgroundColor = "#dabb2f";
         nomal_pen1.item(0).addEventListener("click", function () {
           highlighter_pen1.item(0).style.backgroundColor = "#fff2b7";
           nomal_pen1.item(0).style.backgroundColor = "#dabb2f";
@@ -2088,17 +2088,6 @@ var getCSSAnimationManager = function () {
         : (this.panel.style.opacity = 1);
       e_group.setCtxProp();
     },
-    textClick: function () {
-      if(e_group.nomal_text_flag){
-        e_group.nomal_text.style.backgroundColor = "#fff2b7";
-        e_group.nomal_text_flag = Boolean(false);
-        console.log("눌리기는 하냐1", e_group.nomal_text_flag);
-      }else {
-        nomal_text.style.backgroundColor = "#dabb2f";
-        e_group.nomal_text_flag = Boolean(true);
-        console.log("눌리기는 하냐2", e_group.nomal_text_flag);
-      }
-    },
     nonSelected: function () {
       var pen = window_e.document.getElementsByClassName(
           "bnoty_controls_draw_option pen"
@@ -2413,7 +2402,6 @@ var getCSSAnimationManager = function () {
         //   this.persistLocalStorage,
         //   this
         // )),
-        (this.textClick = Function.prototype.bind.call(this.textClick, this)),
         (this.resizeBinded = Function.prototype.bind.call(function () {
           this.resizeTimeoutID &&
             (this.resizeTimeoutID = window_e.clearTimeout(
