@@ -1200,17 +1200,9 @@ var getCSSAnimationManager = function () {
             if(e_group.nomal_text_flag){
               nomal_text.style.backgroundColor = "#fff2b7";
               e_group.nomal_text_flag = Boolean(false);
-<<<<<<< HEAD
             }else {
               nomal_text.style.backgroundColor = "#dabb2f";
               e_group.nomal_text_flag = Boolean(true);
-=======
-
-            }else {
-              nomal_text.style.backgroundColor = "#dabb2f";
-              e_group.nomal_text_flag = Boolean(true);
-
->>>>>>> develop
             }
           });
           boldText.setAttribute("class", "boldText");
@@ -2037,18 +2029,6 @@ var getCSSAnimationManager = function () {
         : (this.panel.style.opacity = 1);
       e_group.setCtxProp();
     },
-<<<<<<< HEAD
-=======
-    textClick: function () {
-      if(e_group.nomal_text_flag){
-        e_group.nomal_text.style.backgroundColor = "#fff2b7";
-        e_group.nomal_text_flag = Boolean(false);
-      }else {
-        nomal_text.style.backgroundColor = "#dabb2f";
-        e_group.nomal_text_flag = Boolean(true);
-      }
-    },
->>>>>>> develop
     nonSelected: function () {
       var pen = window_e.document.getElementsByClassName(
           "bnoty_controls_draw_option pen"
