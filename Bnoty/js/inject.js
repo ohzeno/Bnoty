@@ -759,7 +759,7 @@ var getCSSAnimationManager = function () {
         atag.addEventListener("contextmenu", function () {
           const deletenum = this.getAttribute("linknumber");
           const deleteindex = e_group.linkarr.findIndex(function (e) {
-            return e.num === deletenum;
+            return e.num == deletenum;
           });
           e_group.linkarr.splice(deleteindex, 1);
           this.remove();
@@ -2425,7 +2425,7 @@ var getCSSAnimationManager = function () {
       atag.addEventListener("contextmenu", function () {
         const deletenum = this.getAttribute("linknumber");
         const deleteindex = e_group.linkarr.findIndex(function (e) {
-          return e.num === deletenum;
+          return e.num == deletenum;
         });
         e_group.linkarr.splice(deleteindex, 1);
         this.remove();
