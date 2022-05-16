@@ -820,7 +820,7 @@ var getCSSAnimationManager = function () {
       await chrome.storage.local.get(["userVol" + pageUrl], function (result) {
         e_group.userVol = parseInt(result["userVol" + pageUrl]);
         if (e_group.userVol != 0) {
-          e_group.calVol = Math.ceil(e_group.userVol / 100000);
+          e_group.calVol = Math.ceil(e_group.userVol / 100000 * 100);
           window_e.document.getElementById("volume_percent").innerHTML =
             e_group.calVol + "%";
         } else {
@@ -906,11 +906,11 @@ var getCSSAnimationManager = function () {
               // response
             }
           );
-          e_group.toast("자동 저장");
+          e_group.toast("Auto save");
           if (e_group.userVol != 0) {
             curVol = parseInt(e_group.getVolume(e_group.canvas.toDataURL()));
             e_group.calVol = Math.ceil(
-              (e_group.userVol - e_group.preVol + curVol) / 100000
+              ((e_group.userVol - e_group.preVol + curVol) / 100000 ) * 100
             );
             window_e.document.getElementById("volume_percent").innerHTML =
               e_group.calVol + "%";
@@ -1986,15 +1986,23 @@ var getCSSAnimationManager = function () {
         if (e_group.userVol != 0) {
           curVol = parseInt(e_group.getVolume(e_group.canvas.toDataURL()));
           e_group.calVol = Math.ceil(
-            (e_group.userVol - e_group.preVol + curVol) / 100000
-          );
+            ((e_group.userVol - e_group.preVol + curVol) / 100000 ) * 100
+          ) ;
           window_e.document.getElementById("volume_percent").innerHTML =
             e_group.calVol + "%";
         } else {
           window_e.document.getElementById("volume_percent").innerHTML =
             "LOCAL STORAGE";
         }
-
+        console.log(
+          "userVol : ",
+          e_group.userVol,
+          " preVol : ",
+          e_group.preVol,
+          " curVol : ",
+          curVol,
+          e_group.calVol
+        );
       });
       control_hide.setAttribute(
         "class",
