@@ -6,16 +6,14 @@ btn2.addEventListener('click', startAutoRead );
 
 function startAutoSave() {
     chrome.runtime.sendMessage( { method : '10SecSave'}, (response) => {
-        // console.log("[popup.js] chrome.runtime.sendMessage()");
-        console.log(response.farewell);
+
     });
 
 };
 
 function startAutoRead() {
     chrome.runtime.sendMessage( { method : 'startRead'}, (response) => {
-        // console.log("[popup.js] chrome.runtime.sendMessage()");
-        console.log(response.farewell);
+
     });
 
 };

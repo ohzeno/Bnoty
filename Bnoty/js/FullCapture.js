@@ -25,7 +25,6 @@ window.CaptureAPI = (function () {
 
   function initiateCapture(tab, callback) {
     chrome.tabs.sendMessage(tab.id, { msg: "scrollPage" }, function () {
-      // console.log("initiate Capture function ------>");
       callback();
     });
   }
@@ -36,7 +35,6 @@ window.CaptureAPI = (function () {
         var image = new Image();
         image.onload = function () {
           data.image = { width: image.width, height: image.height };
-          // console.log(data.image);
 
           // need modify 
           if (data.windowWidth !== image.width) {
@@ -74,7 +72,7 @@ window.CaptureAPI = (function () {
               data.x - screenshot.left,
               data.y - screenshot.top
             );
-            // console.log(image);
+
           });
 
           // response
@@ -161,7 +159,7 @@ window.CaptureAPI = (function () {
 
   // send capture result
   function getBlobs(screenshots) {
-    // console.log("getBlobs Funtion in Fullcapture.js line 171");
+
     return screenshots.map(function (screenshot) {
       var dataURI = screenshot.canvas.toDataURL();
       var o = chrome.extension.getURL("capture.html");
@@ -272,7 +270,6 @@ window.CaptureAPI = (function () {
 
     chrome.tabs.executeScript(tab.id, { file: "js/Page.js" }, function () {
       if (timedOut) {
-        // console.error("Timeout");
       } else {
         loaded = true;
         progress(0);

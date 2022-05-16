@@ -19,7 +19,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-// console.log(firebase);
 
 let url;
 let email;
@@ -50,11 +49,9 @@ chrome.identity.getProfileUserInfo({ accountStatus: "ANY" }, function (info) {
         });
       }
     });
-  console.log(info);
 });
 
 async function getConfig(urlMessage) {
-  console.log("urlMessage : ", urlMessage);
   overVolume = false;
   const checkEmail = await db
     .collection("Users")
@@ -66,7 +63,6 @@ async function getConfig(urlMessage) {
       .collection("dataQuery")
       .where("url", "==", urlMessage)
       .get();
-    console.log(user);
     await user.get().then((response) => {
       userVol = response.get("volume");
       uEmail = response.get("email");
@@ -86,7 +82,6 @@ async function getConfig(urlMessage) {
       pageVol = doc.get("volume");
     } // urlCheck end
   } else {
-    console.log("로컬 파일 불러오기");
     testString = window.localStorage.getItem("key" + urlMessage);
     linkarr = window.localStorage.getItem("link" + urlMessage);
     time = window.localStorage.getItem("time" + urlMessage);
@@ -99,9 +94,6 @@ async function timeCompare(res, urlMessage) {
   var localTs = window.localStorage.getItem("key" + urlMessage);
   var localLa = window.localStorage.getItem("link" + urlMessage);
   var localT = window.localStorage.getItem("time" + urlMessage);
-  console.log("time : ", time, " localTs : ", localT);
-  console.log("localLinkarr : ", JSON.parse(localLa));
-  console.log("FBLinkarr : ", linkarr);
   if (parseInt(time) >= parseInt(localT)) {
     await chrome.storage.local.set(
       {
@@ -111,7 +103,7 @@ async function timeCompare(res, urlMessage) {
         ["preVol" + urlMessage]: pageVol,
       },
       function () {
-        console.log("chrome local set by FB: ", res);
+
       }
     );
   } else {
@@ -123,7 +115,6 @@ async function timeCompare(res, urlMessage) {
         ["preVol" + urlMessage]: 0,
       },
       function () {
-        console.log("chrome local set by local: ", localTs);
       }
     );
   }
@@ -141,14 +132,12 @@ async function getVolume(str) {
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
-  console.log("onMessage");
+
   if (msg.method == "save") {
-    console.log("save");
     chrome.identity.getProfileUserInfo(
       { accountStatus: "ANY" },
       function (info) {
         email = info.email;
-        console.log(info);
       }
     );
 
@@ -156,7 +145,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
       window.localStorage.setItem("key" + msg.url, msg.config);
       window.localStorage.setItem("link" + msg.url, JSON.stringify(msg.link));
       window.localStorage.setItem("time" + msg.url, msg.time);
-      console.log("로컬 저장");
     } else {
       url = msg.url;
       linkarr = msg.link;
@@ -169,7 +157,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
             overVolume = false;
             if (email === docEmail) {
               userVol = doc.get("volume");
-              console.log("uservol : ", userVol);
               if (userVol > 102400) overVolume = true;
               const user = db.collection("Users").doc(doc.id);
               const urlCheck = await user
@@ -189,7 +176,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                   JSON.stringify(msg.link)
                 );
                 window.localStorage.setItem("time" + msg.url, msg.time);
-                console.log("용량초과! 로컬 저장");
+
               } else {
                 if (urlCheck.empty) {
                   user
@@ -208,7 +195,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                       });
                     })
                     .catch(function (error) {
-                      console.error("Error writing document: ", error);
+
                     });
                 } else {
                   const dq = await user
@@ -232,11 +219,8 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                       });
                     })
                     .catch(function (error) {
-                      console.error("Error writing document: ", error);
+
                     });
-                  console.log("cv : " + configVol);
-                  console.log("pv : " + previousVol);
-                  console.log("uv : " + userVol);
                 } // urlcheck end
               } // overVolume end
               return false;
@@ -248,16 +232,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
   else if (msg.method == "startRead") {
     getConfig(msg.url).then(async (response) => {
       await timeCompare(response, msg.url);
-      await chrome.storage.onChanged.addListener(function (changes, namespace) {
-        console.log("storage changed");
-        for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-          console.log(
-            `Storage key "${key}" in namespace "${namespace}" changed.`,
-            `Old value was "${oldValue}", new value is ${newValue}.`,
-            newValue
-          );
-        }
-      });
     });
     return true;
   } // startRead end
