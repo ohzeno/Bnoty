@@ -1982,7 +1982,7 @@ var getCSSAnimationManager = function () {
           window_e.document.getElementById("eraserBox").style.display = "none";
           window_e.document.getElementById("imageBox").style.display = "none";
           window_e.document.getElementById("captureBox").style.display = "none";
-        e_group.addHistory();
+        // e_group.addHistory();
 
         var pageUrl = document.location.href;
         var time = e_group.getTime();
