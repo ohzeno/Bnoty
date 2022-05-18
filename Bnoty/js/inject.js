@@ -1276,6 +1276,16 @@ var getCSSAnimationManager = function () {
           fontSize.setAttribute("id", "fontSize");
           fontSize.setAttribute("title", "FontSize");
 
+          var sizeTitle = window.document.createElement("div");
+          sizeTitle.setAttribute("id", "Texttitle");
+          sizeTitle.setAttribute("style", "margin-left:5px; font-size: x-small;")
+          sizeTitle.innerHTML = "Size";
+
+          var fontTitle = window.document.createElement("div");
+          fontTitle.setAttribute("id", "Text_title");
+          fontTitle.setAttribute("style", "margin-left:5px; margin-top:10px; font-size: x-small;")
+          fontTitle.innerHTML = "Font";
+
           var input = window.document.createElement("input");
           input.setAttribute("id", "jsFontSize");
           input.setAttribute("type", "number");
@@ -1330,7 +1340,9 @@ var getCSSAnimationManager = function () {
           textBox.appendChild(text);
           textBox.appendChild(boldText);
           textBox.appendChild(italicText);
+          textBox.appendChild(sizeTitle);
           textBox.appendChild(fontSize);
+          textBox.appendChild(fontTitle);
           textBox.appendChild(fontText);
           window_e.document.getElementById("textBox").style.display = "none";
         }
