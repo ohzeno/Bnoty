@@ -4,12 +4,12 @@
 
 ---
 
-1. [프로젝트 소개](#프로젝트-소개)
+1. [프로젝트 소개](#📖-프로젝트-소개)
 2. [사용스택](#사용스택)
-3. [Project Period](#Project-Period)
-4. [Contributors](#Contributors)
+3. [Project Period](#project-period)
+4. [Constributors](#constributors)
 5. [기능 상세](#기능-상세)
-6. [MIT License](#MIT-License)
+6. [라이센스](#라이센스)
 
 ---
 
@@ -42,13 +42,13 @@
 
 ---
 
-## **Project Period**
+## Project Period
 
 2022.04.11 - 2022.05.27 (7주)
 
 ---
 
-## **Contributors**
+## Constributors
 
 | 팀원   | 역할                             | 비고 | 깃허브                            |
 | ------ | -------------------------------- | ---- | --------------------------------- |
@@ -167,7 +167,9 @@
 
 ---
 
-## **MIT License**
+## 라이센스
+
+### MIT License
 
 ```
 Copyright (c) <2022> <BNOTY>
