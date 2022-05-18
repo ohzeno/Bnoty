@@ -2322,6 +2322,7 @@ var getCSSAnimationManager = function () {
       e_group.top_box.removeEventListener("touchmove", e_group.handleDragging);
     },
     exit: function () {
+      e_group.addHistory();
       e_group.deleteLink();
       e_group.clearLasso();
       e_group.handleMouseClick();
