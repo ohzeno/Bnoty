@@ -4,7 +4,7 @@
 
 ---
 
-1. [프로젝트 소개](#📖-프로젝트-소개)
+1. [프로젝트 소개](#-프로젝트-소개)
 2. [사용스택](#사용스택)
 3. [Project Period](#project-period)
 4. [Constributors](#constributors)
