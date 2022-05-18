@@ -92,14 +92,12 @@ Bnoty = {
         if (global.extension.lastError) {
           global.extension.lastError.message;
           try {
-            alert(
-              "Please try another page. we can't capture this page.."
-            );
+            alert("Please try another page. we can't capture this page..");
           } catch (e) {}
         }
-        // inject.js injection to current page / 
+        // inject.js injection to current page /
         global.tabs.executeScript(null, {
-          file: "/js/inject.js", 
+          file: "/js/inject.js",
         });
       }
     );
@@ -116,7 +114,7 @@ Bnoty = {
               t = e[n];
               break;
             }
-        
+
         if (t) {
           global.tabs.update(
             t.id,
@@ -204,15 +202,15 @@ Bnoty = {
   },
   showPanel: function () {
     global.tabs.executeScript({
-      code: `console.log("hereis", window);window.bnoty.showControlPanel();`,
+      code: `window.bnoty.showControlPanel();`,
     });
   },
 };
 
 Bnoty.init();
 
-// methods, variable 
-var currentTab; // current tab (chrome.tabs.query) 
+// methods, variable
+var currentTab; // current tab (chrome.tabs.query)
 var resultWindowId; // tab id
 // util
 function $(id) {
@@ -261,10 +259,10 @@ function _displayCapture(filenames, index) {
 }
 
 function errorHandler(reason) {
-  show("uh-oh"); 
+  show("uh-oh");
 }
 
-// Loading bar 
+// Loading bar
 function progress(complete) {
   if (complete === 0) {
     show("loading");

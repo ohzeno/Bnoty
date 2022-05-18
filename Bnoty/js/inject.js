@@ -1017,6 +1017,8 @@ var getCSSAnimationManager = function () {
       this.checkHistoryButtonStatus();
     },
     setCtxProp: function () {
+      console.log("설정", this.strokeStyle);
+      console.log("ctx상태", this.ctx.strokeStyle);
       this.ctx.strokeStyle = this.strokeStyle;
       this.ctx.fillStyle = this.strokeStyle;
       this.ctx.globalAlpha = this.globalAlpha;
@@ -1200,6 +1202,7 @@ var getCSSAnimationManager = function () {
             highlighterPen.style.backgroundColor = "#dabb2f";
             e_group.colorPicker.value = "#E1FF00";
             e_group.ctx.strokeStyle = "rgb(225, 255, 0)";
+            console.log("형광펜", e_group.ctx.strokeStyle);
           });
           penBox.appendChild(tmp_pen);
           penBox.appendChild(highlighterPen);
