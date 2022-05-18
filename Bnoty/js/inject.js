@@ -127,6 +127,7 @@ var getCSSAnimationManager = function () {
     paragraph: null,
     panel: null,
     strokeStyle: "rgb(0, 0, 0)", // color
+    strokeStyleH: "rgb(225, 255, 0)", // Highlight color
     lineWidth: 3, // line width
     globalAlpha: 1, // transparency
     activate: "pen", // activate tool (defualt : pen)
@@ -139,6 +140,9 @@ var getCSSAnimationManager = function () {
     red: 0,
     green: 0,
     blue: 0,
+    Hred: 225,
+    Hgreen: 255,
+    Hblue: 0,
     sX: null,
     sY: null,
     eX: null,
@@ -1017,9 +1021,11 @@ var getCSSAnimationManager = function () {
       this.checkHistoryButtonStatus();
     },
     setCtxProp: function () {
-      console.log("설정", this.strokeStyle);
-      console.log("ctx상태", this.ctx.strokeStyle);
-      this.ctx.strokeStyle = this.strokeStyle;
+      if (e_group.activate == "highlighter") {
+        this.ctx.strokeStyle = this.strokeStyleH;
+      } else {
+        this.ctx.strokeStyle = this.strokeStyle;
+      }
       this.ctx.fillStyle = this.strokeStyle;
       this.ctx.globalAlpha = this.globalAlpha;
       this.ctx.lineWidth = this.lineWidth;
@@ -1098,6 +1104,9 @@ var getCSSAnimationManager = function () {
         this.histories.add(
           this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
         );
+      }
+      if (e_group.activate == "highlighter"){
+        e_group.ctx.strokeStyle = e_group.strokeStyleH;
       }
     },
     createControlPanel: function () {
@@ -1200,9 +1209,13 @@ var getCSSAnimationManager = function () {
 
             tmp_pen.style.backgroundColor = "#fff2b7";
             highlighterPen.style.backgroundColor = "#dabb2f";
-            e_group.colorPicker.value = "#E1FF00";
-            e_group.ctx.strokeStyle = "rgb(225, 255, 0)";
-            console.log("형광펜", e_group.ctx.strokeStyle);
+            // 형광펜 색
+            e_group.colorPicker.value = e_group.ConvertRGBtoHex(
+              e_group.Hred,
+              e_group.Hgreen,
+              e_group.Hblue
+            );
+            e_group.ctx.strokeStyle = e_group.strokeStyleH;
           });
           penBox.appendChild(tmp_pen);
           penBox.appendChild(highlighterPen);
@@ -1952,11 +1965,21 @@ var getCSSAnimationManager = function () {
       this.colorPicker.setAttribute("title", "Select a color");
       this.colorPicker.addEventListener("change", function (event) {
         var color = event.currentTarget.value;
-        e_group.red = parseInt(color[1] + color[2], 16);
-        e_group.green = parseInt(color[3] + color[4], 16);
-        e_group.blue = parseInt(color[5] + color[6], 16);
-        e_group.strokeStyle =
-          "rgb(" + e_group.red + "," + e_group.green + "," + e_group.blue + ")";
+
+        if (e_group.activate == "highlighter"){
+          e_group.Hred = parseInt(color[1] + color[2], 16);
+          e_group.Hgreen = parseInt(color[3] + color[4], 16);
+          e_group.Hblue = parseInt(color[5] + color[6], 16);
+          e_group.strokeStyleH = 
+            "rgb(" + e_group.Hred + "," + e_group.Hgreen + "," + e_group.Hblue + ")";
+        } else {
+          e_group.red = parseInt(color[1] + color[2], 16);
+          e_group.green = parseInt(color[3] + color[4], 16);
+          e_group.blue = parseInt(color[5] + color[6], 16);
+          e_group.strokeStyle =
+            "rgb(" + e_group.red + "," + e_group.green + "," + e_group.blue + ")";
+        }
+
         e_group.setCtxProp();
       });
       color.appendChild(this.colorPicker);
