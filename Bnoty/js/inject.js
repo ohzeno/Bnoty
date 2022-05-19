@@ -1237,15 +1237,8 @@ var getCSSAnimationManager = function () {
             e_group.activate = "text";
             e_group.canvas.style.cursor = "Text";
             e_group.removeClass(e_group.canvas, "cursor");
-
             var nomal_text = window_e.document.getElementById("text");
-            if (e_group.nomal_text_flag) {
-              nomal_text.style.backgroundColor = "#fff2b7";
-              e_group.nomal_text_flag = Boolean(false);
-            } else {
-              nomal_text.style.backgroundColor = "#dabb2f";
-              e_group.nomal_text_flag = Boolean(true);
-            }
+            nomal_text.style.backgroundColor = "#dabb2f";
           });
           boldText.setAttribute("class", "boldText");
           boldText.setAttribute("id", "boldText");
