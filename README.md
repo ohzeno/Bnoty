@@ -54,7 +54,7 @@
 | ------ | -------------------------------- | ---- | --------------------------------- |
 | 김재욱 | 텍스트, 이미지, 올가미           |      | https://github.com/blackvill      |
 | 류기탁 | 부팀장, 스크린샷, 링크, 리팩토링 |      | https://github.com/alwaysryu      |
-| 오제노 | 팀장, 펜, 채우기, 메인툴         |      | https://github.com/ohzeno         |
+| 오제노 | 팀장, 펜, 채우기, 메인툴, 마우스모드|      | https://github.com/ohzeno         |
 | 우윤식 | UI, UX, 메인툴                   |      | https://github.com/Y1sik          |
 | 정순일 | 도형, 올가미, 색상, 디버깅       |      | https://github.com/JUNGSOONIL     |
 | 최상후 | firebase 데이터 저장, 불러오기   |      | https://github.com/Neungji-Baksal |
