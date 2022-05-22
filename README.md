@@ -19,7 +19,7 @@
 
 🏠 [BNOTY 홈페이지](https://bnoty.github.io/BNOTY-HomePage/index.html)
 
-📷 [프로젝트 영상](#)
+📷 [프로젝트 영상](https://youtu.be/6EFw0Rd010Y)
 
 📜 [노션](https://chief-burglar-5af.notion.site/B-Noty-c431c6720f164b6392034d44b9c1e958)
 
