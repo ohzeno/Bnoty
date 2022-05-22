@@ -1105,7 +1105,7 @@ var getCSSAnimationManager = function () {
           this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
         );
       }
-      if (e_group.activate == "highlighter"){
+      if (e_group.activate == "highlighter") {
         e_group.ctx.strokeStyle = e_group.strokeStyleH;
       }
     },
@@ -1210,12 +1210,9 @@ var getCSSAnimationManager = function () {
             tmp_pen.style.backgroundColor = "#fff2b7";
             highlighterPen.style.backgroundColor = "#dabb2f";
             // 형광펜 색
-            e_group.colorPicker.value = e_group.ConvertRGBtoHex(
-              e_group.Hred,
-              e_group.Hgreen,
-              e_group.Hblue
-            );
-            e_group.ctx.strokeStyle = e_group.strokeStyleH;
+            e_group.colorPicker.value = e_group.ConvertRGBtoHex(225, 255, 0);
+            e_group.ctx.strokeStyle = "rgb(225, 255, 0)";
+            e_group.strokeStyleH = "rgb(225, 255, 0)";
           });
           penBox.appendChild(tmp_pen);
           penBox.appendChild(highlighterPen);
@@ -1287,12 +1284,18 @@ var getCSSAnimationManager = function () {
 
           var sizeTitle = window.document.createElement("div");
           sizeTitle.setAttribute("id", "Texttitle");
-          sizeTitle.setAttribute("style", "margin-left:5px; font-size: x-small;")
+          sizeTitle.setAttribute(
+            "style",
+            "margin-left:5px; font-size: x-small;"
+          );
           sizeTitle.innerHTML = "Size";
 
           var fontTitle = window.document.createElement("div");
           fontTitle.setAttribute("id", "Text_title");
-          fontTitle.setAttribute("style", "margin-left:5px; margin-top:10px; font-size: x-small;")
+          fontTitle.setAttribute(
+            "style",
+            "margin-left:5px; margin-top:10px; font-size: x-small;"
+          );
           fontTitle.innerHTML = "Font";
 
           var input = window.document.createElement("input");
@@ -1959,18 +1962,30 @@ var getCSSAnimationManager = function () {
       this.colorPicker.addEventListener("change", function (event) {
         var color = event.currentTarget.value;
 
-        if (e_group.activate == "highlighter"){
+        if (e_group.activate == "highlighter") {
           e_group.Hred = parseInt(color[1] + color[2], 16);
           e_group.Hgreen = parseInt(color[3] + color[4], 16);
           e_group.Hblue = parseInt(color[5] + color[6], 16);
-          e_group.strokeStyleH = 
-            "rgb(" + e_group.Hred + "," + e_group.Hgreen + "," + e_group.Hblue + ")";
+          e_group.strokeStyleH =
+            "rgb(" +
+            e_group.Hred +
+            "," +
+            e_group.Hgreen +
+            "," +
+            e_group.Hblue +
+            ")";
         } else {
           e_group.red = parseInt(color[1] + color[2], 16);
           e_group.green = parseInt(color[3] + color[4], 16);
           e_group.blue = parseInt(color[5] + color[6], 16);
           e_group.strokeStyle =
-            "rgb(" + e_group.red + "," + e_group.green + "," + e_group.blue + ")";
+            "rgb(" +
+            e_group.red +
+            "," +
+            e_group.green +
+            "," +
+            e_group.blue +
+            ")";
         }
 
         e_group.setCtxProp();
